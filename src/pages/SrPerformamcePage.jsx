@@ -118,7 +118,7 @@ const SrPerformancePage = () => {
 
             {username && (<>
 
-            <div className="flex items-center justify-between flex-wrap px-6">
+            <div className="flex items-center justify-between flex-wrap px-6 mt-4">
                 <div className="flex items-center space-x-4 mb-4">
                     <label className="text-sm font-medium text-gray-700">
                         Show {monthName}'s Sales Report
