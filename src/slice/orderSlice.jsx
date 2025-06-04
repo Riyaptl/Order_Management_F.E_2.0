@@ -29,7 +29,6 @@ export const getOrders = createAsyncThunk(
   "order/getOrders",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
       return await getOrdersService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
@@ -42,7 +41,6 @@ export const salesReport = createAsyncThunk(
   "order/salesReport",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
       return await salesReportService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);

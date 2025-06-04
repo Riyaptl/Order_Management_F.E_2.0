@@ -17,8 +17,12 @@ export default function SalesReportPage() {
     const isDistributor = role === "distributor"
 
     useEffect(() => {
-        dispatch(salesReport({ completeData: showCurrentMonth }));
-    }, [dispatch, showCurrentMonth]);
+        const query = {completeData: showCurrentMonth}
+        if (isDistributor){
+            query.dist_username = user
+        }
+        dispatch(salesReport(query));
+    }, [dispatch, user, showCurrentMonth]);
 
     const productKeys = productTotals ? Object.keys(productTotals) : [];
     const overallKeys = overallTotals ? Object.keys(overallTotals) : [];

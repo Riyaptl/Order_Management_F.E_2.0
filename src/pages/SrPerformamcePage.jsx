@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { SrReport } from '../slice/orderSlice';
+import { salesReport, SrReport } from '../slice/orderSlice';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { getSRDetails } from '../slice/userSlice';
@@ -9,8 +9,10 @@ const SrPerformancePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { user, role } = useSelector(state => state.auth);
+    const { productTotals, overallTotals, amount } = useSelector((state) => state.order);
     const { srs } = useSelector(state => state.user);
     const { summary, loading, error } = useSelector(state => state.order);
+    const [showCurrentMonth, setShowCurrentMonth] = useState(false);
     const [username, setUsername] = useState('');
     const [report, setReport] = useState([])
 
@@ -25,8 +27,11 @@ const SrPerformancePage = () => {
             dispatch(SrReport({ username }))
                 .unwrap()
                 .catch(err => toast.error(err || 'Failed to load performance report'));
+            dispatch(salesReport({completeData: showCurrentMonth, placed_username: username}))
+                .unwrap()
+                .catch(err => toast.error(err || 'Failed to load sales report'));
         }
-    }, [dispatch, username]);
+    }, [dispatch, username, showCurrentMonth]);
 
     useEffect(() => {
         if (role === 'admin') {
@@ -41,6 +46,14 @@ const SrPerformancePage = () => {
             setReport([])
         }
     }, [username, summary]);
+
+    const productKeys = productTotals ? Object.keys(productTotals) : [];
+    const overallKeys = overallTotals ? Object.keys(overallTotals) : [];
+    const now = new Date();
+    const monthName = now.toLocaleString("en-IN", {
+       timeZone: "Asia/Kolkata",
+        month: "long",
+    });
 
     if (loading) {
         return <p className="text-center mt-10 text-amber-600 font-semibold">Loading report...</p>;
@@ -102,6 +115,66 @@ const SrPerformancePage = () => {
                     </tbody>
                 </table>
             </div>
+
+            {username && (<><div className="flex items-center justify-between px-6 mt-6 mb-4">
+                <h2 className="text-2xl font-semibold text-amber-700 text-center flex-1">
+                    Sales Report
+                </h2>
+            </div>
+
+            <div className="flex items-center justify-between flex-wrap px-6">
+                <div className="flex items-center space-x-4 mb-4">
+                    <label className="text-sm font-medium text-gray-700">
+                        Show {monthName}'s Sales Report
+                    </label>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={showCurrentMonth}
+                            onChange={() => setShowCurrentMonth((prev) => !prev)}
+                            className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                    </label>
+                </div>
+                <div className="text-lg font-bold text-green-700 mb-4">
+                    Total Amount: ₹{amount || 0}
+                </div>
+            </div>
+
+            {!loading && (
+                <div className="overflow-x-auto mt-4">
+                    <table className="min-w-full border border-gray-300">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="border p-2 text-left">Product</th>
+                                <th className="border p-2 text-left">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {productKeys.map((key) => (
+                                <tr key={key} className="hover:bg-gray-50">
+                                    <td className="border p-2">{key}</td>
+                                    <td className="border p-2">{productTotals[key]}</td>
+                                </tr>
+                            ))}
+                            <tr className="bg-gray-200">
+                                <td colSpan={2} className="text-center font-semibold p-2">
+                                    Overall Totals
+                                </td>
+                            </tr>
+                            {overallKeys.map((key) => (
+                                <tr key={key} className="hover:bg-gray-50">
+                                    <td className="border p-2">{key}</td>
+                                    <td className="border p-2">{overallTotals[key]}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )} </>)}
+
         </div>
     );
 };
