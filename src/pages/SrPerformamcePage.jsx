@@ -116,11 +116,7 @@ const SrPerformancePage = () => {
                 </table>
             </div>
 
-            {username && (<><div className="flex items-center justify-between px-6 mt-6 mb-4">
-                <h2 className="text-2xl font-semibold text-amber-700 text-center flex-1">
-                    Sales Report
-                </h2>
-            </div>
+            {username && (<>
 
             <div className="flex items-center justify-between flex-wrap px-6">
                 <div className="flex items-center space-x-4 mb-4">
