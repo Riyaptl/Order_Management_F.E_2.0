@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { deleteOrderService, exportOrdersCsvService, getOrdersService, placeOrder, SrPerformance } from "../service/orderService";
+import { deleteOrderService, exportOrdersCsvService, getOrdersService, placeOrder, SrPerformance, salesReportService } from "../service/orderService";
 
 // Async thunk
 export const SrReport = createAsyncThunk(
@@ -31,6 +31,19 @@ export const getOrders = createAsyncThunk(
     try {
       console.log(data);
       return await getOrdersService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+
+export const salesReport = createAsyncThunk(
+  "order/salesReport",
+  async (data, thunkAPI) => {
+    try {
+      console.log(data);
+      return await salesReportService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -70,6 +83,9 @@ const orderSlice = createSlice({
     error: null,
     exportLoading: false,
     exportError: null,
+    productTotals: {},
+    overallTotals: {},
+    amount: 0
   },
   reducers: {
     resetOrderState: (state) => {
@@ -115,6 +131,20 @@ const orderSlice = createSlice({
         state.orders = action.payload.orders;       
       })
       .addCase(getOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(salesReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(salesReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productTotals = action.payload.productTotals;       
+        state.overallTotals = action.payload.overallTotals;       
+        state.amount = action.payload.amount;       
+      })
+      .addCase(salesReport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

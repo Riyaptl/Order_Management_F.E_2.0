@@ -7,6 +7,7 @@ import { fetchAreas } from "../slice/areaSlice";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../slice/authSlice";
+import DistNavbar from "../components/DistNavbarComponents";
 
 export default function OrdersListPage() {
     const dispatch = useDispatch();
@@ -112,10 +113,41 @@ export default function OrdersListPage() {
         }
     };
 
-      const handleLogout = () => {
-        dispatch(logout({username: user}));
-        navigate("/login");
-      };
+    const getCurrentLocation = () =>
+    new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        return reject("Geolocation not supported");
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error(error);
+          reject("Failed to get location. Please enable GPS.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    });
+
+      const handleLogout = async () => {
+          try {
+            const logoutLoc = await getCurrentLocation();
+            dispatch(logout({username: user, logoutLoc}));
+            navigate("/login");
+          } catch (error) {
+            toast.error("Failed to fetch routes");
+          }
+        };
+
 
     const productsList = [
         "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g",
@@ -140,6 +172,11 @@ export default function OrdersListPage() {
                     <Navbar />
                 </div>
             )}
+            {isDistributor && (
+                <div className="flex justify-center mb-8">
+                    <DistNavbar />
+                </div>
+            )}
             <div className="flex items-center justify-between px-6 mt-6">
                 <div className="flex-1 text-center">
                     <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>
@@ -152,8 +189,7 @@ export default function OrdersListPage() {
                     Logout
                     </button>
                 )}
-                </div>
-
+            </div>
             <div className="relative w-full">
                 {selectedArea && (
                     <div className="absolute right-0 top-0 mt-4">

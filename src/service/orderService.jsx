@@ -1,7 +1,7 @@
 
 const baseURL = process.env.REACT_APP_API_BASE_URL;
-const API_BASE_URL = `${baseURL}/order`;
-// const API_BASE_URL = `http://localhost:5000/api/order`;
+// const API_BASE_URL = `${baseURL}/order`;
+const API_BASE_URL = `http://localhost:5000/api/order`;
 
 export const SrPerformance = async (data) => {
   const token = localStorage.getItem("token");
@@ -92,6 +92,29 @@ export const deleteOrderService = async (id) => {
   return await response.json();
 };
 
+
+export const salesReportService = async (data) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Auth token not found");
+
+  const response = await fetch(`${API_BASE_URL}/sales/report`, {
+    method: "POST",
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to get sales report");
+  }
+
+  return await response.json();
+};
+
 export const exportOrdersCsvService = async (exportParams) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
@@ -106,7 +129,6 @@ export const exportOrdersCsvService = async (exportParams) => {
     body: JSON.stringify(exportParams),
   });
 
-  console.log(response);
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText || "Failed to export CSV");

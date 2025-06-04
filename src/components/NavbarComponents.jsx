@@ -37,6 +37,14 @@ const Navbar = () => {
           >
             Orders
           </NavLink>
+          <NavLink
+            to="/sales_report"
+            className={({ isActive }) =>
+              ` text-amber-700 px-3 py-2 rounded-md text-sm font-medium`
+            }
+          >
+            Sales Report
+          </NavLink>
         </div>
       </div>
     </nav>

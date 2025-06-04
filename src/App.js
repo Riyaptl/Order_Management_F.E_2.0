@@ -13,6 +13,7 @@ import ShopsListPage from './pages/ShopsListPage';
 import OrdersListPage from './pages/OrdersListPage';
 import CSVImportPage from './pages/CsvImportPage';
 import SrPerformancePage from './pages/SrPerformamcePage';
+import SalesReportPage from './pages/SalesReportPage';
 
 export default function App() {
   const { user, role } = useSelector((state) => state.auth);
@@ -70,6 +71,11 @@ export default function App() {
 
         <Route path="/orders_list" element={
           (isAdmin || isDistributor) ? <OrdersListPage /> :
+          <Navigate to="/" />
+        } />
+        
+        <Route path="/sales_report" element={
+          (isAdmin || isDistributor) ? <SalesReportPage /> :
           <Navigate to="/" />
         } />
         

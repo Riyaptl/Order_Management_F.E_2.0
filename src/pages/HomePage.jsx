@@ -4,6 +4,7 @@ import { fetchAreas, setChoseArea } from "../slice/areaSlice";
 import { logout } from "../slice/authSlice";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/NavbarComponents";
+import toast from "react-hot-toast";
 
 export default function HomePage() {
   const dispatch = useDispatch();
@@ -35,10 +36,9 @@ export default function HomePage() {
     try {
       const logoutLoc = await getCurrentLocation();
       dispatch(logout({username: user, logoutLoc}));
-      // navigate("/login");
-      
+      navigate("/login");
     } catch (error) {
-      
+      toast.error("Failed to fetch routes");
     }
   };
 
