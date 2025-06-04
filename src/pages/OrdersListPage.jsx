@@ -254,13 +254,13 @@ export default function OrdersListPage() {
                             <tr>
                                 <th className="border p-2 text-left min-w-[200px]">Shop Name</th>
                                 <th className="border p-2 text-left min-w-[200px]">Shop Address</th>
-                                <th className="border p-2 text-left">Contact Number</th>
-                                <th className="border p-2 text-left">Address Link</th>
+                                <th className="border p-2 text-left min-w-[200px]">Contact Number</th>
+                                <th className="border p-2 text-left min-w-[250px]">Address Link</th>
                                 <th className="border p-2 text-left min-w-[150px]">Placed By</th>
                                 {placedOrdersTab && (<> {productsList.map((key) => (
                                     <th
                                         key={key}
-                                        className="border p-2 text-left min-w-[180px]" // increased padding and min-width
+                                        className="border p-2 text-left min-w-[180px]" 
                                     >
                                         {key}
                                     </th>
@@ -268,7 +268,7 @@ export default function OrdersListPage() {
                                     {totalList.map((key) => (
                                         <th
                                             key={key}
-                                            className="border p-2 text-left min-w-[180px]" // increased padding and min-width
+                                            className="border p-2 text-left min-w-[180px]" 
                                         >
                                             {key}
                                         </th>
