@@ -297,7 +297,7 @@ export default function OrdersListPage() {
                                     </td>
                                     <td className="border p-2">{order.shopId.contactNumber}</td>
                                     <td className="border p-2 break-all">
-                                        {shop.addressLink ? (
+                                        {order.shopId.addressLink ? (
                                             <a
                                             href={order.shopId.addressLink}
                                             target="_blank"
