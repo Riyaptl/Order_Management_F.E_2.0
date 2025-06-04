@@ -254,6 +254,8 @@ export default function OrdersListPage() {
                             <tr>
                                 <th className="border p-2 text-left min-w-[200px]">Shop Name</th>
                                 <th className="border p-2 text-left min-w-[200px]">Shop Address</th>
+                                <th className="border p-2 text-left">Contact Number</th>
+                                <th className="border p-2 text-left">Address Link</th>
                                 <th className="border p-2 text-left min-w-[150px]">Placed By</th>
                                 {placedOrdersTab && (<> {productsList.map((key) => (
                                     <th
@@ -292,6 +294,21 @@ export default function OrdersListPage() {
                                                 {order.shopId.address}
                                             </span>
                                         </div>
+                                    </td>
+                                    <td className="border p-2">{order.shopId.contactNumber}</td>
+                                    <td className="border p-2 break-all">
+                                        {shop.addressLink ? (
+                                            <a
+                                            href={order.shopId.addressLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 underline"
+                                            >
+                                            View Location
+                                            </a>
+                                        ) : (
+                                            "-"
+                                        )}
                                     </td>
                                     <td className="border p-2">{order.placedBy}</td>
                                     {placedOrdersTab && (<> {productsList.map((key) => (
