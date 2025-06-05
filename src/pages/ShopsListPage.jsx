@@ -24,7 +24,7 @@ const ShopsListPage = () => {
     const [selectedShopData, setSelectedShopData] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
     const [searchTermArea, setSearchTermArea] = useState("");
-    const [showDropdown,  setShowDropdown]   = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
     const areaDropdownRef = useRef(null);
 
 
@@ -41,10 +41,10 @@ const ShopsListPage = () => {
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
-            areaDropdownRef.current &&
-            !areaDropdownRef.current.contains(event.target)
+                areaDropdownRef.current &&
+                !areaDropdownRef.current.contains(event.target)
             ) {
-            setShowDropdown(false);
+                setShowDropdown(false);
             }
         };
 
@@ -169,37 +169,37 @@ const ShopsListPage = () => {
     const filteredAreas = areas.filter((a) =>
         a.name.toLowerCase().includes(searchTermArea.toLowerCase())
     );
-    
+
     const handleSelectArea = (area) => {
-        setSelectedArea(area._id);      
-        setSearchTermArea(area.name);   
+        setSelectedArea(area._id);
+        setSearchTermArea(area.name);
         setShowDropdown(false);
     };
 
     const getCurrentLocation = () =>
         new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            return reject("Geolocation not supported");
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-            resolve({
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude,
-            });
-            },
-            (error) => {
-            console.error(error);
-            reject("Failed to get location. Please enable GPS.");
-            },
-            {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
+            if (!navigator.geolocation) {
+                return reject("Geolocation not supported");
             }
-        );
-    });
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    console.error(error);
+                    reject("Failed to get location. Please enable GPS.");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        });
 
     return (
         <div className="p-4">
@@ -212,7 +212,7 @@ const ShopsListPage = () => {
                 <h2 className="text-2xl font-semibold text-amber-700 text-center">
                     Shops List
                 </h2>
-            {role == "admin" && (    <button
+                {role == "admin" && (<button
                     onClick={() => {
                         window.location.href = `/csv-import`;
                     }}
@@ -220,11 +220,11 @@ const ShopsListPage = () => {
                 >
                     CSV Import
                 </button>
-            )}
+                )}
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end flex-wrap gap-4 mb-6">
-                    <div  ref={areaDropdownRef} className="w-full md:w-72 relative">
+                <div ref={areaDropdownRef} className="w-full md:w-72 relative">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Select Route <span className="text-red-500">*</span>
                     </label>
@@ -234,8 +234,8 @@ const ShopsListPage = () => {
                         type="text"
                         value={searchTermArea}
                         onChange={(e) => {
-                        setSearchTermArea(e.target.value);
-                        setShowDropdown(true);
+                            setSearchTermArea(e.target.value);
+                            setShowDropdown(true);
                         }}
                         onFocus={() => setShowDropdown(true)}
                         placeholder="Search area..."
@@ -245,22 +245,22 @@ const ShopsListPage = () => {
                     {/* dropdown list */}
                     {showDropdown && (
                         <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
-                        {filteredAreas.length === 0 ? (
-                            <li className="p-3 text-gray-500 select-none">No areas found</li>
-                        ) : (
-                            filteredAreas.map((area) => (
-                            <li
-                                key={area._id}
-                                onClick={() => handleSelectArea(area)}
-                                className="p-3 hover:bg-amber-100 cursor-pointer"
-                            >
-                                {area.name}
-                            </li>
-                            ))
-                        )}
+                            {filteredAreas.length === 0 ? (
+                                <li className="p-3 text-gray-500 select-none">No areas found</li>
+                            ) : (
+                                filteredAreas.map((area) => (
+                                    <li
+                                        key={area._id}
+                                        onClick={() => handleSelectArea(area)}
+                                        className="p-3 hover:bg-amber-100 cursor-pointer"
+                                    >
+                                        {area.name}
+                                    </li>
+                                ))
+                            )}
                         </ul>
                     )}
-                    </div>
+                </div>
 
                 {selectedArea && (
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
@@ -329,9 +329,9 @@ const ShopsListPage = () => {
                             <tbody>
                                 {filteredShops.map((shop, index) => (
                                     <tr key={shop._id} className="hover:bg-gray-50" onClick={(e) => {
-                                            if (e.target.closest("td")?.cellIndex === 7) return; 
-                                            setSelectedShop(shop);
-                                        }}>
+                                        if (e.target.closest("td")?.cellIndex === 7) return;
+                                        setSelectedShop(shop);
+                                    }}>
                                         <td className="border p-2">{index + 1}</td>
                                         <td className="border p-2">{shop.name}</td>
                                         <td className="border p-2 max-w-[200px] overflow-x-auto">
@@ -390,25 +390,25 @@ const ShopsListPage = () => {
                     </div>
                 </>
             )}
-            {selectedShop && (
+            {selectedShop && selectedArea && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-                          {/* Modal Content Wrapper */}
-                          <div className="relative bg-white rounded shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
-                
-                            {/* Close Button in Top-Right */}
-                            <button
-                              onClick={() => setSelectedShop(null)}
-                              className="absolute top-3 right-4 text-gray-600 hover:text-black text-2xl"
-                              aria-label="Close Modal"
-                            >
-                              &times;
-                            </button>
-                
-                            {/* Modal Content */}
-                
-                            <OrderComponent shopId={selectedShop._id} onClose={() => setSelectedShop(null)} />
-                          </div>
-                        </div>
+                    {/* Modal Content Wrapper */}
+                    <div className="relative bg-white rounded shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+
+                        {/* Close Button in Top-Right */}
+                        <button
+                            onClick={() => setSelectedShop(null)}
+                            className="absolute top-3 right-4 text-gray-600 hover:text-black text-2xl"
+                            aria-label="Close Modal"
+                        >
+                            &times;
+                        </button>
+
+                        {/* Modal Content */}
+
+                        <OrderComponent shopId={selectedShop._id} onClose={() => setSelectedShop(null)} selectedArea={selectedArea} />
+                    </div>
+                </div>
             )}
 
             <UpdateShopComponents

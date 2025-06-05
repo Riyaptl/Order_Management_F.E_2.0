@@ -12,12 +12,11 @@ const productFields = [
   "Intense Coffee 25g", "Toxic Coffee 25g",
 ];
 
-export default function OrderComponent({ shopId, onClose }) {
+export default function OrderComponent({ shopId, onClose, selectedArea }) {
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector((state) => state.order);
   const {role} = useSelector((state) => state.auth)
   const { srs } = useSelector((state) => state.user)
-  const choseArea = useSelector((state) => state.area.choseArea);
   const [selectedSR, setSelectedSR] = useState("");
   const [location, setLocation] = useState(null);
   const [paymentTerms, setPaymentTerms] = useState("");
@@ -65,9 +64,11 @@ export default function OrderComponent({ shopId, onClose }) {
       return;
     }
   }
+  console.log(selectedArea);
+  
   const orderPayload = {
     shopId,
-    areaId: choseArea,
+    areaId: selectedArea,
     products: filteredProducts,
     placedBy: selectedSR,
     remarks,
