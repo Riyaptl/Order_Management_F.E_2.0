@@ -73,11 +73,11 @@ export default function HomePage() {
 
   return (
     <div className="p-4">
-    {role === "admin" && (
+    {/* {role === "admin" && ( */}
         <div className="flex justify-center mb-8">
           <Navbar />
         </div>
-      )}
+      {/* )} */}
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
      <div className="flex justify-end mb-6 space-x-4">
           <button

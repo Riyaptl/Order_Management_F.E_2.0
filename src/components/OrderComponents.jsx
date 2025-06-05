@@ -20,6 +20,9 @@ export default function OrderComponent({ shopId, onClose }) {
   const choseArea = useSelector((state) => state.area.choseArea);
   const [selectedSR, setSelectedSR] = useState("");
   const [location, setLocation] = useState(null);
+  const [paymentTerms, setPaymentTerms] = useState("");
+  const [remarks, setRemarks] = useState("");
+
 
 
   useEffect(() => {
@@ -67,6 +70,8 @@ export default function OrderComponent({ shopId, onClose }) {
     areaId: choseArea,
     products: filteredProducts,
     placedBy: selectedSR,
+    remarks,
+    paymentTerms,
     ...(location && { location })
   };
 
@@ -164,7 +169,37 @@ export default function OrderComponent({ shopId, onClose }) {
         </div>
         )}
 
-    
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Payment Terms <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={paymentTerms}
+            onChange={(e) => setPaymentTerms(e.target.value.toLowerCase())}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            required
+          >
+            <option value="">Select Payment Terms</option>
+            <option value="cash">Cash</option>
+            <option value="company credit">Company Credit</option>
+            <option value="sr credit">SR Credit</option>
+            <option value="distributor credit">Distributor Credit</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Remarks
+          </label>
+          <input
+            type="text"
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            placeholder="Optional remarks..."
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+          />
+        </div>
+
       <button
         type="submit"
         className="mt-4 px-4 py-2 bg-amber-700 text-white rounded hover:bg-amber-700"

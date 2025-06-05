@@ -70,16 +70,16 @@ export default function SalesReportPage() {
 
     return (
         <div className="p-4">
-            {role === "admin" && (
+            {/* {role === "admin" && ( */}
                 <div className="flex justify-center mb-8">
                     <Navbar />
                 </div>
-            )}
-            {isDistributor && (
+            {/* )} */}
+            {/* {isDistributor && (
                 <div className="flex justify-center mb-8">
                     <DistNavbar />
                 </div>
-            )}
+            )} */}
             <div className="flex items-center justify-between px-6 mt-6">
                 <div className="flex-1 text-center">
                     <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>

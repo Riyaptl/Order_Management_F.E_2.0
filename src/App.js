@@ -52,15 +52,16 @@ export default function App() {
         } />
 
         <Route path="/routes_list" element={
+          !user ? <Navigate to="/login" /> :
           isAdmin ? <RoutesListPage /> :
           isDistributor ? <Navigate to="/orders_list" /> :
           <Navigate to="/" />
         } />
 
         <Route path="/shops_list" element={
-          isAdmin ? <ShopsListPage /> :
+          !user ? <Navigate to="/login" /> :
           isDistributor ? <Navigate to="/orders_list" /> :
-          <Navigate to="/" />
+          <ShopsListPage/>
         } />
 
         <Route path="/csv-import" element={

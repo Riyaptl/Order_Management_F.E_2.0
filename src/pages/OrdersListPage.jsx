@@ -167,16 +167,11 @@ export default function OrdersListPage() {
 
     return (
         <div className="p-4">
-            {role === "admin" && !isDistributor && (
+            {/* {role === "admin" && !isDistributor && ( */}
                 <div className="flex justify-center mb-8">
                     <Navbar />
                 </div>
-            )}
-            {isDistributor && (
-                <div className="flex justify-center mb-8">
-                    <DistNavbar />
-                </div>
-            )}
+            {/* // )} */}
             <div className="flex items-center justify-between px-6 mt-6">
                 <div className="flex-1 text-center">
                     <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>
@@ -292,6 +287,8 @@ export default function OrdersListPage() {
                                 <th className="border p-2 text-left min-w-[200px]">Shop Address</th>
                                 <th className="border p-2 text-left min-w-[180px]">Contact Number</th>
                                 <th className="border p-2 text-left min-w-[200px]">Address Link</th>
+                                <th className="border p-2 text-left min-w-[200px]">Payment Terms</th>
+                                <th className="border p-2 text-left min-w-[200px]">Remarks</th>
                                 <th className="border p-2 text-left min-w-[150px]">Placed By</th>
                                 {placedOrdersTab && (<> {productsList.map((key) => (
                                     <th
@@ -346,6 +343,8 @@ export default function OrdersListPage() {
                                             "-"
                                         )}
                                     </td>
+                                    <td className="border p-2">{order.paymentTerms}</td>
+                                    <td className="border p-2">{order.remarks}</td>
                                     <td className="border p-2">{order.placedBy}</td>
                                     {placedOrdersTab && (<> {productsList.map((key) => (
                                         <td key={key} className="border p-2">

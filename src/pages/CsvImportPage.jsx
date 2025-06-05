@@ -5,13 +5,14 @@ import { fetchAreas } from '../slice/areaSlice';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react'; 
+import Navbar from "../components/NavbarComponents";
 
 
 const CSVImportPage = () => {
   const [file, setFile] = useState(null);
   const [areaId, setAreaId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const { role } = useSelector((state) => state.auth);
   const { areas, loading: areaLoading } = useSelector((state) => state.area);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -50,6 +51,11 @@ const CSVImportPage = () => {
 
   return (
     <div className="p-6 max-w-xl mx-auto bg-white rounded-lg shadow-md">
+      {/* {role === "admin" && ( */}
+        <div className="flex justify-center mb-8">
+          <Navbar />
+        </div>
+      {/* )} */}
         <button
         onClick={() => navigate('/shops_list')}
         className="absolute top-4 left-4 flex items-center text-sm text-blue-600 hover:underline"

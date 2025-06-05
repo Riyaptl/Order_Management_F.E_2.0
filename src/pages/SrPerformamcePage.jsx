@@ -4,6 +4,7 @@ import { salesReport, SrReport } from '../slice/orderSlice';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { getSRDetails } from '../slice/userSlice';
+import Navbar from "../components/NavbarComponents";
 
 const SrPerformancePage = () => {
     const dispatch = useDispatch();
@@ -27,11 +28,16 @@ const SrPerformancePage = () => {
             dispatch(SrReport({ username }))
                 .unwrap()
                 .catch(err => toast.error(err || 'Failed to load performance report'));
+        }
+    }, [dispatch, username]);
+
+    useEffect(() => {
+        if (username) {
             dispatch(salesReport({completeData: showCurrentMonth, placed_username: username}))
                 .unwrap()
                 .catch(err => toast.error(err || 'Failed to load sales report'));
         }
-    }, [dispatch, username, showCurrentMonth]);
+    }, [dispatch, showCurrentMonth]);
 
     useEffect(() => {
         if (role === 'admin') {
@@ -60,15 +66,20 @@ const SrPerformancePage = () => {
     }
 
     return (
-        <div className="p-6 max-w-5xl mx-auto mt-10 bg-white shadow-lg rounded-lg relative">
-            <button
+        <div className="p-4 max-w-5xl mx-auto bg-white shadow-lg rounded-lg relative">
+            {/* {role === "admin" && ( */}
+                <div className="flex justify-center mb-8">
+                <Navbar />
+                </div>
+            {/* )} */}
+            {/* <button
                 onClick={() => navigate('/')}
-                className="absolute top-4 left-4 text-xl font-bold text-amber-700 px-4 py-2 rounded hover:bg-amber-100 "
+                className="text-xl font-bold text-amber-700 px-4 py-2 rounded hover:bg-amber-100 "
             >
-                ← Back to Area Selection
-            </button>
+                ← Select Route
+            </button> */}
 
-            <h1 className="mt-12 text-2xl font-bold text-amber-700 mb-10 text-center">Performance Report</h1>
+            <h1 className="text-2xl font-bold text-amber-700 mb-10 text-center">Performance Report</h1>
 
             {error && <p className="text-center mt-10 text-red-600 font-semibold">{error}</p>}
             {role === 'admin' && (

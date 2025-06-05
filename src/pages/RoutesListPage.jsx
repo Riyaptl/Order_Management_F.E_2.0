@@ -129,11 +129,11 @@ const RoutesListPage = () => {
 
   return (
     <div className="p-4">
-      {role === "admin" && (
+      {/* {role === "admin" && ( */}
         <div className="flex justify-center mb-8">
           <Navbar />
         </div>
-      )}
+      {/* )} */}
       <div className="flex justify-center mb-4">
         <h2 className="text-2xl font-semibold text-amber-700">Routes List</h2>
       </div>
