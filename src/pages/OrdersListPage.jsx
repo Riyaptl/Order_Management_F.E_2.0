@@ -251,7 +251,7 @@ export default function OrdersListPage() {
                 </div>)}
                 
                 {/* SR Selector */}
-                {role !== "distributor" && (<div className="mr-12">
+                {role === "admin" && (<div className="mr-12">
                     <label className="block text-lg font-medium text-amber-700 mb-2">
                         Select SR
                     </label>
