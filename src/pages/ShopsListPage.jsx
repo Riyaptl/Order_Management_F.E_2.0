@@ -329,7 +329,7 @@ const ShopsListPage = () => {
                             <tbody>
                                 {filteredShops.map((shop, index) => (
                                     <tr key={shop._id} className="hover:bg-gray-50" onClick={(e) => {
-                                        if (e.target.closest("td")?.cellIndex === 7) return;
+                                        if (e.target.closest("td")?.cellIndex === 7 || e.target.closest("td")?.cellIndex === 4) return;
                                         setSelectedShop(shop);
                                     }}>
                                         <td className="border p-2">{index + 1}</td>
