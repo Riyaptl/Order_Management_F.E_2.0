@@ -6,7 +6,6 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
     name: "",
     address: "",
     contactNumber: "",
-    addressLink: "",
   });
 
   const handleChange = (e) => {
@@ -17,18 +16,17 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
   };
 
   const handleCreate = () => {
-    const { name, address, contactNumber, addressLink } = formData;
+    const { name, address, contactNumber } = formData;
     if (!name.trim()) return;
-    onCreate({ name, address, contactNumber, addressLink });
-    setFormData({ name: "", address: "", contactNumber: "", addressLink: "" });
+    onCreate({ name, address, contactNumber });
+    setFormData({ name: "", address: "", contactNumber: ""});
   };
 
   const handleCancel = () => {
     setFormData({
       name: "",
       address: "",
-      contactNumber: "",
-      addressLink: "",
+      contactNumber: ""
     });
     onClose(); // then close the modal
   };
@@ -71,14 +69,14 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
           className="w-full border rounded px-3 py-2 mb-3"
           placeholder="Contact Number"
         />
-        <input
+        {/* <input
           name="addressLink"
           type="text"
           value={formData.addressLink}
           onChange={handleChange}
           className="w-full border rounded px-3 py-2 mb-4"
           placeholder="Google Maps Link"
-        />
+        /> */}
 
         <div className="flex justify-center gap-4">
           <button

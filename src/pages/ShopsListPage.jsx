@@ -98,7 +98,7 @@ const ShopsListPage = () => {
             });
     };
 
-    const handleCreate = async ({ name, address, contactNumber, addressLink }) => {
+    const handleCreate = async ({ name, address, contactNumber }) => {
         if (!name.trim()) {
             toast.error("Shop name cannot be empty");
             return;
@@ -110,7 +110,10 @@ const ShopsListPage = () => {
         }
 
         try {
-            const res = await dispatch(createShop({ name, address, contactNumber, addressLink, areaId: selectedArea })).unwrap();
+            const loc = await getCurrentLocation();
+            const { latitude, longitude } = loc.coords;
+            const addressLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            const res = await dispatch(createShop({ name, address, addressLink, contactNumber, areaId: selectedArea })).unwrap();
             toast.success(res.message || "Shop created successfully");
             setShowCreateModal(false);
         } catch (err) {
@@ -166,11 +169,37 @@ const ShopsListPage = () => {
     const filteredAreas = areas.filter((a) =>
         a.name.toLowerCase().includes(searchTermArea.toLowerCase())
     );
+    
     const handleSelectArea = (area) => {
         setSelectedArea(area._id);      
         setSearchTermArea(area.name);   
         setShowDropdown(false);
     };
+
+    const getCurrentLocation = () =>
+        new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            return reject("Geolocation not supported");
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+            resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+            });
+            },
+            (error) => {
+            console.error(error);
+            reject("Failed to get location. Please enable GPS.");
+            },
+            {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+            }
+        );
+    });
 
     return (
         <div className="p-4">
@@ -300,8 +329,7 @@ const ShopsListPage = () => {
                             <tbody>
                                 {filteredShops.map((shop, index) => (
                                     <tr key={shop._id} className="hover:bg-gray-50" onClick={(e) => {
-                                            // Prevent setting selectedShop if clicked inside the Action cell
-                                            if (e.target.closest("td")?.cellIndex === 7) return; // index of 'Action' column
+                                            if (e.target.closest("td")?.cellIndex === 7) return; 
                                             setSelectedShop(shop);
                                         }}>
                                         <td className="border p-2">{index + 1}</td>
