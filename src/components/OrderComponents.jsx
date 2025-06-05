@@ -64,8 +64,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
       return;
     }
   }
-  console.log(selectedArea);
-  
+
   const orderPayload = {
     shopId,
     areaId: selectedArea,
@@ -91,7 +90,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-800">
+        <label className="flex items-center gap-2 text-lg font-medium text-gray-800">
         <input
           type="checkbox"
           checked={noOrder}
@@ -134,7 +133,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {productFields.map((field) => (
           <div key={field} className="flex flex-col">
-            <label className="text-sm text-gray-700 mb-1">{field}</label>
+            <label className="text-md text-gray-700 mb-1">{field}</label>
             <input
               type="number"
               min="0"
@@ -151,14 +150,14 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
 
       {role === "admin" && (
         <div className="flex flex-col">
-            <label className="text-sm text-gray-700 mb-1">
+            <label className="text-md text-gray-700 mb-1">
               Select SR <span className="text-red-500">*</span>
             </label>
             <select
             value={selectedSR}
             onChange={(e) => setSelectedSR(e.target.value)}
             required={role === "admin"} 
-            className="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-md"
             >
             <option value="">-- Select SR --</option>
             {srs.map((sr) => (
@@ -171,13 +170,13 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-md font-medium text-gray-700 mb-1">
             Payment Terms <span className="text-red-500">*</span>
           </label>
           <select
             value={paymentTerms}
             onChange={(e) => setPaymentTerms(e.target.value.toLowerCase())}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            className="w-full border border-gray-300 rounded px-3 py-2 text-md"
             required
           >
             <option value="">Select Payment Terms</option>
@@ -189,7 +188,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-md font-medium text-gray-700 mb-1">
             Remarks
           </label>
           <input

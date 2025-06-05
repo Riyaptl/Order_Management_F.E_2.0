@@ -5,8 +5,6 @@ import Navbar from "../components/NavbarComponents";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../slice/authSlice";
-import DistNavbar from "../components/DistNavbarComponents";
-
 
 export default function SalesReportPage() {
     const dispatch = useDispatch();
@@ -80,19 +78,6 @@ export default function SalesReportPage() {
                     <DistNavbar />
                 </div>
             )} */}
-            <div className="flex items-center justify-between px-6 mt-6">
-                <div className="flex-1 text-center">
-                    <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>
-                </div>
-                {isDistributor && (
-                    <button
-                        onClick={handleLogout}
-                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                    >
-                        Logout
-                    </button>
-                )}
-            </div>
 
             <div className="flex items-center justify-between px-6 mt-6 mb-4">
                 <h2 className="text-2xl font-semibold text-amber-700 text-center flex-1">
@@ -102,7 +87,7 @@ export default function SalesReportPage() {
 
             <div className="flex items-center justify-between flex-wrap px-6">
                 <div className="flex items-center space-x-4 mb-4">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-lg font-medium text-amber-700">
                         Show {monthName}'s Sales Report
                     </label>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -116,7 +101,7 @@ export default function SalesReportPage() {
                         <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
                     </label>
                 </div>
-                <div className="text-lg font-bold text-green-700 mb-4">
+                <div className="text-xl font-bold text-green-700 mb-4">
                     Total Amount: ₹{amount || 0}
                 </div>
             </div>

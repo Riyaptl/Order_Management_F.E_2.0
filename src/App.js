@@ -71,8 +71,7 @@ export default function App() {
         } />
 
         <Route path="/orders_list" element={
-          (isAdmin || isDistributor) ? <OrdersListPage /> :
-          <Navigate to="/" />
+          !user ? <Navigate to="/login" /> : <OrdersListPage /> 
         } />
         
         <Route path="/sales_report" element={

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { deleteOrderService, exportOrdersCsvService, getOrdersService, placeOrder, SrPerformance, salesReportService } from "../service/orderService";
+import { deleteOrderService, exportOrdersCsvService, getOrdersService, placeOrder, SrPerformance, salesReportService, getOrdersSRService } from "../service/orderService";
 
 // Async thunk
 export const SrReport = createAsyncThunk(
@@ -29,6 +29,17 @@ export const getOrders = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       return await getOrdersService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getOrdersSR = createAsyncThunk(
+  "order/getOrdersSR",
+  async (data, thunkAPI) => {
+    try {
+      return await getOrdersSRService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -128,6 +139,18 @@ const orderSlice = createSlice({
         state.orders = action.payload.orders;       
       })
       .addCase(getOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getOrdersSR.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOrdersSR.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;       
+      })
+      .addCase(getOrdersSR.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

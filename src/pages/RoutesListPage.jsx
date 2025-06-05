@@ -142,7 +142,7 @@ const RoutesListPage = () => {
         <div className="mt-4 md:mt-0">
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 bg-amber-600 text-white text-sm rounded hover:bg-amber-700 transition ml-8"
+            className="px-4 py-2 bg-amber-600 text-white text-md rounded hover:bg-amber-700 transition ml-8"
           >
             Refresh
           </button>
@@ -150,7 +150,7 @@ const RoutesListPage = () => {
         <div className="mt-4 md:mt-0 ml-8">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-sm"
+            className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
           >
             + Create Route
           </button>
@@ -158,7 +158,7 @@ const RoutesListPage = () => {
         <div className="mt-4 md:mt-0 ml-8">
         <button
           onClick={handleExportCsv}
-          className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+          className="px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition"
         >
           CSV Export
         </button>
@@ -189,7 +189,7 @@ const RoutesListPage = () => {
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && !error && (
-        <table className="min-w-full border border-gray-300 text-sm">
+        <table className="min-w-full border border-gray-300 text-md">
           <thead className="bg-gray-100">
             <tr>
               <th className="border p-2 text-left">Sr. No</th>
@@ -200,7 +200,7 @@ const RoutesListPage = () => {
               <th className="border p-2 text-left">Route Created At</th>
               <th className="border p-2 text-left">Route Updated By</th>
               <th className="border p-2 text-left">Route Updated At</th>
-              <th className="border p-2 text-left">Action</th>
+              <th className="border p-2 text-left min-w-[120px]">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -235,7 +235,7 @@ const RoutesListPage = () => {
                 <td className="border p-2 text-center space-x-2">
                   <button
                     onClick={() => handleDelete(area._id)}
-                    className="text-red-600 hover:text-red-800"
+                    className="text-red-600 hover:text-red-800 text-xl p-2"
                     title="Delete"
                   >
                     <FaTrash />
@@ -248,7 +248,7 @@ const RoutesListPage = () => {
                       setSelectedDist(area.distributor || "")
                       setShowUpdateModal(true);
                     }}
-                    className="text-blue-600 hover:text-blue-800"
+                    className="text-blue-600 hover:text-blue-800 text-xl p-2"
                     title="Edit"
                   >
                     <FaEdit />
@@ -281,7 +281,7 @@ const RoutesListPage = () => {
         >
           <FaChevronLeft />
         </button>
-        <span className="text-sm text-gray-700">
+        <span className="text-md text-gray-700">
           Page {currentPage} of {totalPages}
         </span>
         <button

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getOrders, deleteOrder, exportOrdersCsv } from "../slice/orderSlice"; // You'll create these in orderSlice.js
+import { getOrders, deleteOrder, exportOrdersCsv, getOrdersSR } from "../slice/orderSlice"; // You'll create these in orderSlice.js
 import toast from "react-hot-toast";
 import Navbar from "../components/NavbarComponents";
 import { fetchAreas } from "../slice/areaSlice";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../slice/authSlice";
-import DistNavbar from "../components/DistNavbarComponents";
+import { getSRDetails } from "../slice/userSlice";
 
 export default function OrdersListPage() {
     const dispatch = useDispatch();
@@ -15,13 +15,24 @@ export default function OrdersListPage() {
     const { areas } = useSelector((state) => state.area);
     const { user, role } = useSelector((state) => state.auth);
     const { orders, loading, error } = useSelector((state) => state.order);
-    const [selectedArea, setSelectedArea] = useState("");
+    const { srs } = useSelector(state => state.user);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [showCompleteData, setShowCompleteData] = useState(false);
     const [placedOrdersTab, setPlacedOrdersTab] = useState(true);
     const isDistributor = role === "distributor"
+    const [selectedArea, setSelectedArea] = useState("");
+    const [selectedSR, setSelectedSR] = useState("");
 
+    useEffect(() => {
+        if (role !== "admin" && role !== "distributor" && user) {
+            setSelectedSR(user)
+        }
+        if (role === 'admin') {
+            dispatch(getSRDetails());
+        }
+    }, [role, user, dispatch])
+        
     useEffect(() => {
         const data = {}
         if (isDistributor) {
@@ -32,10 +43,21 @@ export default function OrdersListPage() {
 
     useEffect(() => {
         const fetchOrders = async () => {
+            console.log(selectedArea, selectedSR);
+            
             try {
                 if (selectedArea) {
                     const res = await dispatch(getOrders({
                         areaId: selectedArea,
+                        page: currentPage,
+                        completeData: showCompleteData,
+                        placedOrders: placedOrdersTab
+                    })).unwrap();
+                    setTotalPages(res.totalPages);
+                }
+                if (selectedSR) {
+                    const res = await dispatch(getOrdersSR({
+                        username: selectedSR,
                         page: currentPage,
                         completeData: showCompleteData,
                         placedOrders: placedOrdersTab
@@ -47,7 +69,7 @@ export default function OrdersListPage() {
             }
         };
         fetchOrders();
-    }, [dispatch, currentPage, selectedArea, showCompleteData, placedOrdersTab]);
+    }, [dispatch, currentPage, selectedArea, selectedSR, showCompleteData, placedOrdersTab]);
 
 
     const handleRefresh = async () => {
@@ -114,39 +136,39 @@ export default function OrdersListPage() {
     };
 
     const getCurrentLocation = () =>
-    new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        return reject("Geolocation not supported");
-      }
+        new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                return reject("Geolocation not supported");
+            }
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (error) => {
-          console.error(error);
-          reject("Failed to get location. Please enable GPS.");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    });
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    console.error(error);
+                    reject("Failed to get location. Please enable GPS.");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+        });
 
-      const handleLogout = async () => {
-          try {
+    const handleLogout = async () => {
+        try {
             const logoutLoc = await getCurrentLocation();
-            dispatch(logout({username: user, logoutLoc}));
+            dispatch(logout({ username: user, logoutLoc }));
             navigate("/login");
-          } catch (error) {
+        } catch (error) {
             toast.error("Failed to fetch routes");
-          }
-        };
+        }
+    };
 
 
     const productsList = [
@@ -167,30 +189,20 @@ export default function OrdersListPage() {
 
     return (
         <div className="p-4">
-            {/* {role === "admin" && !isDistributor && ( */}
-                <div className="flex justify-center mb-8">
-                    <Navbar />
-                </div>
-            {/* // )} */}
+            <div className="flex justify-center mb-8">
+                <Navbar />
+            </div>
             <div className="flex items-center justify-between px-6 mt-6">
                 <div className="flex-1 text-center">
                     <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>
                 </div>
-                {/* {isDistributor && (
-                    <button
-                    onClick={handleLogout}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                    >
-                    Logout
-                    </button>
-                )} */}
             </div>
             <div className="relative w-full">
                 {selectedArea && (
                     <div className="absolute right-0 top-0 mt-4">
                         <button
                             onClick={handleExportCsv}
-                            className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                            className="px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition"
                         >
                             CSV Export
                         </button>
@@ -201,14 +213,14 @@ export default function OrdersListPage() {
             {!isDistributor && (<div className="flex justify-center mb-6 mt-6 space-x-4">
                 <button
                     onClick={() => setPlacedOrdersTab(true)}
-                    className={`px-4 py-2 rounded-t-md font-medium text-sm ${placedOrdersTab ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-700'
+                    className={`px-4 py-2 rounded-t-md font-medium text-md ${placedOrdersTab ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-700'
                         }`}
                 >
                     Order Placed
                 </button>
                 <button
                     onClick={() => setPlacedOrdersTab(false)}
-                    className={`px-4 py-2 rounded-t-md font-medium text-sm ${!placedOrdersTab ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-700'
+                    className={`px-4 py-2 rounded-t-md font-medium text-md ${!placedOrdersTab ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-700'
                         }`}
                 >
                     No Orders
@@ -217,14 +229,17 @@ export default function OrdersListPage() {
 
             <div className="flex flex-col md:flex-row md:items-end md:space-x-6 mt-4 mb-4">
                 {/* Area Selector */}
-                <div className="mr-12">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                {role !== "sr" && (<div className="mr-12">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">
                         Select Route
                     </label>
                     <select
                         value={selectedArea}
-                        onChange={(e) => setSelectedArea(e.target.value)}
-                        className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-sm"
+                        onChange={(e) => {
+                            setSelectedArea(e.target.value)
+                            setSelectedSR("")
+                        }}
+                        className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                     >
                         <option value="">-- Select Route --</option>
                         {areas.map((area) => (
@@ -233,11 +248,33 @@ export default function OrdersListPage() {
                             </option>
                         ))}
                     </select>
-                </div>
+                </div>)}
+                
+                {/* SR Selector */}
+                {role !== "distributor" && (<div className="mr-12">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">
+                        Select SR
+                    </label>
+                    <select
+                        value={selectedSR}
+                        onChange={(e) => {
+                            setSelectedSR(e.target.value)
+                            setSelectedArea("")
+                        }}
+                        className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
+                    >
+                        <option value="">-- Select SR --</option>
+                        {srs.map((sr) => (
+                            <option key={sr._id} value={sr.username}>
+                                {sr.username}
+                            </option>
+                        ))}
+                    </select>
+                </div>)}
 
-                {selectedArea && (
+                {(selectedArea || selectedSR ) && (
                     <div className="flex flex-col mr-6">
-                        <label htmlFor="completeData" className="text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="completeData" className="text-lg font-medium text-amber-700 mb-1">
                             Show {monthName} Month's Data
                         </label>
                         <label htmlFor="completeData" className="relative inline-flex items-center cursor-pointer">
@@ -254,11 +291,11 @@ export default function OrdersListPage() {
                     </div>
                 )}
 
-                {selectedArea && (
+                {(selectedArea || selectedSR ) && (
                     <div className="mt-4 md:mt-0">
                         <button
                             onClick={handleRefresh}
-                            className="px-4 py-2 bg-amber-600 text-white text-sm rounded hover:bg-amber-700 transition ml-8"
+                            className="px-4 py-2 bg-amber-600 text-white text-md rounded hover:bg-amber-700 transition ml-8"
                         >
                             Refresh
                         </button>
@@ -267,18 +304,18 @@ export default function OrdersListPage() {
             </div>
 
 
-            {!selectedArea && (
+            {!(selectedArea || selectedSR ) && (
                 <p className="text-center text-gray-500">No records to show</p>
             )}
-            {selectedArea && loading && <p className="mt-4">Loading orders...</p>}
+            {(selectedArea || selectedSR ) && loading && <p className="mt-4">Loading orders...</p>}
             {selectedArea && error && (
                 <p className="mt-4 text-red-600">Error: {error}</p>
             )}
-            {selectedArea && !loading && !error && orders.length === 0 && (
+            {(selectedArea || selectedSR ) && !loading && !error && orders.length === 0 && (
                 <p className="text-center text-gray-500">No orders found for this area</p>
             )}
 
-            {selectedArea && !loading && orders.length > 0 && (
+            {(selectedArea || selectedSR ) && !loading && orders.length > 0 && (
                 <div className="overflow-x-auto mt-8">
                     <table className="min-w-full border border-gray-300">
                         <thead className="bg-gray-100">
@@ -293,7 +330,7 @@ export default function OrdersListPage() {
                                 {placedOrdersTab && (<> {productsList.map((key) => (
                                     <th
                                         key={key}
-                                        className="border p-2 text-left min-w-[180px]" 
+                                        className="border p-2 text-left min-w-[180px]"
                                     >
                                         {key}
                                     </th>
@@ -301,7 +338,7 @@ export default function OrdersListPage() {
                                     {totalList.map((key) => (
                                         <th
                                             key={key}
-                                            className="border p-2 text-left min-w-[180px]" 
+                                            className="border p-2 text-left min-w-[180px]"
                                         >
                                             {key}
                                         </th>
@@ -310,7 +347,7 @@ export default function OrdersListPage() {
                                 {!isDistributor && !placedOrdersTab && (
                                     <th className="border p-2 text-left min-w-[250px]">Location Link</th>
                                 )}
-                                {!isDistributor && <th className="border p-2 text-left min-w-[100px]">Actions</th>}
+                                {role === "admin" && <th className="border p-2 text-left min-w-[100px]">Actions</th>}
                             </tr>
                         </thead>
 
@@ -332,12 +369,12 @@ export default function OrdersListPage() {
                                     <td className="border p-2 break-all">
                                         {order.shopId.addressLink ? (
                                             <a
-                                            href={order.shopId.addressLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 underline"
+                                                href={order.shopId.addressLink}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline"
                                             >
-                                            View Location
+                                                View Location
                                             </a>
                                         ) : (
                                             "-"
@@ -353,16 +390,25 @@ export default function OrdersListPage() {
                                                 : "-"}
                                         </td>
                                     ))}
-                                    {totalList.map((key) => (
-                                        <td key={key} className="border p-2">
-                                            {order.total && order.total[key] !== undefined
-                                                ? order.total[key]
-                                                : "-"}
-                                        </td>
-                                    ))} </>)}
+                                        {totalList.map((key) => (
+                                            <td key={key} className="border p-2">
+                                                {order.total && order.total[key] !== undefined
+                                                    ? order.total[key]
+                                                    : "-"}
+                                            </td>
+                                        ))} </>)}
                                     <td className="border p-2">
-                                        {new Date(order.createdAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" })}
-                                    </td>
+                                        {(() => {
+                                            const date = new Date(order.createdAt);
+                                            const day = String(date.getDate()).padStart(2, "0");
+                                            const month = String(date.getMonth() + 1).padStart(2, "0");
+                                            const year = date.getFullYear();
+                                            const hours = String(date.getHours()).padStart(2, "0");
+                                            const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                                            return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                        })()}
+                                        </td>
                                     {!isDistributor && !placedOrdersTab && (
                                         <td className="border p-2 max-w-[250px] overflow-x-auto">
                                             {order.location?.latitude && order.location?.longitude ? (
@@ -379,10 +425,10 @@ export default function OrdersListPage() {
                                             )}
                                         </td>
                                     )}
-                                    {!isDistributor && <td className="border p-2">
+                                    {role === "admin" && <td className="border p-2">
                                         <button
                                             onClick={() => handleDelete(order._id)}
-                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-md"
                                         >
                                             Delete
                                         </button>
@@ -395,7 +441,7 @@ export default function OrdersListPage() {
                 </div>
             )}
 
-            {selectedArea && (<div className="flex justify-center items-center mt-4 space-x-4">
+            {(selectedArea || selectedSR ) && (<div className="flex justify-center items-center mt-4 space-x-4">
                 <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
@@ -403,7 +449,7 @@ export default function OrdersListPage() {
                 >
                     <FaChevronLeft />
                 </button>
-                <span className="text-sm text-gray-700">
+                <span className="text-md text-gray-700">
                     Page {currentPage} of {totalPages}
                 </span>
                 <button

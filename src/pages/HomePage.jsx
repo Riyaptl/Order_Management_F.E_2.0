@@ -87,13 +87,13 @@ export default function HomePage() {
       <div className="flex justify-center mt-10 mb-6 space-x-4">
         <button
           onClick={() => navigate("/shops_list")}
-          className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition"
+          className="bg-amber-600 hover:bg-amber-700 text-white text-xl font-semibold py-2 px-6 rounded-lg shadow-md transition min-w-[150px]"
         >
-          Start Placing Orders
+          Place Orders
         </button>
         <button
             onClick={goToPerformanceReport}
-            className="bg-amber-600 text-white hover:bg-amber-700 font-semibold py-2 px-6 rounded-lg shadow-md transition"
+            className="bg-amber-600 text-white text-xl hover:bg-amber-700 font-semibold py-2 px-6 rounded-lg shadow-md transition min-w-[150px]"
           >
             Performance Report
           </button>

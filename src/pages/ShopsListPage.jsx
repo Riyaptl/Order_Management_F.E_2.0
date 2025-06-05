@@ -212,11 +212,11 @@ const ShopsListPage = () => {
                 <h2 className="text-2xl font-semibold text-amber-700 text-center">
                     Shops List
                 </h2>
-                {role == "admin" && (<button
+                {role === "admin" && (<button
                     onClick={() => {
                         window.location.href = `/csv-import`;
                     }}
-                    className="absolute right-0 px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition shadow-lg"
+                    className="absolute right-0 px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition shadow-lg"
                 >
                     CSV Import
                 </button>
@@ -225,7 +225,7 @@ const ShopsListPage = () => {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end flex-wrap gap-4 mb-6">
                 <div ref={areaDropdownRef} className="w-full md:w-72 relative">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">
                         Select Route <span className="text-red-500">*</span>
                     </label>
 
@@ -239,7 +239,7 @@ const ShopsListPage = () => {
                         }}
                         onFocus={() => setShowDropdown(true)}
                         placeholder="Search area..."
-                        className="w-full border border-gray-300 p-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full border border-gray-300 p-3 rounded text-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
 
                     {/* dropdown list */}
@@ -266,7 +266,7 @@ const ShopsListPage = () => {
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
                         <button
                             onClick={handleRefresh}
-                            className="w-full md:w-auto px-4 py-2 bg-amber-600 text-white text-sm rounded hover:bg-amber-700 transition"
+                            className="w-full md:w-auto px-4 py-2 bg-amber-600 text-white text-md rounded hover:bg-amber-700 transition"
                         >
                             Refresh
                         </button>
@@ -278,13 +278,13 @@ const ShopsListPage = () => {
                                 }
                                 setShowCreateModal(true);
                             }}
-                            className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-sm"
+                            className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
                         >
                             + Create Shop
                         </button>
                         <button
                             onClick={handleExportCsv}
-                            className="w-full md:w-auto px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                            className="w-full md:w-auto px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition"
                         >
                             CSV Export
                         </button>
@@ -313,17 +313,17 @@ const ShopsListPage = () => {
                     />
 
                     <div className="overflow-x-auto">
-                        <table className="min-w-full border border-gray-300 text-sm">
+                        <table className="min-w-full border border-gray-300 text-md">
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th className="border p-2 text-left min-w-[50px]">Sr. No</th>
-                                    <th className="border p-2 text-left min-w-[100px]">Shop Name</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Shop Name</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address</th>
-                                    <th className="border p-2 text-left min-w-[100px]">Contact Number</th>
+                                    <th className="border p-2 text-left min-w-[120px]">Contact Number</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address Link</th>
                                     <th className="border p-2 text-left min-w-[150px]">Created By</th>
                                     <th className="border p-2 text-left min-w-[150px]">Updated By</th>
-                                    <th className="border p-2 text-left min-w-[150px]">Action</th>
+                                    <th className="border p-2 text-left min-w-[200px]">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -334,8 +334,10 @@ const ShopsListPage = () => {
                                     }}>
                                         <td className="border p-2">{index + 1}</td>
                                         <td className="border p-2">{shop.name}</td>
-                                        <td className="border p-2 max-w-[200px] overflow-x-auto">
-                                            <span className="block truncate" title={shop.address}>{shop.address}</span>
+                                        <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap">
+                                            <div className="min-w-[200px] inline-block">
+                                                {shop.address}
+                                            </div>
                                         </td>
                                         <td className="border p-2">{shop.contactNumber}</td>
                                         <td className="border p-2 break-words">
@@ -354,10 +356,10 @@ const ShopsListPage = () => {
                                         </td>
                                         <td className="border p-2">{shop.createdBy}</td>
                                         <td className="border p-2">{shop.updatedBy}</td>
-                                        <td className="border p-2 text-center space-x-2">
+                                        <td className="border p-2 text-center space-x-8">
                                             <button
                                                 onClick={() => handleDelete(shop._id)}
-                                                className="text-red-600 hover:text-red-800"
+                                                className="text-red-600 hover:text-red-800 text-xl p-2"
                                                 title="Delete"
                                             >
                                                 <FaTrash />
@@ -367,7 +369,7 @@ const ShopsListPage = () => {
                                                     setSelectedShopData(shop);
                                                     setShowUpdateModal(true);
                                                 }}
-                                                className="text-blue-600 hover:text-blue-800"
+                                                className="text-blue-600 hover:text-blue-800 text-xl p-2"
                                                 title="Edit"
                                             >
                                                 <FaEdit />
@@ -377,7 +379,7 @@ const ShopsListPage = () => {
                                                     setSelectedShopData(shop);
                                                     setShowShiftModal(true);
                                                 }}
-                                                className="text-green-600 hover:text-green-800"
+                                                className="text-green-600 hover:text-green-800 text-xl p-2"
                                                 title="Shift Area"
                                             >
                                                 <FaExchangeAlt />
