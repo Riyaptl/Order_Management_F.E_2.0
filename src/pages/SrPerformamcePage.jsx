@@ -18,10 +18,10 @@ const SrPerformancePage = () => {
     const [report, setReport] = useState([])
 
     useEffect(() => {
-        if (role !== "admin") {
+        if (role !== "admin" && user) {
             setUsername(user)
         }
-    }, [])
+    }, [role, user])
 
     useEffect(() => {
         if (username) {
@@ -37,7 +37,7 @@ const SrPerformancePage = () => {
                 .unwrap()
                 .catch(err => toast.error(err || 'Failed to load sales report'));
         }
-    }, [dispatch, showCurrentMonth]);
+    }, [dispatch, username, showCurrentMonth]);
 
     useEffect(() => {
         if (role === 'admin') {

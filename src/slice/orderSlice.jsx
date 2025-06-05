@@ -17,7 +17,6 @@ export const createOrder = createAsyncThunk(
   "order/create",
   async (orderData, thunkAPI) => {
     try {
-        console.log(orderData);
       return await placeOrder(orderData);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);

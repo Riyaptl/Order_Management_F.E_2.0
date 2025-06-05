@@ -28,7 +28,6 @@ export const deleteArea = createAsyncThunk("area/deleteArea", async (id, thunkAP
 
 export const updateArea = createAsyncThunk("area/updateArea", async ({id, name, areas, distributor}, thunkAPI) => {
   try {
-    console.log('update API');
     return await updateAreaService({id, name, areas, distributor});
   } catch (err) {
     return thunkAPI.rejectWithValue(err.message || "Failed to update route");
@@ -37,7 +36,6 @@ export const updateArea = createAsyncThunk("area/updateArea", async ({id, name, 
 
 export const createArea = createAsyncThunk("area/createArea", async (area, thunkAPI) => {
   try {
-    console.log('create API');
     return await createAreaService(area);
   } catch (err) {
     return thunkAPI.rejectWithValue(err.message || "Failed to create route");

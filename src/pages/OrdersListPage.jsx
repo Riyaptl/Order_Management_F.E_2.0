@@ -176,14 +176,14 @@ export default function OrdersListPage() {
                 <div className="flex-1 text-center">
                     <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>
                 </div>
-                {isDistributor && (
+                {/* {isDistributor && (
                     <button
                     onClick={handleLogout}
                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
                     >
                     Logout
                     </button>
-                )}
+                )} */}
             </div>
             <div className="relative w-full">
                 {selectedArea && (

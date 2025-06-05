@@ -29,7 +29,7 @@ export default function HomePage() {
     setSearchTerm(area.name); 
     dispatch(setChoseArea(area._id));
     setShowDropdown(false);  
-    navigate('/shops')
+    navigate('/shops_list')
   };
   
   const handleLogout = async () => {
@@ -79,25 +79,27 @@ export default function HomePage() {
         </div>
       {/* )} */}
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
-     <div className="flex justify-end mb-6 space-x-4">
-          <button
-            onClick={goToPerformanceReport}
-            className="px-3 py-1 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
-          >
-            Performance Report
-          </button>
-          <button
-            onClick={handleLogout}
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-          >
-            Logout
-          </button>
-        </div>
+
       <h1 className="text-3xl font-bold text-center text-amber-700 mb-6">
         Welcome to Dumyum Chocolates
       </h1>
 
-      <div className="mb-4 relative">
+      <div className="flex justify-center mt-10 mb-6 space-x-4">
+        <button
+          onClick={() => navigate("/shops_list")}
+          className="bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition"
+        >
+          Start Placing Orders
+        </button>
+        <button
+            onClick={goToPerformanceReport}
+            className="bg-amber-600 text-white hover:bg-amber-700 font-semibold py-2 px-6 rounded-lg shadow-md transition"
+          >
+            Performance Report
+          </button>
+      </div>
+
+      {/* <div className="mb-4 relative">
         <label className="block mb-5 text-xl font-medium text-gray-700">
           Select Your Route
         </label>
@@ -139,7 +141,7 @@ export default function HomePage() {
             )}
           </>
         )}
-      </div>
+      </div> */}
     </div>
   </div>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAreas } from "../slice/areaSlice";
 import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop } from "../slice/shopSlice";
@@ -8,11 +8,12 @@ import { FaTrash, FaEdit, FaExchangeAlt } from "react-icons/fa";
 import UpdateShopComponents from "../components/UpdateShopComponents"
 import CreateShopComponents from "../components/CreateShopComponents"
 import ShiftAreaComponent from "../components/ShiftAreaComponents";
+import OrderComponent from "../components/OrderComponents";
 
 const ShopsListPage = () => {
     const dispatch = useDispatch();
 
-    const { areas } = useSelector((state) => state.area);
+    const { areas, choseArea } = useSelector((state) => state.area);
     const { shops, loading, error } = useSelector((state) => state.shop);
     const { role } = useSelector((state) => state.auth);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -21,6 +22,11 @@ const ShopsListPage = () => {
     const [selectedArea, setSelectedArea] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedShopData, setSelectedShopData] = useState(null);
+    const [selectedShop, setSelectedShop] = useState(null);
+    const [searchTermArea, setSearchTermArea] = useState("");
+    const [showDropdown,  setShowDropdown]   = useState(false);
+    const areaDropdownRef = useRef(null);
+
 
     useEffect(() => {
         dispatch(fetchAreas({}));
@@ -32,6 +38,21 @@ const ShopsListPage = () => {
         }
     }, [dispatch, selectedArea]);
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+            areaDropdownRef.current &&
+            !areaDropdownRef.current.contains(event.target)
+            ) {
+            setShowDropdown(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this shop?")) {
@@ -142,6 +163,15 @@ const ShopsListPage = () => {
         shop.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const filteredAreas = areas.filter((a) =>
+        a.name.toLowerCase().includes(searchTermArea.toLowerCase())
+    );
+    const handleSelectArea = (area) => {
+        setSelectedArea(area._id);      
+        setSearchTermArea(area.name);   
+        setShowDropdown(false);
+    };
+
     return (
         <div className="p-4">
             {/* {role === "admin" && ( */}
@@ -149,11 +179,11 @@ const ShopsListPage = () => {
                 <Navbar />
             </div>
             {/* )} */}
-            {role == "admin" && (<div className="relative flex items-center justify-center mb-4">
+            <div className="relative flex items-center justify-center mb-4">
                 <h2 className="text-2xl font-semibold text-amber-700 text-center">
                     Shops List
                 </h2>
-                <button
+            {role == "admin" && (    <button
                     onClick={() => {
                         window.location.href = `/csv-import`;
                     }}
@@ -161,23 +191,47 @@ const ShopsListPage = () => {
                 >
                     CSV Import
                 </button>
-            </div>
             )}
+            </div>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end flex-wrap gap-4 mb-6">
-                <div className="w-full md:w-auto">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Route</label>
-                    <select
-                        value={selectedArea}
-                        onChange={(e) => setSelectedArea(e.target.value)}
-                        className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-sm"
-                    >
-                        <option value="">-- Select Route --</option>
-                        {areas.map((area) => (
-                            <option key={area._id} value={area._id}>{area.name}</option>
-                        ))}
-                    </select>
-                </div>
+                    <div  ref={areaDropdownRef} className="w-full md:w-72 relative">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Select Route <span className="text-red-500">*</span>
+                    </label>
+
+                    {/* search box */}
+                    <input
+                        type="text"
+                        value={searchTermArea}
+                        onChange={(e) => {
+                        setSearchTermArea(e.target.value);
+                        setShowDropdown(true);
+                        }}
+                        onFocus={() => setShowDropdown(true)}
+                        placeholder="Search area..."
+                        className="w-full border border-gray-300 p-3 rounded text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+
+                    {/* dropdown list */}
+                    {showDropdown && (
+                        <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
+                        {filteredAreas.length === 0 ? (
+                            <li className="p-3 text-gray-500 select-none">No areas found</li>
+                        ) : (
+                            filteredAreas.map((area) => (
+                            <li
+                                key={area._id}
+                                onClick={() => handleSelectArea(area)}
+                                className="p-3 hover:bg-amber-100 cursor-pointer"
+                            >
+                                {area.name}
+                            </li>
+                            ))
+                        )}
+                        </ul>
+                    )}
+                    </div>
 
                 {selectedArea && (
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
@@ -245,7 +299,7 @@ const ShopsListPage = () => {
                             </thead>
                             <tbody>
                                 {filteredShops.map((shop, index) => (
-                                    <tr key={shop._id} className="hover:bg-gray-50">
+                                    <tr key={shop._id} className="hover:bg-gray-50" onClick={() => setSelectedShop(shop)}>
                                         <td className="border p-2">{index + 1}</td>
                                         <td className="border p-2">{shop.name}</td>
                                         <td className="border p-2 max-w-[200px] overflow-x-auto">
@@ -303,6 +357,26 @@ const ShopsListPage = () => {
                         </table>
                     </div>
                 </>
+            )}
+            {selectedShop && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                          {/* Modal Content Wrapper */}
+                          <div className="relative bg-white rounded shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+                
+                            {/* Close Button in Top-Right */}
+                            <button
+                              onClick={() => setSelectedShop(null)}
+                              className="absolute top-3 right-4 text-gray-600 hover:text-black text-2xl"
+                              aria-label="Close Modal"
+                            >
+                              &times;
+                            </button>
+                
+                            {/* Modal Content */}
+                
+                            <OrderComponent shopId={selectedShop._id} onClose={() => setSelectedShop(null)} />
+                          </div>
+                        </div>
             )}
 
             <UpdateShopComponents

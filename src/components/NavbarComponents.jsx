@@ -1,11 +1,52 @@
-import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
+import { logout } from "../slice/authSlice";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
-  const { role } = useSelector((state) => state.auth);
+  const { user, role } = useSelector((state) => state.auth);
   const isAdmin = role=="admin"
   const isDistributor = role=="distributor"
   const isSR = role=="sr"
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const getCurrentLocation = () =>
+    new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        return reject("Geolocation not supported");
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.error(error);
+          reject("Failed to get location. Please enable GPS.");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    });
+
+    
+  const handleLogout = async () => {
+    try {
+      const logoutLoc = await getCurrentLocation();
+      dispatch(logout({username: user, logoutLoc}));
+      navigate("/login");
+    } catch (error) {
+      toast.error("Failed to fetch routes");
+    }
+  };
 
   return (
     <nav className="p-4 shadow-md">
@@ -18,7 +59,7 @@ const Navbar = () => {
               ` text-amber-700 px-3 py-2 rounded-md text-sm font-medium`
             }
           >
-            Order Placement
+            Home
           </NavLink>
         )}
         {isAdmin && (
@@ -61,6 +102,12 @@ const Navbar = () => {
             Sales Report
           </NavLink>
         )}
+        <button
+          onClick={handleLogout}
+          className="mt-3 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium"
+        >
+          Logout
+        </button>
         </div>
       </div>
     </nav>

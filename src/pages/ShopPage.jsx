@@ -38,9 +38,9 @@ export default function ShopPage() {
   return (
     <div className="max-w-4xl mx-auto p-4 bg-white rounded shadow relative">
       {/* {role === "admin" && ( */}
-        <div className="flex justify-center mb-8">
-          <Navbar />
-        </div>
+      <div className="flex justify-center mb-8">
+        <Navbar />
+      </div>
       {/* )} */}
 
       {/* <button
@@ -115,18 +115,18 @@ export default function ShopPage() {
             <p className="mb-4 text-gray-700">
 
               Address Link: {shopDetailsLoading ? "Loading..." : shopDetails?.addressLink ? (
-                                            <a
-                                            href={shopDetails.addressLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 underline"
-                                            >
-                                            View Location
-                                            </a>
-                                        ) : (
-                                            "-"
-                                        )
-                || "N/A"}
+                <a
+                  href={shopDetails.addressLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  View Location
+                </a>
+              ) : (
+                "-"
+              )
+              || "N/A"}
             </p>
 
             <OrderComponent shopId={selectedShop._id} onClose={() => setSelectedShop(null)} />

@@ -41,8 +41,6 @@ export const updateShop = createAsyncThunk(
   "shop/updateShop",
   async ({id, updates}, thunkAPI) => {
     try {
-      console.log(id, updates);
-      
       return await updateShopService(id, updates);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
@@ -65,7 +63,6 @@ export const shiftShop = createAsyncThunk(
   "shop/shiftShop",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
       return await shiftShopService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
