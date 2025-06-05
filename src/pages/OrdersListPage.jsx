@@ -291,7 +291,7 @@ export default function OrdersListPage() {
                     </div>
                 )}
 
-                {(selectedArea || selectedSR ) && (
+                {(selectedArea || selectedSR ) && role === "admin" (
                     <div className="mt-4 md:mt-0">
                         <button
                             onClick={handleRefresh}
