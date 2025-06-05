@@ -111,7 +111,7 @@ const ShopsListPage = () => {
 
         try {
             const loc = await getCurrentLocation();
-            const { latitude, longitude } = loc.coords;
+            const { latitude, longitude } = loc;
             const addressLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
             const res = await dispatch(createShop({ name, address, addressLink, contactNumber, areaId: selectedArea })).unwrap();
             toast.success(res.message || "Shop created successfully");
