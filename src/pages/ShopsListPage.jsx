@@ -299,7 +299,11 @@ const ShopsListPage = () => {
                             </thead>
                             <tbody>
                                 {filteredShops.map((shop, index) => (
-                                    <tr key={shop._id} className="hover:bg-gray-50" onClick={() => setSelectedShop(shop)}>
+                                    <tr key={shop._id} className="hover:bg-gray-50" onClick={(e) => {
+                                            // Prevent setting selectedShop if clicked inside the Action cell
+                                            if (e.target.closest("td")?.cellIndex === 7) return; // index of 'Action' column
+                                            setSelectedShop(shop);
+                                        }}>
                                         <td className="border p-2">{index + 1}</td>
                                         <td className="border p-2">{shop.name}</td>
                                         <td className="border p-2 max-w-[200px] overflow-x-auto">
