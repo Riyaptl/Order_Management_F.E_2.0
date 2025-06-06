@@ -20,6 +20,7 @@ const ShopsListPage = () => {
     const [showShiftModal, setShowShiftModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedArea, setSelectedArea] = useState("");
+    const [selectedAreaName, setSelectedAreaName] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedShopData, setSelectedShopData] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
@@ -149,7 +150,7 @@ const ShopsListPage = () => {
 
             // Filename with current date for uniqueness
             const dateStr = new Date().toISOString().slice(0, 10);
-            link.download = `Shops_export_${dateStr}.csv`;
+            link.download = `Shops_export_${selectedAreaName}_${dateStr}.csv`;
 
             document.body.appendChild(link);
             link.click();
@@ -172,6 +173,7 @@ const ShopsListPage = () => {
 
     const handleSelectArea = (area) => {
         setSelectedArea(area._id);
+        setSelectedAreaName(area.name);
         setSearchTermArea(area.name);
         setShowDropdown(false);
     };

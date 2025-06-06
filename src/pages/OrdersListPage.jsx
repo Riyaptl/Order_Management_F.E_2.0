@@ -325,8 +325,9 @@ export default function OrdersListPage() {
                                 <th className="border p-2 text-left min-w-[180px]">Contact Number</th>
                                 <th className="border p-2 text-left min-w-[200px]">Address Link</th>
                                 <th className="border p-2 text-left min-w-[200px]">Payment Terms</th>
+                                <th className="border p-2 text-left min-w-[200px]">Order Placed By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
-                                <th className="border p-2 text-left min-w-[150px]">Placed By</th>
+                                <th className="border p-2 text-left min-w-[150px]">SR</th>
                                 {placedOrdersTab && (<> {productsList.map((key) => (
                                     <th
                                         key={key}
@@ -381,6 +382,7 @@ export default function OrdersListPage() {
                                         )}
                                     </td>
                                     <td className="border p-2">{order.paymentTerms}</td>
+                                    <td className="border p-2">{order.orderPlacedBy}</td>
                                     <td className="border p-2">{order.remarks}</td>
                                     <td className="border p-2">{order.placedBy}</td>
                                     {placedOrdersTab && (<> {productsList.map((key) => (
