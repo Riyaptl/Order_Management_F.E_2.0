@@ -179,6 +179,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
             value={paymentTerms}
             onChange={(e) => setPaymentTerms(e.target.value.toLowerCase())}
             className="w-full border border-gray-300 rounded px-3 py-2 text-md"
+            disabled={noOrder}
             required
           >
             <option value="">Select Payment Terms</option>
@@ -199,6 +200,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
             onChange={(e) => setOrderPlacedBy(e.target.value)}
             placeholder="Order Placed By"
             className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            disabled={noOrder}
             required
           />
         </div>
@@ -213,6 +215,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
             onChange={(e) => setRemarks(e.target.value)}
             placeholder="Optional remarks..."
             className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            disabled={noOrder}
           />
         </div>
 

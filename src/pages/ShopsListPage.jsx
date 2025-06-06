@@ -89,15 +89,15 @@ const ShopsListPage = () => {
     };
 
     const handleShift = ({ shopId, fromAreaId, toAreaId }) => {
-        dispatch(shiftShop({ id: shopId, prevAreaId: fromAreaId, newAreaId: toAreaId }))
-            .unwrap()
-            .then(() => {
-                toast.success("Shop shifted successfully");
-                setShowShiftModal(false);
-            })
-            .catch(() => {
-                toast.error("Failed to shift shop");
-            });
+        if (window.confirm("Are you sure you want to shift this shop?")) {
+            try {
+                const res = dispatch(shiftShop({ id: shopId, prevAreaId: fromAreaId, newAreaId: toAreaId })).unwrap()
+                setShowShiftModal(false)
+                toast.success(res.message || "Shop shifted successfully");
+            } catch (error) {
+                toast.error(error || "Failed to shift shop")
+            }
+        }
     };
 
     const handleCreate = async ({ name, address, contactNumber }) => {
