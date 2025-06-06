@@ -178,7 +178,7 @@ export default function OrdersListPage() {
     ];
 
     const totalList = [
-        "Total Regular 50g", "Total Coffee 50g", "Total Regular 25g", "Total Coffee 25g"
+        "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g"
     ];
 
 
