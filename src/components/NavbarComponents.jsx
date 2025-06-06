@@ -49,14 +49,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="p-4 shadow-md">
+    <nav className="p-3 shadow-md">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="space-x-4">
         {(isAdmin || isSR) &&(
           <NavLink
             to="/"
             className={({ isActive }) =>
-              ` text-amber-700 px-3 py-2 rounded-md text-lg font-medium`
+              ` text-amber-700 px-2 py-2 rounded-md text-lg font-medium`
             }
           >
             Home
@@ -66,7 +66,7 @@ const Navbar = () => {
           <NavLink
             to="/routes_list"
             className={({ isActive }) =>
-              `text-amber-700 px-3 py-2 rounded-md text-lg font-medium`
+              `text-amber-700 px-2 py-2 rounded-md text-lg font-medium`
             }
           >
             Routes
@@ -76,7 +76,7 @@ const Navbar = () => {
           <NavLink
           to="/shops_list"
           className={({ isActive }) =>
-            ` text-amber-700 px-3 py-2 rounded-md text-lg font-medium`
+            ` text-amber-700 px-2 py-2 rounded-md text-lg font-medium`
           }
           >
             Shops
@@ -85,7 +85,7 @@ const Navbar = () => {
           <NavLink
           to="/orders_list"
           className={({ isActive }) =>
-            ` text-amber-700 px-3 py-2 rounded-md text-lg font-medium`
+            ` text-amber-700 px-2 py-2 rounded-md text-lg font-medium`
           }
           >
             Orders
@@ -94,7 +94,7 @@ const Navbar = () => {
           <NavLink
             to="/sales_report"
             className={({ isActive }) =>
-              ` text-amber-700 px-3 py-2 rounded-md text-lg font-medium`
+              ` text-amber-700 px-2 py-2 rounded-md text-lg font-medium`
             }
           >
             Sales Report
@@ -102,7 +102,7 @@ const Navbar = () => {
         )}
         <button
           onClick={handleLogout}
-          className="mt-3 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-lg font-medium"
+          className="mt-3 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-2 py-2 rounded-md text-md font-medium"
         >
           Logout
         </button>

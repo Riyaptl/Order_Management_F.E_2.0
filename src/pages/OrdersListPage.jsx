@@ -43,8 +43,6 @@ export default function OrdersListPage() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            console.log(selectedArea, selectedSR);
-            
             try {
                 if (selectedArea) {
                     const res = await dispatch(getOrders({
@@ -180,7 +178,7 @@ export default function OrdersListPage() {
     ];
 
     const totalList = [
-        "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g"
+        "Total Regular 50g", "Total Coffee 50g", "Total Regular 25g", "Total Coffee 25g"
     ];
 
 
@@ -383,7 +381,16 @@ export default function OrdersListPage() {
                                     </td>
                                     <td className="border p-2">{order.paymentTerms}</td>
                                     <td className="border p-2">{order.orderPlacedBy}</td>
-                                    <td className="border p-2">{order.remarks}</td>
+                                    <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                        <div className="overflow-x-auto max-w-[350px]">
+                                            <span
+                                                className="inline-block truncate"
+                                                title={order.remarks}
+                                            >
+                                                {order.remarks}
+                                            </span>
+                                        </div>
+                                    </td>
                                     <td className="border p-2">{order.placedBy}</td>
                                     {placedOrdersTab && (<> {productsList.map((key) => (
                                         <td key={key} className="border p-2">

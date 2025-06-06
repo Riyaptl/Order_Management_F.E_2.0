@@ -43,6 +43,25 @@ export const fetchShopDetails = async (id) => {
   return await response.json();
 };
 
+export const fetchShopOrders = async (id) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Auth token not found");
+
+  const response = await fetch(`${API_BASE_URL}/orders/${id}`, {
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.message || "Failed to fetch shop orders");
+  }
+
+  return await response.json();
+};
+
 export const deleteShopService = async (ids) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");

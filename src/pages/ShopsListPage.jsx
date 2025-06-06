@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAreas } from "../slice/areaSlice";
-import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop } from "../slice/shopSlice";
+import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop, getShopOrders } from "../slice/shopSlice";
 import Navbar from "../components/NavbarComponents";
 import toast from "react-hot-toast";
-import { FaTrash, FaEdit, FaExchangeAlt } from "react-icons/fa";
+import { FaTrash, FaEdit, FaExchangeAlt, FaReceipt } from "react-icons/fa";
 import UpdateShopComponents from "../components/UpdateShopComponents"
 import CreateShopComponents from "../components/CreateShopComponents"
 import ShiftAreaComponent from "../components/ShiftAreaComponents";
@@ -13,8 +13,8 @@ import OrderComponent from "../components/OrderComponents";
 const ShopsListPage = () => {
     const dispatch = useDispatch();
 
-    const { areas, choseArea } = useSelector((state) => state.area);
-    const { shops, loading, error } = useSelector((state) => state.shop);
+    const { areas } = useSelector((state) => state.area);
+    const { shops, loading, error, orders } = useSelector((state) => state.shop);
     const { role } = useSelector((state) => state.auth);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showShiftModal, setShowShiftModal] = useState(false);
@@ -24,6 +24,7 @@ const ShopsListPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedShopData, setSelectedShopData] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
+    const [showOrders, setShowOrders] = useState(false);
     const [searchTermArea, setSearchTermArea] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const areaDropdownRef = useRef(null);
@@ -128,7 +129,7 @@ const ShopsListPage = () => {
                 dispatch(fetchShops(selectedArea)).unwrap();
             }
         } catch (err) {
-            toast.error("Failed to fetch routes");
+            toast.error(err || "Failed to fetch routes");
         }
     };
 
@@ -178,6 +179,15 @@ const ShopsListPage = () => {
         setShowDropdown(false);
     };
 
+    const handleShowOrders = (id) => {
+        try {
+            dispatch(getShopOrders(id))
+            setShowOrders(true)
+        } catch (error) {
+            toast.error(error || "Failed to fetch orders");
+        }
+    }
+
     const getCurrentLocation = () =>
         new Promise((resolve, reject) => {
             if (!navigator.geolocation) {
@@ -202,6 +212,18 @@ const ShopsListPage = () => {
                 }
             );
         });
+
+    const productsList = [
+        "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g",
+        "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
+        "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g",
+        "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
+        "Intense Coffee 25g", "Toxic Coffee 25g"
+    ];
+
+    const totalList = [
+        "Total Regular 50g", "Total Coffee 50g", "Total Regular 25g", "Total Coffee 25g"
+    ];
 
     return (
         <div className="p-4">
@@ -358,7 +380,7 @@ const ShopsListPage = () => {
                                         </td>
                                         <td className="border p-2">{shop.createdBy}</td>
                                         <td className="border p-2">{shop.updatedBy}</td>
-                                        <td className="border p-2 text-center space-x-8">
+                                        <td className="border p-2 text-center space-x-3">
                                             <button
                                                 onClick={() => handleDelete(shop._id)}
                                                 className="text-red-600 hover:text-red-800 text-xl p-2"
@@ -385,6 +407,13 @@ const ShopsListPage = () => {
                                                 title="Shift Area"
                                             >
                                                 <FaExchangeAlt />
+                                            </button>
+                                            <button
+                                                onClick={() => handleShowOrders(shop._id)}
+                                                className="text-amber-600 hover:text-amber-800 text-xl p-2"
+                                                title="Show Orders"
+                                            >
+                                                <FaReceipt/>
                                             </button>
                                         </td>
                                     </tr>
@@ -414,27 +443,110 @@ const ShopsListPage = () => {
                     </div>
                 </div>
             )}
+            {showOrders && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="relative bg-white max-h-[90vh] w-[95%] max-w-[95vw] overflow-auto rounded-lg shadow-lg p-6">
+                {/* Close Button */}
+                <button
+                    onClick={() => setShowOrders(false)}
+                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
 
-            <UpdateShopComponents
-                isOpen={showUpdateModal}
-                onClose={() => setShowUpdateModal(false)}
-                onUpdate={handleUpdate}
-                initialData={selectedShopData}
-            />
-            <ShiftAreaComponent
-                isOpen={showShiftModal}
-                onClose={() => setShowShiftModal(false)}
-                onShift={handleShift}
-                shopId={selectedShopData?._id}
-                fromAreaId={selectedArea}
-            />
-            <CreateShopComponents
-                isOpen={showCreateModal}
-                onClose={() => setShowCreateModal(false)}
-                onCreate={handleCreate}
-            />
-        </div>
-    );
+                <h2 className="text-lg font-semibold mb-4 text-center text-gray-800">
+                    Order History
+                </h2>
+
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border border-gray-300 text-sm">
+                    <thead className="bg-gray-100 sticky top-0 z-10">
+                        <tr>
+                        <th className="border p-2 text-left min-w-[150px]">Date</th>
+                        <th className="border p-2 text-left min-w-[150px]">Payment Terms</th>
+                        <th className="border p-2 text-left min-w-[150px]">Order Placed By</th>
+                        <th className="border p-2 text-left min-w-[150px]">Remarks</th>
+                        <th className="border p-2 text-left min-w-[150px]">SR</th>
+                        {productsList.map((key) => (
+                            <th key={key} className="border p-2 text-left min-w-[150px]">
+                            {key}
+                            </th>
+                        ))}
+                        {totalList.map((key) => (
+                            <th key={key} className="border p-2 text-left min-w-[150px]">
+                            {key}
+                            </th>
+                        ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map((order) => (
+                        <tr key={order._id} className="hover:bg-gray-50">
+                            <td className="border p-2">
+                            {(() => {
+                                const date = new Date(order.createdAt);
+                                const day = String(date.getDate()).padStart(2, "0");
+                                const month = String(date.getMonth() + 1).padStart(2, "0");
+                                const year = date.getFullYear();
+                                const hours = String(date.getHours()).padStart(2, "0");
+                                const minutes = String(date.getMinutes()).padStart(2, "0");
+                                return `${day}/${month}/${year} ${hours}:${minutes}`;
+                            })()}
+                            </td>
+                            <td className="border p-2">{order.paymentTerms}</td>
+                            <td className="border p-2">{order.orderPlacedBy}</td>
+                            <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                        <div className="overflow-x-auto max-w-[350px]">
+                                            <span
+                                                className="inline-block truncate"
+                                                title={order.remarks}
+                                            >
+                                                {order.remarks}
+                                            </span>
+                                        </div>
+                                    </td>
+                            <td className="border p-2">{order.placedBy}</td>
+                            {productsList.map((key) => (
+                            <td key={key} className="border p-2">
+                                {order.products?.[key] !== undefined ? order.products[key] : "-"}
+                            </td>
+                            ))}
+                            {totalList.map((key) => (
+                            <td key={key} className="border p-2">
+                                {order.total?.[key] !== undefined ? order.total[key] : "-"}
+                            </td>
+                            ))}
+                        </tr>
+                        ))}
+                    </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+            )}
+
+
+                        <UpdateShopComponents
+                            isOpen={showUpdateModal}
+                            onClose={() => setShowUpdateModal(false)}
+                            onUpdate={handleUpdate}
+                            initialData={selectedShopData}
+                        />
+                        <ShiftAreaComponent
+                            isOpen={showShiftModal}
+                            onClose={() => setShowShiftModal(false)}
+                            onShift={handleShift}
+                            shopId={selectedShopData?._id}
+                            fromAreaId={selectedArea}
+                        />
+                        <CreateShopComponents
+                            isOpen={showCreateModal}
+                            onClose={() => setShowCreateModal(false)}
+                            onCreate={handleCreate}
+                        />
+                    </div>
+                );
 };
 
 export default ShopsListPage;

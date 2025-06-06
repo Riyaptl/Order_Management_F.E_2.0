@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchShopsByArea, fetchShopDetails, deleteShopService, updateShopService, createShopService, exportShopService, shiftShopService, importCSV } from "../service/shopService";
+import { fetchShopsByArea, fetchShopDetails, deleteShopService, updateShopService, createShopService, exportShopService, shiftShopService, importCSV, fetchShopOrders } from "../service/shopService";
 
 
 export const fetchShops = createAsyncThunk(
@@ -20,6 +20,17 @@ export const getShopDetails = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       return await fetchShopDetails(id);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getShopOrders = createAsyncThunk(
+  "shop/getOrders",
+  async (id, thunkAPI) => {
+    try {
+      return await fetchShopOrders(id);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -97,6 +108,7 @@ const shopSlice = createSlice({
   name: "shop",
   initialState: {
     shops: [],
+    orders: [],
     loading: false,
     error: null,
     shopDetails: null,
@@ -135,6 +147,18 @@ const shopSlice = createSlice({
       .addCase(getShopDetails.rejected, (state, action) => {
         state.shopDetailsLoading = false;
         state.shopDetailsError = action.payload;
+      }) 
+      .addCase(getShopOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getShopOrders.fulfilled, (state, action) => {
+        state.orders = action.payload;
+        state.loading = false;
+      })
+      .addCase(getShopOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       }) 
       .addCase(deleteShop.pending, (state) => {
         state.loading = true;

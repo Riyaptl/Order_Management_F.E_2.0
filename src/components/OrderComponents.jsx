@@ -191,14 +191,15 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
 
         <div className="mb-4">
           <label className="block text-md font-medium text-gray-700 mb-1">
-            Order Placed By
+            Order Placed By <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={orderPlacedBy}
             onChange={(e) => setOrderPlacedBy(e.target.value)}
-            placeholder="Optional remarks..."
+            placeholder="Order Placed By"
             className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+            required
           />
         </div>
 

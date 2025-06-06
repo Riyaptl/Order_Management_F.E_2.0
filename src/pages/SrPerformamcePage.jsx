@@ -99,10 +99,10 @@ const SrPerformancePage = () => {
                     <thead className="bg-amber-100 text-gray-700">
                         <tr>
                             <th className="p-2 border">Date</th>
-                            <th className="p-2 border">Regular 50g</th>
-                            <th className="p-2 border">Coffee 50g</th>
-                            <th className="p-2 border">Regular 25g</th>
-                            <th className="p-2 border">Coffee 25g</th>
+                            <th className="p-2 border min-w-[150px]">Total Regular 50g</th>
+                            <th className="p-2 border min-w-[150px]">Total Coffee 50g</th>
+                            <th className="p-2 border min-w-[150px]">Total Regular 25g</th>
+                            <th className="p-2 border min-w-[150px]">Total Coffee 25g</th>
                         </tr>
                     </thead>
                     <tbody>
