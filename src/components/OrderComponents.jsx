@@ -21,6 +21,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
   const [location, setLocation] = useState(null);
   const [paymentTerms, setPaymentTerms] = useState("");
   const [remarks, setRemarks] = useState("");
+  const [noOrder, setNoOrder] = useState(false);
 
 
 
@@ -36,7 +37,6 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
       return acc;
     }, {})
   );
-  const [noOrder, setNoOrder] = useState(false);
 
   const handleChange = (e, field) => {
     const value = e.target.value.trim();
@@ -46,47 +46,47 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
   };
 
   const handleSubmit = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  let filteredProducts = {};
+    let filteredProducts = {};
 
-  if (window.confirm("Are you sure you want to place an order?") && !noOrder) {
-    filteredProducts = Object.entries(formData)
-      .filter(([_, value]) => value !== "" && /^\d+$/.test(value) && value != 0)
-      .reduce((acc, [key, value]) => {
-        acc[key] = parseInt(value);
-        return acc;
-      }, {});
+    if (window.confirm("Are you sure you want to place an order?") && !noOrder) {
+      filteredProducts = Object.entries(formData)
+        .filter(([_, value]) => value !== "" && /^\d+$/.test(value) && value != 0)
+        .reduce((acc, [key, value]) => {
+          acc[key] = parseInt(value);
+          return acc;
+        }, {});
 
-    // Optionally: Show a toast if no products are selected and not a 'No Order'
-    if (Object.keys(filteredProducts).length === 0) {
-      toast.error("Please enter at least one product or mark as No Order");
-      return;
+      // Optionally: Show a toast if no products are selected and not a 'No Order'
+      if (Object.keys(filteredProducts).length === 0) {
+        toast.error("Please enter at least one product or mark as No Order");
+        return;
+      }
     }
-  }
 
-  const orderPayload = {
-    shopId,
-    areaId: selectedArea,
-    products: filteredProducts,
-    placedBy: selectedSR,
-    remarks,
-    paymentTerms,
-    ...(location && { location })
+    const orderPayload = {
+      shopId,
+      areaId: selectedArea,
+      products: filteredProducts,
+      placedBy: selectedSR,
+      remarks,
+      paymentTerms,
+      ...(location && { location })
+    };
+
+
+    dispatch(createOrder(orderPayload))
+      .unwrap()
+      .then(() => {
+        toast.success(noOrder ? "Marked as No Order" : "Order placed successfully");
+        dispatch(resetOrderState());
+        onClose();
+      })
+      .catch((err) => {
+        toast.error(err || "Order failed");
+      });
   };
-
-
-  dispatch(createOrder(orderPayload))
-    .unwrap()
-    .then(() => {
-      toast.success(noOrder ? "Marked as No Order" : "Order placed successfully");
-      dispatch(resetOrderState());
-      onClose();
-    })
-    .catch((err) => {
-      toast.error(err || "Order failed");
-    });
-};
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -112,13 +112,13 @@ export default function OrderComponent({ shopId, onClose, selectedArea }) {
                   toast.error("Failed to get location. Please enable GPS.");
                 },
                 {
-                  enableHighAccuracy: true, // <--- KEY to get GPS-level data
+                  enableHighAccuracy: true, 
                   timeout: 10000,
                   maximumAge: 0,
                 }
               );
             } else {
-              setLocation(null); // Reset if unchecked
+              setLocation(null); 
             }
           }}
           className="w-4 h-4"
