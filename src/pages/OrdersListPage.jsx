@@ -111,18 +111,27 @@ export default function OrdersListPage() {
     };
 
     const handleExportCsv = async () => {
-        if (!selectedArea) {
-            toast.error("Please select route first");
+        if (!selectedArea || !selectedSR) {
+            toast.error("Please select route or SR first");
             return;
         }
 
         try {
-            const blob = await dispatch(exportOrdersCsv({
-                areaId: selectedArea,
-                completeData: showCompleteData,
-                placedOrders: placedOrdersTab,
-            })).unwrap();
-
+            let blob
+            if (selectedArea) {
+                blob = await dispatch(exportOrdersCsv({
+                    areaId: selectedArea,
+                    completeData: showCompleteData,
+                    placedOrders: placedOrdersTab,
+                })).unwrap();
+            }
+            if (selectedSR) {
+                blob = await dispatch(exportOrdersCsv({
+                    username: selectedSR,
+                    completeData: showCompleteData,
+                    placedOrders: placedOrdersTab,
+                })).unwrap();
+            }
             // Create a link to download the CSV file
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
