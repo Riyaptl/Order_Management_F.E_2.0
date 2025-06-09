@@ -206,7 +206,7 @@ export default function OrdersListPage() {
                 </div>
             </div>
             <div className="relative w-full">
-                {selectedArea && (
+                {(selectedArea || selectedSR) && (
                     <div className="absolute right-0 top-0 mt-4">
                         <button
                             onClick={handleExportCsv}
