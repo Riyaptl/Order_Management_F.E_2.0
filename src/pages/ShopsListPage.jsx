@@ -165,13 +165,14 @@ const ShopsListPage = () => {
     };
 
     const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+    const trimmedSearchTermArea = searchTermArea.trim().toLowerCase();
 
     const filteredShops = shops.filter((shop) =>
         shop.name.toLowerCase().includes(trimmedSearchTerm.toLowerCase())
     );
 
     const filteredAreas = areas.filter((a) =>
-        a.name.toLowerCase().includes(searchTermArea.toLowerCase())
+        a.name.toLowerCase().includes(trimmedSearchTermArea.toLowerCase())
     );
 
     const handleSelectArea = (area) => {
