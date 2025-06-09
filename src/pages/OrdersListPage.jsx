@@ -111,11 +111,11 @@ export default function OrdersListPage() {
     };
 
     const handleExportCsv = async () => {
-        if (!selectedArea || !selectedSR) {
+        if (!selectedArea && !selectedSR) {
             toast.error("Please select route or SR first");
             return;
         }
-
+        
         try {
             let blob
             if (selectedArea) {
@@ -215,7 +215,7 @@ export default function OrdersListPage() {
                 </div>
             </div>
             <div className="relative w-full">
-                {(selectedArea || selectedSR) && (
+                {(selectedArea || selectedSR) && (role === "admin") &&(
                     <div className="absolute right-0 top-0 mt-4">
                         <button
                             onClick={handleExportCsv}
