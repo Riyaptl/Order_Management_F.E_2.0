@@ -121,9 +121,11 @@ const RoutesListPage = () => {
     }
   };
 
+  const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+  const trimmedDistributorSearchTerm = distributorSearchTerm.trim().toLowerCase();
   const filteredAreas = allAreas.filter((area) =>
-    area.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    area.distributor?.toLowerCase().includes(distributorSearchTerm.toLowerCase())
+    area.name.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) &&
+    area.distributor?.toLowerCase().includes(trimmedDistributorSearchTerm.toLowerCase())
   );
 
 
