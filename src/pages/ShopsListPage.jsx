@@ -354,12 +354,13 @@ const ShopsListPage = () => {
                             <tbody>
                                 {filteredShops.map((shop, index) => (
                                     <tr key={shop._id} className="hover:bg-gray-50" onClick={(e) => {
-                                        if (e.target.closest("td")?.cellIndex === 7 || e.target.closest("td")?.cellIndex === 4) return;
-                                        setSelectedShop(shop);
+                                        if (e.target.closest("td")?.cellIndex === 1 || e.target.closest("td")?.cellIndex === 2) {
+                                            setSelectedShop(shop);
+                                        }
                                     }}>
                                         <td className="border p-2">{index + 1}</td>
-                                        <td className="border p-2">{shop.name}</td>
-                                        <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap">
+                                        <td className="border p-2 cursor-pointer">{shop.name}</td>
+                                        <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap cursor-pointer">
                                             <div className="min-w-[200px] inline-block">
                                                 {shop.address}
                                             </div>

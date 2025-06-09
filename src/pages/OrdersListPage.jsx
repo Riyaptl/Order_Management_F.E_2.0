@@ -71,8 +71,8 @@ export default function OrdersListPage() {
 
 
     const handleRefresh = async () => {
-        if (selectedArea) {
-            try {
+        try {
+            if (selectedArea) {
                 const res = await dispatch(
                     getOrders({
                         areaId: selectedArea,
@@ -83,11 +83,21 @@ export default function OrdersListPage() {
                 ).unwrap();
                 setTotalPages(res.totalPages);
                 toast.success("Orders refreshed");
-            } catch (err) {
-                toast.error("Failed to refresh orders");
             }
+            else if (selectedSR) {
+                const res = await dispatch(getOrdersSR({
+                    username: selectedSR,
+                    page: currentPage,
+                    completeData: showCompleteData,
+                    placedOrders: placedOrdersTab
+                })).unwrap();
+                setTotalPages(res.totalPages);
+                toast.success("Orders refreshed");
+            }
+        }catch (err) {
+            toast.error("Failed to refresh orders");
         }
-    };
+    }
 
     const handleDelete = (orderId) => {
         if (window.confirm("Are you sure you want to delete this order?")) {
