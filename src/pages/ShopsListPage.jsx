@@ -346,6 +346,7 @@ const ShopsListPage = () => {
                                     <th className="border p-2 text-left min-w-[120px]">Contact Number</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address Link</th>
                                     <th className="border p-2 text-left min-w-[150px]">Created By</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Created At</th>
                                     <th className="border p-2 text-left min-w-[150px]">Updated By</th>
                                     <th className="border p-2 text-left min-w-[200px]">Action</th>
                                 </tr>
@@ -379,6 +380,18 @@ const ShopsListPage = () => {
                                             )}
                                         </td>
                                         <td className="border p-2">{shop.createdBy}</td>
+                                        <td className="border p-2">
+                                        {(() => {
+                                            const date = new Date(shop.createdAt);
+                                            const day = String(date.getDate()).padStart(2, "0");
+                                            const month = String(date.getMonth() + 1).padStart(2, "0");
+                                            const year = date.getFullYear();
+                                            const hours = String(date.getHours()).padStart(2, "0");
+                                            const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                                            return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                        })()}
+                                        </td>
                                         <td className="border p-2">{shop.updatedBy}</td>
                                         <td className="border p-2 text-center space-x-3">
                                             <button
