@@ -1,63 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { forgotPass, login, resetPass } from "../slice/authSlice";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const dispatch   = useDispatch();
+  const navigate   = useNavigate();
   const { loading } = useSelector((state) => state.auth);
 
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [location, setLocation] = useState(null);
-
-  const [showForgotModal, setShowForgotModal] = useState(false);
-  const [email, setEmail] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [username, setUsername]           = useState("");
+  const [password, setPassword]           = useState("");
+  const [showForgotModal, setShowForgot]  = useState(false);
+  const [email, setEmail]                 = useState("");
+  const [otpSent, setOtpSent]             = useState(false);
+  const [otp, setOtp]                     = useState("");
+  const [newPassword, setNewPassword]     = useState("");
+  const [confirmPassword, setConfirmPass] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!navigator.geolocation) {
-      toast.error("Geolocation not supported");
-      return;
-    }
-
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const loginLoc = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-
+      async ({ coords }) => {
         try {
-          const res = await dispatch(login({ username, password, loginLoc })).unwrap();
+          const res = await dispatch(
+            login({
+              username,
+              password,
+              loginLoc: { latitude: coords.latitude, longitude: coords.longitude },
+            })
+          ).unwrap();
+
           toast.success(res.message);
           navigate("/");
         } catch (err) {
-          toast.error(err || "Login failed");
+          toast.error(err?.message || "Login failed");
         }
       },
-      (error) => {
-        console.error("Location error:", error);
-        toast.error("Failed to get location. Please enable GPS.");
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
+      () => toast.error("Failed to get location. Please enable GPS."),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
+
   const handleSendOtp = async () => {
+    if (!email) return toast.error("Email required");
     try {
-      if (!email) return toast.error("Email required");
       const res = await dispatch(forgotPass({ email })).unwrap();
       toast.success(res.message);
       setOtpSent(true);
@@ -67,14 +56,15 @@ export default function LoginPage() {
   };
 
   const handleResetPassword = async () => {
+    if (!otp || !newPassword || !confirmPassword)
+      return toast.error("All fields are required");
+    if (newPassword !== confirmPassword)
+      return toast.error("Passwords do not match");
+
     try {
-      if (!otp || !newPassword || !confirmPassword) {
-        return toast.error("All fields are required");
-      }
-      if (newPassword !== confirmPassword) {
-        return toast.error("Passwords do not match");
-      }
-      const res = await dispatch(resetPass({ email, otp, newPassword, confirmPassword })).unwrap();
+      const res = await dispatch(
+        resetPass({ email, otp, newPassword, confirmPassword })
+      ).unwrap();
       toast.success(res.message);
       closeModal();
     } catch (err) {
@@ -86,46 +76,57 @@ export default function LoginPage() {
     setEmail("");
     setOtp("");
     setNewPassword("");
-    setConfirmPassword("");
+    setConfirmPass("");
     setOtpSent(false);
-    setShowForgotModal(false);
+    setShowForgot(false);
   };
 
   return (
     <div className="max-w-md mx-auto mt-20 p-8 border rounded shadow-md bg-white relative">
       <h2 className="text-3xl font-bold mb-8 text-center">Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          className="w-full border border-gray-300 p-3 rounded text-lg"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full border border-gray-300 p-3 rounded text-lg"
-        />
 
+      <form
+        onSubmit={handleSubmit}
+        autoComplete="on"
+        name="login"
+        method="post"
+        action="/login"
+        id="login-form"
+        className="space-y-6"
+      >
+            <input
+        type="text"
+        name="username"
+        autoComplete="username"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+        className="w-full border border-gray-300 p-3 rounded text-lg"
+      />
+
+              <input
+        type="password"
+        name="password"
+        autoComplete="current-password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        className="w-full border border-gray-300 p-3 rounded text-lg"
+      />
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded text-lg font-semibold transition"
         >
-          {loading ? "Logging in..." : "Login"}
+          {loading ? "Logging in…" : "Login"}
         </button>
       </form>
 
+      {/* ------------ Links & Modals (unchanged) ------------ */}
       <div className="text-center mt-4">
-        <button
-          onClick={() => setShowForgotModal(true)}
-          className="text-sm text-amber-600 hover:underline"
-        >
+        <button onClick={() => setShowForgot(true)} className="text-sm text-amber-600 hover:underline">
           Forgot Password?
         </button>
       </div>
@@ -139,7 +140,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded shadow-md w-full max-w-md relative">
@@ -153,16 +153,14 @@ export default function LoginPage() {
               className="w-full border border-gray-300 p-2 rounded mb-3"
             />
 
-            {!otpSent && (
+            {!otpSent ? (
               <button
                 onClick={handleSendOtp}
                 className="bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded mb-3 w-full"
               >
                 Send OTP
               </button>
-            )}
-
-            {otpSent && (
+            ) : (
               <>
                 <input
                   type="text"
@@ -182,7 +180,7 @@ export default function LoginPage() {
                   type="password"
                   placeholder="Confirm Password"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={(e) => setConfirmPass(e.target.value)}
                   className="w-full border border-gray-300 p-2 rounded mb-3"
                 />
                 <button
