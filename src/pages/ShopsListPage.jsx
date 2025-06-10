@@ -19,13 +19,13 @@ const ShopsListPage = () => {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showShiftModal, setShowShiftModal] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [selectedArea, setSelectedArea] = useState("");
-    const [selectedAreaName, setSelectedAreaName] = useState("");
+    const [selectedArea, setSelectedArea] = useState(localStorage.getItem('chosenArea') || "");
+    const [selectedAreaName, setSelectedAreaName] = useState(localStorage.getItem('chosenAreaName') || "");
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedShopData, setSelectedShopData] = useState(null);
     const [selectedShop, setSelectedShop] = useState(null);
     const [showOrders, setShowOrders] = useState(false);
-    const [searchTermArea, setSearchTermArea] = useState("");
+    const [searchTermArea, setSearchTermArea] = useState(localStorage.getItem('choseAreaName') || "");
     const [showDropdown, setShowDropdown] = useState(false);
     const areaDropdownRef = useRef(null);
 
@@ -36,6 +36,7 @@ const ShopsListPage = () => {
 
     useEffect(() => {
         if (selectedArea) {
+            console.log(selectedArea, selectedAreaName);
             dispatch(fetchShops(selectedArea)).unwrap();
         }
     }, [dispatch, selectedArea]);
@@ -176,6 +177,8 @@ const ShopsListPage = () => {
     );
 
     const handleSelectArea = (area) => {
+        localStorage.setItem('chosenArea', area._id)
+        localStorage.setItem('choseAreaName', area.name)
         setSelectedArea(area._id);
         setSelectedAreaName(area.name);
         setSearchTermArea(area.name);

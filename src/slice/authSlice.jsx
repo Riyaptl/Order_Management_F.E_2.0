@@ -115,6 +115,8 @@ const authSlice = createSlice({
         localStorage.removeItem('token');
         localStorage.removeItem("user");
         localStorage.removeItem("role");
+        localStorage.removeItem("choseAreaName");
+        localStorage.removeItem("chosenArea");
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;

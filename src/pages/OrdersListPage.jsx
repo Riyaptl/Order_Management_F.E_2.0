@@ -63,7 +63,7 @@ export default function OrdersListPage() {
                     setTotalPages(res.totalPages);
                 }
             } catch (err) {
-                toast.error("Failed to fetch routes");
+                toast.error(err.message);
             }
         };
         fetchOrders();

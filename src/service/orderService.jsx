@@ -74,7 +74,6 @@ export const getOrdersService = async (data) => {
 export const getOrdersSRService = async (data) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
-
   const response = await fetch(`${API_BASE_URL}/all/sr`, {
     method: "POST",
     credentials: 'include',
@@ -86,7 +85,7 @@ export const getOrdersSRService = async (data) => {
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json(); 
     throw new Error(error.message || "Failed to get orders");
   }
 

@@ -57,7 +57,8 @@ const areaSlice = createSlice({
     allAreas: [],
     loading: false,
     error: null,
-    choseArea: null,
+    choseArea: localStorage.getItem('chosenArea') || null,
+    choseAreaName: localStorage.getItem('choseAreaName') || null,
   },
   reducers: {
     setChoseArea: (state, action) => {
