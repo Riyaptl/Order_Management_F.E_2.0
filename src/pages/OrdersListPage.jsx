@@ -152,42 +152,6 @@ export default function OrdersListPage() {
         }
     };
 
-    const getCurrentLocation = () =>
-        new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                return reject("Geolocation not supported");
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve({
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
-                },
-                (error) => {
-                    console.error(error);
-                    reject("Failed to get location. Please enable GPS.");
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0,
-                }
-            );
-        });
-
-    const handleLogout = async () => {
-        try {
-            const logoutLoc = await getCurrentLocation();
-            dispatch(logout({ username: user, logoutLoc }));
-            navigate("/login");
-        } catch (error) {
-            toast.error("Failed to fetch routes");
-        }
-    };
-
-
     const productsList = [
         "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g",
         "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
@@ -214,19 +178,6 @@ export default function OrdersListPage() {
                     <h2 className="text-2xl font-semibold text-amber-700">Orders List</h2>
                 </div>
             </div>
-            <div className="relative w-full">
-                {(selectedArea || selectedSR) && (role === "admin") &&(
-                    <div className="absolute right-0 top-0 mt-4">
-                        <button
-                            onClick={handleExportCsv}
-                            className="px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition"
-                        >
-                            CSV Export
-                        </button>
-                    </div>
-                )}
-            </div>
-
             {!isDistributor && (<div className="flex justify-center mb-6 mt-6 space-x-4">
                 <button
                     onClick={() => setPlacedOrdersTab(true)}
@@ -244,82 +195,96 @@ export default function OrdersListPage() {
                 </button>
             </div>)}
 
-            <div className="flex flex-col md:flex-row md:items-end md:space-x-6 mt-4 mb-4">
+            <div className="flex flex-col md:flex-row md:items-end md:flex-wrap gap-4 mt-4 mb-4">
+
                 {/* Area Selector */}
-                {role !== "sr" && (<div className="mr-12">
-                    <label className="block text-lg font-medium text-amber-700 mb-2">
-                        Select Route
-                    </label>
+                {role !== "sr" && (
+                    <div className="w-full md:w-auto">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">Select Route</label>
                     <select
                         value={selectedArea}
                         onChange={(e) => {
-                            setSelectedArea(e.target.value)
-                            setSelectedSR("")
+                        setSelectedArea(e.target.value);
+                        setSelectedSR("");
                         }}
                         className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                     >
                         <option value="">-- Select Route --</option>
                         {areas.map((area) => (
-                            <option key={area._id} value={area._id}>
-                                {area.name}
-                            </option>
+                        <option key={area._id} value={area._id}>
+                            {area.name}
+                        </option>
                         ))}
                     </select>
-                </div>)}
-                
+                    </div>
+                )}
+
                 {/* SR Selector */}
-                {role === "admin" && (<div className="mr-12">
-                    <label className="block text-lg font-medium text-amber-700 mb-2">
-                        Select SR
-                    </label>
+                {role === "admin" && (
+                    <div className="w-full md:w-auto">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">Select SR</label>
                     <select
                         value={selectedSR}
                         onChange={(e) => {
-                            setSelectedSR(e.target.value)
-                            setSelectedArea("")
+                        setSelectedSR(e.target.value);
+                        setSelectedArea("");
                         }}
                         className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                     >
                         <option value="">-- Select SR --</option>
                         {srs.map((sr) => (
-                            <option key={sr._id} value={sr.username}>
-                                {sr.username}
-                            </option>
+                        <option key={sr._id} value={sr.username}>
+                            {sr.username}
+                        </option>
                         ))}
                     </select>
-                </div>)}
-
-                {(selectedArea || selectedSR ) && (
-                    <div className="flex flex-col mr-6">
-                        <label htmlFor="completeData" className="text-lg font-medium text-amber-700 mb-1">
-                            Show {monthName} Month's Data
-                        </label>
-                        <label htmlFor="completeData" className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                id="completeData"
-                                checked={showCompleteData}
-                                onChange={() => setShowCompleteData((prev) => !prev)}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
-                            <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
-                        </label>
                     </div>
                 )}
 
-                {(selectedArea || selectedSR ) && role !== "sr" && (
-                    <div className="mt-4 md:mt-0">
-                        <button
-                            onClick={handleRefresh}
-                            className="px-4 py-2 bg-amber-600 text-white text-md rounded hover:bg-amber-700 transition ml-8"
-                        >
-                            Refresh
-                        </button>
+                {/* Toggle */}
+                {(selectedArea || selectedSR) && (
+                    <div className="flex flex-col w-full md:w-auto">
+                    <label htmlFor="completeData" className="text-lg font-medium text-amber-700 mb-1">
+                        Show {monthName} Month's Data
+                    </label>
+                    <label htmlFor="completeData" className="relative inline-flex items-center cursor-pointer">
+                        <input
+                        type="checkbox"
+                        id="completeData"
+                        checked={showCompleteData}
+                        onChange={() => setShowCompleteData((prev) => !prev)}
+                        className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                    </label>
+                    </div>
+                )}
+
+                {/* Refresh Button */}
+                {(selectedArea || selectedSR) && role !== "sr" && (
+                    <div className="w-full md:w-auto">
+                    <button
+                        onClick={handleRefresh}
+                        className="px-4 py-2 bg-amber-600 text-white text-md rounded hover:bg-amber-700 transition mt-2 md:mt-0"
+                    >
+                        Refresh
+                    </button>
+                    </div>
+                )}
+
+                {/* CSV Export Button pushed to right on desktop */}
+                {(selectedArea || selectedSR) && role === "admin" && (
+                    <div className="w-full md:w-auto md:ml-auto">
+                    <button
+                        onClick={handleExportCsv}
+                        className="px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition mt-2 md:mt-0"
+                    >
+                        CSV Export
+                    </button>
                     </div>
                 )}
             </div>
-
 
             {!(selectedArea || selectedSR ) && (
                 <p className="text-center text-gray-500">No records to show</p>

@@ -61,9 +61,6 @@ const SrPerformancePage = () => {
         month: "long",
     });
 
-    if (loading) {
-        return <p className="text-center mt-10 text-amber-600 font-semibold">Loading report...</p>;
-    }
 
     return (
         <div className="p-4 max-w-5xl mx-auto bg-white shadow-lg rounded-lg relative">
@@ -94,6 +91,9 @@ const SrPerformancePage = () => {
                 </div>
             )}
 
+            {loading && (<p className="text-center mt-10 text-amber-600 font-semibold">Loading report...</p>)}
+            {!loading && 
+            <>
             <div className="overflow-x-auto">
                 <table className="w-full table-auto border border-gray-200 text-md">
                     <thead className="bg-amber-100 text-gray-700">
@@ -172,7 +172,7 @@ const SrPerformancePage = () => {
                     </table>
                 </div>
             )} </>)}
-
+            </>}
         </div>
     );
 };
