@@ -276,7 +276,7 @@ const ShopsListPage = () => {
                     onClick={() => {
                         window.location.href = `/csv-import`;
                     }}
-                    className="absolute right-0 px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition shadow-lg"
+                    className="hidden md:block absolute right-0 px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition shadow-lg"
                 >
                     CSV Import
                 </button>
