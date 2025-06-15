@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchShopsByArea, fetchShopDetails, deleteShopService, updateShopService, createShopService, exportShopService, shiftShopService, importCSV, fetchShopOrders } from "../service/shopService";
+import { fetchShopsByArea, fetchShopDetails, deleteShopService, updateShopService, createShopService, exportShopService, shiftShopService, importCSV, fetchShopOrders, blacklistShopService } from "../service/shopService";
 
 
 export const fetchShops = createAsyncThunk(
   "shop/fetchShops",
-  async (areaId, thunkAPI) => {
+  async (data, thunkAPI) => {
     try {
-      const shops = await fetchShopsByArea(areaId);
+      const shops = await fetchShopsByArea(data);
       return shops;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -31,6 +31,17 @@ export const getShopOrders = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       return await fetchShopOrders(id);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const blacklistShop = createAsyncThunk(
+  "shop/blacklistShop",
+  async (ids, thunkAPI) => {
+    try {
+      return await blacklistShopService(ids);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -169,6 +180,18 @@ const shopSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteShop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(blacklistShop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(blacklistShop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(blacklistShop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

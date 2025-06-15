@@ -10,17 +10,28 @@ const UpdateShopComponents = ({ isOpen, onClose, onUpdate, initialData }) => {
     address: "",
     contactNumber: "",
     addressLink: "",
+    activity: false
   });
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        activity: initialData.activity === true || initialData.activity === "true",
+      });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      activity: e.target.checked
+    }));
   };
 
   const handleSubmit = async () => {
@@ -80,6 +91,15 @@ const UpdateShopComponents = ({ isOpen, onClose, onUpdate, initialData }) => {
             }`}
             placeholder="Enter Address Link"
           />
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={formData.activity}
+              onChange={handleCheckboxChange}
+              className="w-4 h-4"
+            />
+            <span className="text-md text-gray-700">Activity</span>
+          </label>
           <label className="flex items-center gap-2 text-md font-medium text-gray-800">
           <input
             type="checkbox"
@@ -117,6 +137,7 @@ const UpdateShopComponents = ({ isOpen, onClose, onUpdate, initialData }) => {
         {currLoc && location && (
           <p className="text-green-600 text-sm">📍 Location captured</p>
         )}
+        
         <div className="flex justify-center gap-4 mt-4">
           <button
             onClick={handleSubmit}

@@ -1,35 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { salesReport, SrReport } from '../slice/orderSlice';
+import { callsReport, salesReport, SrReport } from '../slice/orderSlice';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { getSRDetails } from '../slice/userSlice';
 import Navbar from "../components/NavbarComponents";
+import { getSRDetails } from '../slice/userSlice';
 
 const SrPerformancePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { user, role } = useSelector(state => state.auth);
-    const { productTotals, overallTotals, amount } = useSelector((state) => state.order);
     const { srs } = useSelector(state => state.user);
-    const { summary, loading, error } = useSelector(state => state.order);
+    const { summary, calls, loading, error } = useSelector(state => state.order);
     const [showCurrentMonth, setShowCurrentMonth] = useState(false);
     const [username, setUsername] = useState('');
     const [report, setReport] = useState([])
 
     useEffect(() => {
-        if (role !== "admin" && role !== "distributor" && user) {
+        if (role === "sr" && user) {
             setUsername(user)
         }
     }, [role, user])
 
+    const dispatchReports = async (dispatch, username) => {
+        try {
+            await dispatch(SrReport({ username })).unwrap();  
+            dispatch(callsReport({ username }));              
+        } catch (error) {
+            console.error("SrReport failed:", error);
+        }
+    };
+
+    // Inside useEffect or component
     useEffect(() => {
         if (username) {
-            dispatch(SrReport({ username }))
-                .unwrap()
-                .catch(err => toast.error(err || 'Failed to load performance report'));
+            dispatchReports(dispatch, username);
         }
-    }, [dispatch, username]);
+    }, [username]);
 
     useEffect(() => {
         if (username) {
@@ -46,28 +53,34 @@ const SrPerformancePage = () => {
     }, [dispatch, role]);
 
     useEffect(() => {
-        if (username) {
-            setReport(summary)
-        } else {
-            setReport([])
-        }
-    }, [username, summary]);
+        if (username && Array.isArray(summary) && Array.isArray(calls)) {
+            
+            const callsMap = new Map(
+                calls.map(({ date, tc = 0, pc = 0 }) => [date, { tc, pc }])
+            );
 
-    const productKeys = productTotals ? Object.keys(productTotals) : [];
-    const overallKeys = overallTotals ? Object.keys(overallTotals) : [];
-    const now = new Date();
-    const monthName = now.toLocaleString("en-IN", {
-       timeZone: "Asia/Kolkata",
-        month: "long",
-    });
+            // Merge calls data into summary
+            const mergedReport = summary.map((entry) => {
+                const { date } = entry;
+                const callData = callsMap.get(date) || { tc: 0, pc: 0 };
+                return {
+                    ...entry,
+                    tc: callData.tc,
+                    pc: callData.pc,
+                };
+            });
+            setReport(mergedReport);
+        } else {
+            setReport([]);
+        }
+    }, [username, summary, calls]);
 
 
     return (
         <div className="p-4 max-w-5xl mx-auto bg-white shadow-lg rounded-lg relative">
-                <div className="flex justify-center mb-8">
-                <Navbar />
-                </div>
-
+                <div className="flex justify-end md:justify-center mb-8">
+                          <Navbar />
+                        </div>
             <h1 className="text-2xl font-bold text-amber-700 mb-10 text-center">Performance Report</h1>
 
             {error && <p className="text-center mt-10 text-red-600 font-semibold">{error}</p>}
@@ -98,80 +111,38 @@ const SrPerformancePage = () => {
                 <table className="w-full table-auto border border-gray-200 text-md">
                     <thead className="bg-amber-100 text-gray-700">
                         <tr>
-                            <th className="p-2 border">Date</th>
-                            <th className="p-2 border min-w-[150px]">Total Regular 50g</th>
-                            <th className="p-2 border min-w-[150px]">Total Coffee 50g</th>
-                            <th className="p-2 border min-w-[150px]">Total Regular 25g</th>
-                            <th className="p-2 border min-w-[150px]">Total Coffee 25g</th>
+                            <th className="p-2 border min-w-[150px]">Date</th>
+                            <th className="p-2 border min-w-[80px]">TC</th>
+                            <th className="p-2 border min-w-[80px]">PC</th>
+                            <th className="p-2 border min-w-[150px]">Ordered Regular 50g</th>
+                            <th className="p-2 border min-w-[150px]">Ordered Coffee 50g</th>
+                            <th className="p-2 border min-w-[150px]">Ordered Regular 25g</th>
+                            <th className="p-2 border min-w-[150px]">Ordered Coffee 25g</th>
+                            <th className="p-2 border min-w-[150px]">Cancelled Regular 50g</th>
+                            <th className="p-2 border min-w-[150px]">Cancelled Coffee 50g</th>
+                            <th className="p-2 border min-w-[150px]">Cancelled Regular 25g</th>
+                            <th className="p-2 border min-w-[150px]">Cancelled Coffee 25g</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {report.map(({ date, "Regular 50g": reg50 = 0, "Coffee 50g": cof50 = 0, "Regular 25g": reg25 = 0, "Coffee 25g": cof25 = 0 }) => (
-                            <tr key={date} className="text-center even:bg-gray-50">
-                                <td className="p-2 border">{new Date(date).toLocaleDateString()}</td>
-                                <td className="p-2 border">{reg50}</td>
-                                <td className="p-2 border">{cof50}</td>
-                                <td className="p-2 border">{reg25}</td>
-                                <td className="p-2 border">{cof25}</td>
+                        {report.map((entry) => (
+                            <tr className="hover:bg-gray-50">
+                                <td className="border p-2">{entry.date}</td>
+                                <td className="border p-2">{entry.tc}</td>
+                                <td className="border p-2">{entry.pc}</td>
+                                <td className="border p-2">{entry["Ordered Regular 50g"]}</td>
+                                <td className="border p-2">{entry["Ordered Coffee 50g"]}</td>
+                                <td className="border p-2">{entry["Ordered Regular 25g"]}</td>
+                                <td className="border p-2">{entry["Ordered Coffee 25g"]}</td>
+                                <td className="border p-2">{entry["Cancelled Regular 50g"]}</td>
+                                <td className="border p-2">{entry["Cancelled Coffee 50g"]}</td>
+                                <td className="border p-2">{entry["Cancelled Regular 25g"]}</td>
+                                <td className="border p-2">{entry["Cancelled Coffee 25g"]}</td>
                             </tr>
-                        ))}
+                            ))}
                     </tbody>
                 </table>
             </div>
-
-            {username && (<>
-
-                <div className="flex items-center space-x-4 mb-6 mt-6">
-                    <label className="text-lg font-bold text-amber-700">
-                        Show {monthName}'s Sales Report
-                    </label>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={showCurrentMonth}
-                            onChange={() => setShowCurrentMonth((prev) => !prev)}
-                            className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
-                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
-                    </label>
-                </div>
-                <div className="text-lg font-bold text-amber-700 mb-6">
-                    Total Amount: ₹{amount || 0}
-                </div>
-
-
-            {!loading && (
-                <div className="overflow-x-auto mt-4">
-                    <table className="min-w-full border border-gray-300">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <th className="border p-2 text-left">Product</th>
-                                <th className="border p-2 text-left">Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {productKeys.map((key) => (
-                                <tr key={key} className="hover:bg-gray-50">
-                                    <td className="border p-2">{key}</td>
-                                    <td className="border p-2">{productTotals[key]}</td>
-                                </tr>
-                            ))}
-                            <tr className="bg-gray-200">
-                                <td colSpan={2} className="text-center font-semibold p-2">
-                                    Overall Totals
-                                </td>
-                            </tr>
-                            {overallKeys.map((key) => (
-                                <tr key={key} className="hover:bg-gray-50">
-                                    <td className="border p-2">{key}</td>
-                                    <td className="border p-2">{overallTotals[key]}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )} </>)}
             </>}
         </div>
     );

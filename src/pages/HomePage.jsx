@@ -73,11 +73,9 @@ export default function HomePage() {
 
   return (
     <div className="p-4">
-    {/* {role === "admin" && ( */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-end md:justify-center mb-8">
           <Navbar />
         </div>
-      {/* )} */}
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
 
       <h1 className="text-3xl font-bold text-center text-amber-700 mb-6">
@@ -98,50 +96,6 @@ export default function HomePage() {
             Performance Report
           </button>
       </div>
-
-      {/* <div className="mb-4 relative">
-        <label className="block mb-5 text-xl font-medium text-gray-700">
-          Select Your Route
-        </label>
-
-        {loading ? (
-          <p>Loading areas...</p>
-        ) : error ? (
-          <p className="text-red-600">{error}</p>
-        ) : (
-          <>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setShowDropdown(true);
-              }}
-              onFocus={() => setShowDropdown(true)}
-              placeholder={selectedArea ? selectedArea : "Search area..."}
-              className="w-full border border-gray-300 p-3 rounded text-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-
-            {showDropdown && (
-              <ul className="absolute z-10 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow">
-                {filteredAreas.length === 0 ? (
-                  <li className="p-3 text-gray-500">No areas found</li>
-                ) : (
-                  filteredAreas.map((area) => (
-                    <li
-                      key={area._id}
-                      onClick={() => handleSelect(area)}
-                      className="p-3 hover:bg-amber-100 cursor-pointer"
-                    >
-                      {area.name}
-                    </li>
-                  ))
-                )}
-              </ul>
-            )}
-          </>
-        )}
-      </div> */}
     </div>
   </div>
   );

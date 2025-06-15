@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { deleteOrderService, exportOrdersCsvService, getOrdersService, placeOrder, SrPerformance, salesReportService, getOrdersSRService } from "../service/orderService";
+import { deleteOrderService, exportOrdersCsvService, getOrdersService, statusOrderService, placeOrder, SrPerformance, salesReportService, getOrdersSRService, getOrdersDateService, getRevokedOrdersService, exportRevokedOrdersCsvService, cancelledReportService, SrCallsReport } from "../service/orderService";
 
 // Async thunk
 export const SrReport = createAsyncThunk(
@@ -7,6 +7,18 @@ export const SrReport = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       return await SrPerformance(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+// Async thunk
+export const callsReport = createAsyncThunk(
+  "order/calls_report",
+  async (data, thunkAPI) => {
+    try {
+      return await SrCallsReport(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -46,6 +58,28 @@ export const getOrdersSR = createAsyncThunk(
   }
 );
 
+export const getOrdersDate = createAsyncThunk(
+  "order/getOrdersDate",
+  async (data, thunkAPI) => {
+    try {
+      return await getOrdersDateService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const getRevokedOrders = createAsyncThunk(
+  "order/getRevokedOrders",
+  async (data, thunkAPI) => {
+    try {
+      return await getRevokedOrdersService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 
 export const salesReport = createAsyncThunk(
   "order/salesReport",
@@ -58,11 +92,33 @@ export const salesReport = createAsyncThunk(
   }
 );
 
+export const cancelReport = createAsyncThunk(
+  "order/cancelledReport",
+  async (data, thunkAPI) => {
+    try {
+      return await cancelledReportService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 export const deleteOrder = createAsyncThunk(
   "order/deleteOrder",
   async (id, thunkAPI) => {
     try {
       return await deleteOrderService(id);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const statusOrder = createAsyncThunk(
+  "order/statusOrder",
+  async (data, thunkAPI) => {
+    try {
+      return await statusOrderService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -81,19 +137,49 @@ export const exportOrdersCsv = createAsyncThunk(
   }
 );
 
+export const exportRevokedOrdersCsv = createAsyncThunk(
+  "orders/exportRevokedCsv",
+  async (exportParams, thunkAPI) => {
+    try {
+      const data = await exportRevokedOrdersCsvService(exportParams);
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const orderSlice = createSlice({
   name: "order",
   initialState: {
     orders: [],
     summary: [],
+    calls: [],
     loading: false,
     success: false,
     error: null,
     exportLoading: false,
     exportError: null,
-    productTotals: {},
-    overallTotals: {},
-    amount: 0
+    saleReport: {
+      productTotals: {},
+      overallTotals: {},
+      amount: 0
+    },
+    saleReplaceReport: {
+      productTotals: {},
+      overallTotals: {},
+      amount: 0
+    },
+    cancelledReport: {
+      productTotals: {},
+      overallTotals: {},
+      amount: 0
+    },
+    cancelledReplaceReport: {
+      productTotals: {},
+      overallTotals: {},
+      amount: 0
+    }
   },
   reducers: {
     resetOrderState: (state) => {
@@ -111,9 +197,20 @@ const orderSlice = createSlice({
       .addCase(SrReport.fulfilled, (state, action) => {
         state.loading = false;
         state.summary = action.payload.totalSummary;    
-           
       })
       .addCase(SrReport.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(callsReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(callsReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.calls = action.payload.totalCalls;    
+      })
+      .addCase(callsReport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -154,17 +251,53 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(getOrdersDate.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOrdersDate.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;       
+      })
+      .addCase(getOrdersDate.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getRevokedOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getRevokedOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;       
+      })
+      .addCase(getRevokedOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(salesReport.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(salesReport.fulfilled, (state, action) => {
         state.loading = false;
-        state.productTotals = action.payload.productTotals;       
-        state.overallTotals = action.payload.overallTotals;       
-        state.amount = action.payload.amount;       
+        state.saleReport = action.payload.saleReport       
+        state.saleReplaceReport = action.payload.saleReplaceReport   
       })
       .addCase(salesReport.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(cancelReport.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(cancelReport.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cancelledReport = action.payload.cancelledReport       
+        state.cancelledReplaceReport = action.payload.cancelledReplaceReport   
+      })
+      .addCase(cancelReport.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -180,6 +313,18 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(statusOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(statusOrder.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null     
+      })
+      .addCase(statusOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(exportOrdersCsv.pending, (state) => {
         state.exportLoading = true;
         state.exportError = null;
@@ -189,6 +334,18 @@ const orderSlice = createSlice({
         state.exportError = null;
       })
       .addCase(exportOrdersCsv.rejected, (state, action) => {
+        state.exportLoading = false;
+        state.exportError = action.payload ;
+      })
+      .addCase(exportRevokedOrdersCsv.pending, (state) => {
+        state.exportLoading = true;
+        state.exportError = null;
+      })
+      .addCase(exportRevokedOrdersCsv.fulfilled, (state) => {
+        state.exportLoading = false;
+        state.exportError = null;
+      })
+      .addCase(exportRevokedOrdersCsv.rejected, (state, action) => {
         state.exportLoading = false;
         state.exportError = action.payload ;
       });

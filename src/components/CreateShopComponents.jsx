@@ -1,11 +1,13 @@
 // src/components/CreateShopComponents.jsx
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 
 const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
     contactNumber: "",
+    activity: false
   });
 
   const handleChange = (e) => {
@@ -15,11 +17,18 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
     }));
   };
 
+  const handleCheckboxChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      activity: e.target.checked
+    }));
+  };
+
   const handleCreate = () => {
-    const { name, address, contactNumber } = formData;
+    const { name, address, contactNumber, activity } = formData;
     if (!name.trim()) return;
-    onCreate({ name, address, contactNumber });
-    setFormData({ name: "", address: "", contactNumber: ""});
+    onCreate({ name, address, contactNumber, activity });
+    setFormData({ name: "", address: "", contactNumber: "", activity: false});
   };
 
   const handleCancel = () => {
@@ -69,16 +78,17 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
           className="w-full border rounded px-3 py-2 mb-3"
           placeholder="Contact Number"
         />
-        {/* <input
-          name="addressLink"
-          type="text"
-          value={formData.addressLink}
-          onChange={handleChange}
-          className="w-full border rounded px-3 py-2 mb-4"
-          placeholder="Google Maps Link"
-        /> */}
-
-        <div className="flex justify-center gap-4">
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={formData.activity}
+            onChange={handleCheckboxChange}
+            className="w-4 h-4"
+          />
+          <span className="text-md text-gray-700">Activity</span>
+      </label>
+        
+        <div className="flex justify-center mt-2 gap-4">
           <button
             onClick={handleCreate}
             className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition"

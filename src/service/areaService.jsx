@@ -55,8 +55,8 @@ export const deleteAreaService = async (id) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
   
-  const res = await fetch(`${AREA_API}/${id}`, {
-    method: "DELETE",
+  const res = await fetch(`${AREA_API}/delete/one/${id}`, {
+    method: "POST",
     credentials: 'include',
     headers: {
       "Content-Type": "application/json",

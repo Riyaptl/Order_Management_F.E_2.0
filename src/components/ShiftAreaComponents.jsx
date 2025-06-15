@@ -12,7 +12,7 @@ const ShiftAreaComponent = ({ isOpen, onClose, onShift, shopId, fromAreaId }) =>
     }, [dispatch]);
 
     const handleSubmit = () => {
-        if (!toAreaId || toAreaId === fromAreaId) {
+        if (!toAreaId || toAreaId === fromAreaId) { 
             alert("Please select a different area to shift.");
             return;
         }

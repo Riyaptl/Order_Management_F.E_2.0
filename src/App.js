@@ -14,6 +14,8 @@ import OrdersListPage from './pages/OrdersListPage';
 import CSVImportPage from './pages/CsvImportPage';
 import SrPerformancePage from './pages/SrPerformamcePage';
 import SalesReportPage from './pages/SalesReportPage';
+import RevokedOrdersListPage from './pages/RevokedOrdersListPage';
+import CancelledReportPage from './pages/CancelledReportPage';
 
 export default function App() {
   const { user, role } = useSelector((state) => state.auth);
@@ -45,12 +47,6 @@ export default function App() {
           <SrPerformancePage />
         } />
 
-        <Route path="/shops" element={
-          !user ? <Navigate to="/login" /> :
-          isDistributor ? <Navigate to="/orders_list" /> :
-          <ShopPage />
-        } />
-
         <Route path="/routes_list" element={
           !user ? <Navigate to="/login" /> :
           isAdmin ? <RoutesListPage /> :
@@ -59,10 +55,9 @@ export default function App() {
         } />
 
         <Route path="/shops_list" element={
-          !user ? <Navigate to="/login" /> :
-          isDistributor ? <Navigate to="/orders_list" /> :
-          <ShopsListPage/>
+          !user ? <Navigate to="/login" /> :  <ShopsListPage />
         } />
+
 
         <Route path="/csv-import" element={
           isAdmin ? <CSVImportPage /> :
@@ -74,9 +69,16 @@ export default function App() {
           !user ? <Navigate to="/login" /> : <OrdersListPage /> 
         } />
         
+        <Route path="/revoked_orders_list" element={
+          !user ? <Navigate to="/login" /> : <RevokedOrdersListPage /> 
+        } />
+        
         <Route path="/sales_report" element={
-          (isAdmin || isDistributor) ? <SalesReportPage /> :
-          <Navigate to="/" />
+          !user ? <Navigate to="/login" /> :  <SalesReportPage />
+        } />
+        
+        <Route path="/cancel_report" element={
+          !user ? <Navigate to="/login" /> :  <CancelledReportPage />
         } />
         
         <Route path="*" element={<Navigate to={user ? "/orders_list" : "/login"} />} />

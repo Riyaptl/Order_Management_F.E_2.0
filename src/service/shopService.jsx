@@ -2,7 +2,7 @@ const baseURL = process.env.REACT_APP_API_BASE_URL;
 const API_BASE_URL = `${baseURL}/shop`;
 // const API_BASE_URL = `http://localhost:5000/api/shop`;
 
-export const fetchShopsByArea = async (areaId) => {
+export const fetchShopsByArea = async (data) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
 
@@ -13,7 +13,7 @@ export const fetchShopsByArea = async (areaId) => {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ areaId }),
+    body: JSON.stringify(data),
   });
 
   if (!response.ok) {
@@ -66,8 +66,30 @@ export const deleteShopService = async (ids) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
 
-  const response = await fetch(`${API_BASE_URL}/`, {
-    method: "DELETE",
+  const response = await fetch(`${API_BASE_URL}/delete/one`, {
+    method: "POST",
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(ids),
+  });
+
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.message || "Failed to delete shop");
+  }
+
+  return await response.json();
+};
+
+export const blacklistShopService = async (ids) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Auth token not found");
+
+  const response = await fetch(`${API_BASE_URL}/blacklist/one`, {
+    method: "POST",
     credentials: 'include',
     headers: {
       "Content-Type": "application/json",
