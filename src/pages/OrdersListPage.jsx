@@ -566,7 +566,7 @@ export default function OrdersListPage() {
                                                 </div>
                                             </td>
                                         )}
-                                        <td className="border p-2">
+                                        {placedOrdersTab && (<td className="border p-2">
                                             {order.statusUpdatedAt ? (() => {
                                                 const date = new Date(order.statusUpdatedAt);
                                                 const day = String(date.getDate()).padStart(2, "0");
@@ -577,7 +577,7 @@ export default function OrdersListPage() {
 
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
                                             })(): "-"}
-                                        </td>
+                                        </td>)}
                                         {role != "sr" &&
                                             <td className="border p-2">
                                                 {role === "admin" && (

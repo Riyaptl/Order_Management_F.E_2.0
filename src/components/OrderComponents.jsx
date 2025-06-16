@@ -25,6 +25,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
   const [orderPlacedBy, setOrderPlacedBy] = useState("");
   const [type, setType] = useState("order");
   const [noOrder, setNoOrder] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const isSR = role === "sr"
   const isAdmin = role === "admin"
   const isDistributor = role === "distributor"
@@ -47,6 +48,12 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
     if (value === "" || /^\d+$/.test(value)) {
       setFormData({ ...formData, [field]: value });
     }
+  };
+
+  const handleDateChange = (e) => {
+    const pickedDate = new Date(e.target.value);
+    pickedDate.setHours(11, 0, 0, 0); 
+    setSelectedDate(pickedDate);
   };
 
   const handleSubmit = async (e) => {
@@ -94,6 +101,13 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         });
     }
 
+    if (isSR && noOrder && !location){
+      toast.error('Capture location first')
+      return
+    }
+
+    const date = new Date(selectedDate)
+    
     const orderPayload = {
       shopId,
       areaId: selectedArea,
@@ -103,13 +117,9 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
       paymentTerms,
       orderPlacedBy,
       type,
+      date,
       ...(location && { location })
     };
-
-    if (isSR && noOrder && !location){
-      toast.error('Capture location first')
-      return
-    }
 
     dispatch(createOrder(orderPayload))
       .unwrap()
@@ -293,6 +303,20 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
           <option value="replacement">Replacement</option>
         </select>
       </div>
+
+      {isAdmin && (
+        <div className="mb-4">
+          <label className="block text-md font-medium text-gray-700 mb-1">
+           Date
+          </label>
+          <input
+            type="date"
+            value={selectedDate.toISOString().split("T")[0]}
+            onChange={handleDateChange}
+            className="border px-2 py-1 rounded"
+          />
+        </div>
+      )}
 
       <button
         type="submit"
