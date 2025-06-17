@@ -23,6 +23,7 @@ export default function App() {
   const isDistributor = role === 'distributor';
   const isAdmin = role === 'admin';
   const isSR = role === 'sr';
+  const isME = role === 'me';
 
   return (
     <Router>
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/SR-report" element={
           !user ? <Navigate to="/login" /> :
           isDistributor ? <Navigate to="/orders_list" /> :
+          isME ? <Navigate to="/"/> :
           <SrPerformancePage />
         } />
 
@@ -66,19 +68,27 @@ export default function App() {
         } />
 
         <Route path="/orders_list" element={
-          !user ? <Navigate to="/login" /> : <OrdersListPage /> 
+          !user ? <Navigate to="/login" /> : 
+          isME ? <Navigate to="/"/> :
+          <OrdersListPage /> 
         } />
         
         <Route path="/revoked_orders_list" element={
-          !user ? <Navigate to="/login" /> : <RevokedOrdersListPage /> 
+          !user ? <Navigate to="/login" /> : 
+          isME ? <Navigate to="/"/> :
+          <RevokedOrdersListPage /> 
         } />
         
         <Route path="/sales_report" element={
-          !user ? <Navigate to="/login" /> :  <SalesReportPage />
+          !user ? <Navigate to="/login" /> :  
+          isME ? <Navigate to="/"/> :
+          <SalesReportPage />
         } />
         
         <Route path="/cancel_report" element={
-          !user ? <Navigate to="/login" /> :  <CancelledReportPage />
+          !user ? <Navigate to="/login" /> :  
+          isME ? <Navigate to="/"/> :
+          <CancelledReportPage />
         } />
         
         <Route path="*" element={<Navigate to={user ? "/orders_list" : "/login"} />} />

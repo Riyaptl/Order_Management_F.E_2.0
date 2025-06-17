@@ -33,6 +33,7 @@ const ShopsListPage = () => {
     const isSR = role === "sr"
     const isAdmin = role === "admin"
     const isDistributor = role === "distributor"
+    const isME = role === "me";
 
 
     useEffect(() => {
@@ -45,8 +46,6 @@ const ShopsListPage = () => {
 
     useEffect(() => {
         if (selectedArea) {
-            console.log(activity);
-
             dispatch(fetchShops({areaId: selectedArea, activity})).unwrap();
         }
     }, [dispatch, selectedArea, activity]);
@@ -358,7 +357,7 @@ const ShopsListPage = () => {
                         >
                             + Create Shop
                         </button>
-                        {!isDistributor && <button
+                        {(!isDistributor && !isME) && <button
                             onClick={() => {
                                 setShowShiftModal(true);
                             }}
@@ -534,7 +533,7 @@ const ShopsListPage = () => {
                                             >
                                                 <FaEdit />
                                             </button>
-                                            {!isDistributor && (
+                                            {(!isDistributor && !isME) && (
                                                 <button
                                                     onClick={() => {
                                                         setSelectedShopData(shop);
@@ -552,13 +551,14 @@ const ShopsListPage = () => {
                                             >
                                                 <FaReceipt />
                                             </button>
-                                            <button
+                                            {!isME && <button
                                                 onClick={() => handleBlacklist(shop._id)}
                                                 className="text-black-600 hover:text-black-800 text-xl p-2"
                                                 title="Blacklist"
                                             >
                                                 <FaBan />
                                             </button>
+                                            }
                                         </td>
                                     </tr>
                                 ))}
@@ -567,7 +567,7 @@ const ShopsListPage = () => {
                     </div>
                 </>
             )}
-            {selectedShop && selectedArea && (
+            {!isME && selectedShop && selectedArea && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
                     {/* Modal Content Wrapper */}
                     <div className="relative bg-white rounded shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">

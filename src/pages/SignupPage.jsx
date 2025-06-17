@@ -123,6 +123,7 @@ const handleVerifyOtp = async (e) => {
           required
         >
           <option value="sr">SR</option>
+          <option value="me">ME</option>
           <option value="distributor">Distributor</option>
           <option value="admin">Admin</option>
         </select>

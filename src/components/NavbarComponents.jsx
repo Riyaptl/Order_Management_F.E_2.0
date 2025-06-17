@@ -10,6 +10,7 @@ const Navbar = () => {
   const isAdmin = role === "admin";
   const isDistributor = role === "distributor";
   const isSR = role === "sr";
+  const isME = role === "me";
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ const Navbar = () => {
           } absolute top-16 left-0 w-full bg-white border-t md:border-none md:static md:flex md:space-x-4 md:items-center`}
         >
           <div className="flex flex-col md:flex-row md:items-center md:space-x-4 px-4 py-4 md:p-0">
-            {(isAdmin || isSR) && (
+            {(isAdmin || isSR || isME) && (
             <NavLink
               to="/"
               className="text-amber-700 px-2 py-2 rounded-md text-lg font-semibold"
@@ -92,7 +93,9 @@ const Navbar = () => {
               >
                 Shops
               </NavLink>
-            <NavLink
+            {!isME && (
+              <>
+              <NavLink
               to="/orders_list"
               className="text-amber-700 px-2 py-2 text-lg font-semibold"
             >
@@ -116,6 +119,8 @@ const Navbar = () => {
             >
               Cancel Report
             </NavLink>
+            </>
+            )}
             <button
               onClick={handleLogout}
               className="mt-2 md:mt-0 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-lg font-semibold"
