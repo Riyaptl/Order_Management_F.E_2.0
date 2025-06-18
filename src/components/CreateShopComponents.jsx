@@ -7,7 +7,8 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
     name: "",
     address: "",
     contactNumber: "",
-    activity: false
+    activity: false,
+    type: "gt"
   });
 
   const handleChange = (e) => {
@@ -25,17 +26,19 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
   };
 
   const handleCreate = () => {
-    const { name, address, contactNumber, activity } = formData;
+    const { name, address, contactNumber, activity, type } = formData;
     if (!name.trim()) return;
-    onCreate({ name, address, contactNumber, activity });
-    setFormData({ name: "", address: "", contactNumber: "", activity: false});
+    onCreate({ name, address, contactNumber, activity, type });
+    setFormData({ name: "", address: "", contactNumber: "", activity: false, type: "gt"});
   };
 
   const handleCancel = () => {
     setFormData({
       name: "",
       address: "",
-      contactNumber: ""
+      contactNumber: "",
+      activity: false,
+      type: "gt"
     });
     onClose(); // then close the modal
   };
@@ -78,7 +81,18 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
           className="w-full border rounded px-3 py-2 mb-3"
           placeholder="Contact Number"
         />
-        <label className="flex items-center space-x-2">
+         <select
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          className="w-full border border-gray-300 p-2 rounded text-md focus:outline-none focus:ring-2 focus:ring-beige-400"
+          required
+        >
+          <option value="gt">GT</option>
+          <option value="mt">MT</option>
+        </select>
+
+        <label className="flex items-center space-x-2 mt-2">
           <input
             type="checkbox"
             checked={formData.activity}

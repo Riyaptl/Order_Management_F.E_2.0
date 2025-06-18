@@ -30,6 +30,7 @@ const ShopsListPage = () => {
     const [selectedShop, setSelectedShop] = useState(null);
     const [selectedShops, setSelectedShops] = useState([]);
     const [activity, setActivity] = useState(false);
+    const [type, setType] = useState("");
     const isSR = role === "sr"
     const isAdmin = role === "admin"
     const isDistributor = role === "distributor"
@@ -46,9 +47,9 @@ const ShopsListPage = () => {
 
     useEffect(() => {
         if (selectedArea) {
-            dispatch(fetchShops({areaId: selectedArea, activity})).unwrap();
+            dispatch(fetchShops({areaId: selectedArea, activity, type})).unwrap();
         }
-    }, [dispatch, selectedArea, activity]);
+    }, [dispatch, selectedArea, activity, type]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -125,7 +126,7 @@ const ShopsListPage = () => {
         }
     };
 
-    const handleCreate = async ({ name, address, contactNumber, activity }) => {
+    const handleCreate = async ({ name, address, contactNumber, activity, type }) => {
         if (!name.trim()) {
             toast.error("Shop name cannot be empty");
             return;
@@ -138,7 +139,7 @@ const ShopsListPage = () => {
 
         try {
 
-            let data = { name, address, contactNumber, areaId: selectedArea, activity }
+            let data = { name, address, contactNumber, areaId: selectedArea, activity, type }
             if (isSR) {
                 const loc = await getCurrentLocation();
                 const { latitude, longitude } = loc;
@@ -158,7 +159,7 @@ const ShopsListPage = () => {
     const handleRefresh = async () => {
         try {
             if (selectedArea) {
-                dispatch(fetchShops({areaId: selectedArea, activity})).unwrap();
+                dispatch(fetchShops({areaId: selectedArea, activity, type})).unwrap();
             }
         } catch (err) {
             toast.error(err || "Failed to fetch routes");
@@ -324,6 +325,18 @@ const ShopsListPage = () => {
                 {selectedArea && (
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
                         <div className="flex items-center gap-3 w-full md:w-auto">
+                             <select
+                                name="type"
+                                value={type}
+                                onChange={(e) => setType(e.target.value)}
+                                className="w-full border border-gray-300 p-2 rounded text-md focus:outline-none focus:ring-2 focus:ring-beige-400"
+                                required
+                                >
+                                <option value="">Select Shop Type</option>
+                                <option value="gt">GT</option>
+                                <option value="mt">MT</option>
+                            </select>
+                           
                             <label htmlFor="activity" className="text-lg font-medium text-amber-700">
                                 Activity
                             </label>
@@ -653,7 +666,7 @@ const ShopsListPage = () => {
                                                     return `${day}/${month}/${year} ${hours}:${minutes}`;
                                                 })()}
                                             </td> : '-'}
-                                            {order.canceledReason ? (<td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                            <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
                                                 <div className="overflow-x-auto max-w-[350px]">
                                                     <span
                                                         className="inline-block truncate"
@@ -662,7 +675,7 @@ const ShopsListPage = () => {
                                                         {order.canceledReason}
                                                     </span>
                                                 </div>
-                                            </td>) : '-'}
+                                            </td>
                                             <td className="border p-2">{order.paymentTerms}</td>
                                             <td className="border p-2">{order.orderPlacedBy}</td>
                                             <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">

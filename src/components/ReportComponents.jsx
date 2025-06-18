@@ -20,6 +20,7 @@ export default function ReportComponents({
 
     const isDistributor = role === "distributor";
     const isSR = role === "sr";
+    const isAdmin = role === "admin";
 
     useEffect(() => {
         if (role === "admin") {
@@ -137,12 +138,16 @@ export default function ReportComponents({
             ) : (
                 <div className="px-4 md:px-6 space-y-10">
                     <section>
-                        <div className="text-lg font-bold text-green-700 text-left mb-2">
-                            Order Amount: ₹{reportData.amount || 0}
-                        </div>
-                        <div className="text-lg font-bold text-green-700 text-left mb-2">
-                            Replacement Amount: ₹{replaceReportData.amount || 0}
-                        </div>
+                        {isAdmin && (
+                            <>
+                                <div className="text-lg font-bold text-green-700 text-left mb-2">
+                                    Order Amount: ₹{reportData.amount || 0}
+                                </div>
+                                <div className="text-lg font-bold text-green-700 text-left mb-2">
+                                    Replacement Amount: ₹{replaceReportData.amount || 0}
+                                </div>
+                            </>
+                        )}
                         <div className="overflow-x-auto">
                             <table className="min-w-full border border-gray-300">
                                 <thead className="bg-gray-100">
