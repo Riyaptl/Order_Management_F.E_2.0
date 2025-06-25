@@ -30,6 +30,7 @@ const ShopsListPage = () => {
     const [selectedShop, setSelectedShop] = useState(null);
     const [selectedShops, setSelectedShops] = useState([]);
     const [activity, setActivity] = useState(false);
+    const [allShops, setAllShops] = useState(false);
     const [type, setType] = useState("");
     const isSR = role === "sr"
     const isAdmin = role === "admin"
@@ -47,9 +48,9 @@ const ShopsListPage = () => {
 
     useEffect(() => {
         if (selectedArea) {
-            dispatch(fetchShops({areaId: selectedArea, activity, type})).unwrap();
+            dispatch(fetchShops({ areaId: selectedArea, activity, type, allShops })).unwrap();
         }
-    }, [dispatch, selectedArea, activity, type]);
+    }, [dispatch, selectedArea, activity, type, allShops]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -159,7 +160,7 @@ const ShopsListPage = () => {
     const handleRefresh = async () => {
         try {
             if (selectedArea) {
-                dispatch(fetchShops({areaId: selectedArea, activity, type})).unwrap();
+                dispatch(fetchShops({ areaId: selectedArea, activity, type, allShops })).unwrap();
             }
         } catch (err) {
             toast.error(err || "Failed to fetch routes");
@@ -325,27 +326,41 @@ const ShopsListPage = () => {
                 {selectedArea && (
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
                         <div className="flex items-center gap-3 w-full md:w-auto">
-                             <select
+                            <select
                                 name="type"
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
                                 className="w-full border border-gray-300 p-2 rounded text-md focus:outline-none focus:ring-2 focus:ring-beige-400"
                                 required
-                                >
-                                <option value="">Select Shop Type</option>
+                            >
+                                <option value="">Shop Type</option>
                                 <option value="gt">GT</option>
                                 <option value="mt">MT</option>
                             </select>
-                           
+
                             <label htmlFor="activity" className="text-lg font-medium text-amber-700">
                                 Activity
                             </label>
                             <label htmlFor="activity" className="relative inline-flex items-center cursor-pointer">
                                 <input
-                                type="checkbox"
-                                id="activity"
-                                onChange={() => setActivity((prev) => !prev)}
-                                className="sr-only peer"
+                                    type="checkbox"
+                                    id="activity"
+                                    onChange={() => setActivity((prev) => !prev)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                            </label>
+                            
+                            <label htmlFor="activity" className="text-lg font-medium text-amber-700">
+                                All Shops
+                            </label>
+                            <label htmlFor="allShops" className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    id="allShops"
+                                    onChange={() => setAllShops((prev) => !prev)}
+                                    className="sr-only peer"
                                 />
                                 <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
@@ -427,6 +442,7 @@ const ShopsListPage = () => {
                                     </th>
                                     <th className="border p-2 text-left min-w-[50px]">Sr. No</th>
                                     <th className="border p-2 text-left min-w-[150px]">Shop Name</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Visited At</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address</th>
                                     <th className="border p-2 text-left min-w-[120px]">Contact Number</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address Link</th>
@@ -467,7 +483,12 @@ const ShopsListPage = () => {
                                         >
                                             {shop.name}
                                         </td>
-
+                                        {shop.visitedAt ? <td className="border p-2">{new Date(shop.visitedAt).toLocaleString("en-IN", {
+                                            timeZone: "Asia/Kolkata",
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric"
+                                        })}</td> : "-"}
                                         <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap cursor-pointer">
                                             <div className="min-w-[200px] inline-block">
                                                 {shop.address}
@@ -621,6 +642,7 @@ const ShopsListPage = () => {
                                 <thead className="bg-gray-100 sticky top-0 z-10">
                                     <tr>
                                         <th className="border p-2 text-left min-w-[150px]">Date</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Type</th>
                                         <th className="border p-2 text-left min-w-[150px]">Status</th>
                                         <th className="border p-2 text-left min-w-[150px]">Updated At</th>
                                         <th className="border p-2 text-left min-w-[150px]">Comment</th>
@@ -634,7 +656,7 @@ const ShopsListPage = () => {
                                             </th>
                                         ))}
                                         {totalList.map((key) => (
-                                            <th key={key} className="border p-2 text-left min-w-[150px]">
+                                            <th key={key} className="border p-2 text-left min-w-[150px]  text-amber-700">
                                                 {key}
                                             </th>
                                         ))}
@@ -654,6 +676,7 @@ const ShopsListPage = () => {
                                                     return `${day}/${month}/${year} ${hours}:${minutes}`;
                                                 })()}
                                             </td>
+                                            <td className="border p-2">{order.type}</td>
                                             <td className="border p-2">{order.status}</td>
                                             {order.statusUpdatedAt ? <td className="border p-2">
                                                 {(() => {

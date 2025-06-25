@@ -23,6 +23,7 @@ export default function App() {
   const isDistributor = role === 'distributor';
   const isAdmin = role === 'admin';
   const isSR = role === 'sr';
+  const isTL = role === 'tl';
   const isME = role === 'me';
 
   return (
@@ -51,7 +52,7 @@ export default function App() {
 
         <Route path="/routes_list" element={
           !user ? <Navigate to="/login" /> :
-          isAdmin ? <RoutesListPage /> :
+          (isAdmin || isTL) ? <RoutesListPage /> :
           isDistributor ? <Navigate to="/orders_list" /> :
           <Navigate to="/" />
         } />

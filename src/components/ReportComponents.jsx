@@ -20,10 +20,11 @@ export default function ReportComponents({
 
     const isDistributor = role === "distributor";
     const isSR = role === "sr";
+    const isTL = role === 'tl';
     const isAdmin = role === "admin";
 
     useEffect(() => {
-        if (role === "admin") {
+        if (isAdmin || isTL) {
             dispatch(getSRDetails());
         }
     }, [dispatch, role]);
@@ -71,7 +72,7 @@ export default function ReportComponents({
             {/* Filter Bar */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 px-4 md:px-6 mb-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-                    {role === "admin" && (
+                    {(isAdmin || isTL) && (
                         <div className="flex flex-col">
                             <label className="text-lg font-medium text-amber-700 mb-1">
                                 Select SR <span className="text-red-500">*</span>
@@ -138,7 +139,7 @@ export default function ReportComponents({
             ) : (
                 <div className="px-4 md:px-6 space-y-10">
                     <section>
-                        {isAdmin && (
+                        {!isDistributor && (
                             <>
                                 <div className="text-lg font-bold text-green-700 text-left mb-2">
                                     Order Amount: ₹{reportData.amount || 0}

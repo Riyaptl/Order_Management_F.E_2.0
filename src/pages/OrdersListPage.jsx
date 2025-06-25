@@ -21,16 +21,19 @@ export default function OrdersListPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [showCompleteData, setShowCompleteData] = useState(false);
     const [placedOrdersTab, setPlacedOrdersTab] = useState(true);
-    const isDistributor = role === "distributor"
     const [selectedArea, setSelectedArea] = useState("");
     const [selectedSR, setSelectedSR] = useState("");
     const [calls, setCalls] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [status, setStatus] = useState("");
     const [reason, setReason] = useState("");
+    const [selectedShop, setSelectedShop] = useState(null);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [showOrders, setShowOrders] = useState(false);
     const isSR = role === 'sr'
+    const isTL = role === 'tl';
+    const isAdmin = role === 'admin';
+    const isDistributor = role === "distributor"
 
 
     // const today = new Date().toISOString().split("T")[0];
@@ -45,10 +48,10 @@ export default function OrdersListPage() {
     }, [orders, dispatch])
 
     useEffect(() => {
-        if (role !== "admin" && role !== "distributor" && user) {
+        if (isSR && user) {
             setSelectedSR(user)
         }
-        if (role === 'admin') {
+        if (isAdmin || isTL) {
             dispatch(getSRDetails());
         }
     }, [role, user, dispatch])
@@ -70,7 +73,7 @@ export default function OrdersListPage() {
 
     const fetchOrders = async () => {
         try {
-            if (selectedArea) {
+            if (selectedArea) {               
                 const res = await dispatch(getOrders({
                     areaId: selectedArea,
                     page: currentPage,
@@ -95,6 +98,7 @@ export default function OrdersListPage() {
                 setShowOrders(true)
             }
             else if (selectedSR) {
+                console.log('hit');
                 const res = await dispatch(getOrdersSR({
                     username: selectedSR,
                     page: currentPage,
@@ -245,7 +249,7 @@ export default function OrdersListPage() {
             <div className="flex flex-col md:flex-row md:items-end md:flex-wrap gap-4 mt-4 mb-4">
 
                 {/* Area Selector */}
-                {role !== "sr" && (
+                {/* {!isSR && ( */}
                     <div className="w-full md:w-auto">
                         <label className="block text-lg font-medium text-amber-700 mb-2">Select Route</label>
                         <select
@@ -265,10 +269,10 @@ export default function OrdersListPage() {
                             ))}
                         </select>
                     </div>
-                )}
+                {/* )} */}
 
                 {/* SR Selector */}
-                {role === "admin" && (
+                {(isAdmin || isTL) && (
                     <div className="w-full md:w-auto">
                         <label className="block text-lg font-medium text-amber-700 mb-2">Select SR</label>
                         <select
@@ -410,7 +414,7 @@ export default function OrdersListPage() {
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
                                 {isSR && <th className="border p-2 text-left min-w-[150px]">SR</th>}
                                 {!isSR && <th className="border p-2 text-left min-w-[150px]">SR / Distributor</th>}
-                                {placedOrdersTab && (<> {productsList.map((key) => (
+                                {/* {placedOrdersTab && (<> {productsList.map((key) => (
                                     <th
                                         key={key}
                                         className="border p-2 text-left min-w-[180px]"
@@ -428,15 +432,16 @@ export default function OrdersListPage() {
                                     ))} 
                                     <th className="border p-2 text-left min-w-[180px] text-red-700">Total</th>
                                     
-                                </>)}
+                                </>)} */}
                                 <th className="border p-2 text-left min-w-[200px]">Created At</th>
                                 {!isDistributor && !placedOrdersTab && (
                                     <th className="border p-2 text-left min-w-[250px]">Location Link</th>
                                 )}
+                                {placedOrdersTab && <th className="border p-2 text-left min-w-[180px] text-red-700">Total</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[100px]">Status</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[180px]">Comment</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[200px]">Status Updated At</th>}
-                                {role != "sr" && <th className="border p-2 text-left min-w-[150px]">Actions</th>}
+                                {(!isSR && !isTL)&& <th className="border p-2 text-left min-w-[150px]">Actions</th>}
                             </tr>
                         </thead>
 
@@ -444,7 +449,11 @@ export default function OrdersListPage() {
                             {orders.map((order) => (
                                 <>
                                     {/* {console.log('in table', order)} */}
-                                    <tr key={order._id} className="hover:bg-gray-50">
+                                    <tr key={order._id} className="hover:bg-gray-50"  onClick={(e) => {
+                                        if (placedOrdersTab && e.target.closest("td")?.cellIndex === 2) {
+                                            setSelectedShop(order);
+                                        }
+                                    }}>
                                         <td className="border p-2">
                                             <input
                                                 type="checkbox"
@@ -500,7 +509,7 @@ export default function OrdersListPage() {
                                         </td>
                                         { isSR && <td className="border p-2">{order.placedBy}</td> }
                                         { !isSR && <td className="border p-2">{order.placedBy}</td> }
-                                        {placedOrdersTab && (<> {productsList.map((key) => (
+                                        {/* {placedOrdersTab && (<> {productsList.map((key) => (
                                             <td key={key} className="border p-2">
                                                 {order.products && order.products[key] !== undefined
                                                     ? order.products[key]
@@ -524,7 +533,7 @@ export default function OrdersListPage() {
                                                     : "-"}
                                             </td>
 
-                                        </>)}
+                                        </>)} */}
                                         <td className="border p-2">
                                             {(() => {
                                                 const date = new Date(order.createdAt);
@@ -553,6 +562,14 @@ export default function OrdersListPage() {
                                                 )}
                                             </td>
                                         )}
+                                        {placedOrdersTab && <td className="border p-2 font-semibold">
+                                                {order.total
+                                                    ? totalList.reduce((sum, key) => {
+                                                        const val = order.total[key];
+                                                        return sum + (typeof val === "number" ? val : 0);
+                                                    }, 0)
+                                                    : "-"}
+                                            </td>}
                                         {placedOrdersTab && <td className="border p-2 text-left min-w-[100px]">{order.status || '-'}</td>}
                                         {placedOrdersTab && (
                                             <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
@@ -578,9 +595,9 @@ export default function OrdersListPage() {
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
                                             })(): "-"}
                                         </td>)}
-                                        {role != "sr" &&
+                                        {(!isSR && !isTL) &&
                                             <td className="border p-2">
-                                                {role === "admin" && (
+                                                {isAdmin && (
                                                     <button
                                                         onClick={() => handleDelete(order._id)}
                                                         className="text-red-500 hover:text-red-600 p-2 text-xl"
@@ -617,6 +634,73 @@ export default function OrdersListPage() {
                 </div>
             )}
 
+{showOrders && selectedShop && placedOrdersTab&& (
+                <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                        <h2 className="text-xl font-semibold mb-4 text-amber-700 text-center">Order Details</h2>
+
+                        <div className="mb-4">
+                            <h3 className="font-semibold text-lg mb-2 text-gray-700">Products:</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                {productsList.map((product) => (
+                                    <div
+                                        key={product}
+                                        className="border rounded p-2 flex justify-between items-center"
+                                    >
+                                        <span>{product}</span>
+                                        <span className="font-medium">{selectedShop.products[product] || 0}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mb-4">
+                            <h3 className="font-semibold text-lg mb-2 text-gray-700">Total Summary:</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                {totalList.map((item) => (
+                                    <div
+                                        key={item}
+                                        className="border rounded p-2 flex justify-between items-center"
+                                    >
+                                        <span>{item}</span>
+                                        <span className="font-medium">{selectedShop.total[item] || 0}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="border rounded p-3 mt-4 flex justify-between items-center bg-amber-100 font-semibold text-amber-800 mb-4">
+                                <span>Total</span>
+                                <span>
+                                    {totalList.reduce(
+                                        (sum, key) => sum + (Number(selectedShop.total[key]) || 0),
+                                        0
+                                    )}
+                                </span>
+                            </div>
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-lg mb-2 text-gray-700">Remarks:</h3>
+                                <div className="overflow-x-auto max-w-[350px]">
+                                    <span
+                                        className="inline-block truncate"
+                                        title={selectedShop.remarks}
+                                    >
+                                        {selectedShop.remarks}
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div className="flex justify-end mt-6">
+                            <button
+                                onClick={() => setSelectedShop(null)}
+                                className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {showOrders && (<div className="flex justify-center items-center mt-4 space-x-4">
                 <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}

@@ -28,10 +28,11 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
   const [selectedDate, setSelectedDate] = useState(new Date());
   const isSR = role === "sr"
   const isAdmin = role === "admin"
+  const isTL = role === 'tl';
   const isDistributor = role === "distributor"
 
   useEffect(() => {
-    if (role == "admin")
+    if (isAdmin)
       dispatch(getSRDetails())
   }, [role])
 
@@ -160,7 +161,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-      {isSR && (<><label className="flex items-center gap-2 text-lg font-medium text-gray-800">
+      {(isSR || isTL) && (<><label className="flex items-center gap-2 text-lg font-medium text-gray-800">
         <input
           type="checkbox"
           checked={noOrder}
@@ -248,7 +249,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
           value={paymentTerms}
           onChange={(e) => setPaymentTerms(e.target.value.toLowerCase())}
           className="w-full border border-gray-300 rounded px-3 py-2 text-md"
-          disabled={noOrder}
+          disabled={noOrder || type==='replacement'}
           required
         >
           <option value="">Select Payment Terms</option>

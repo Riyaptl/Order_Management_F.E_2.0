@@ -3,12 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllAreas, deleteArea, updateArea, createArea, exportCSVArea } from "../slice/areaSlice";
 import Navbar from "../components/NavbarComponents";
 import toast from "react-hot-toast";
-import { FaTrash, FaEdit } from "react-icons/fa"; // Top of the file
+import { FaTrash, FaEdit } from "react-icons/fa";
 import RenameRouteComponent from "../components/RenameRouteComponents";
 import CreateRouteComponents from "../components/CeateRouteComponents";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-
-
 
 const RoutesListPage = () => {
   const dispatch = useDispatch();
@@ -24,8 +22,8 @@ const RoutesListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRouteAreas, setSelectedRouteAreas] = useState([]);
   const [distributorSearchTerm, setDistributorSearchTerm] = useState("");
-
-
+  const isAdmin = role === 'admin'
+  const isTL = role === 'tl'
 
   useEffect(() => {
     const fetchPagedAreas = async () => {
@@ -44,9 +42,6 @@ const RoutesListPage = () => {
       try {
         const res = await dispatch(deleteArea(id)).unwrap();
         toast.success(res.message)
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 500);
       } catch (err) {
         toast.error(err || "Could not delete route")
       }
@@ -62,9 +57,6 @@ const RoutesListPage = () => {
       const res = await dispatch(updateArea({ id: selectedRouteId, name: newName, areas: newRoutes, distributor: newDist })).unwrap();
       toast.success(res.message || "Route updated successfully");
       setShowUpdateModal(false);
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 500);
     } catch (err) {
       toast.error(err || "Could not update route");
     }
@@ -80,9 +72,6 @@ const RoutesListPage = () => {
       const res = await dispatch(createArea({ name, areas: routes, distributor })).unwrap();
       toast.success(res.message || "Route created successfully");
       setShowCreateModal(false);
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 500);
     } catch (err) {
       toast.error(err || "Could not create route");
     }
@@ -100,21 +89,15 @@ const RoutesListPage = () => {
   const handleExportCsv = async () => {
     try {
       const blob = await dispatch(exportCSVArea()).unwrap();
-
-      // Create a link to download the CSV file
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-
-      // Filename with current date for uniqueness
       const dateStr = new Date().toISOString().slice(0, 10);
       link.download = `Routes_export_${dateStr}.csv`;
-
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
       toast.success("CSV Export successful");
     } catch (error) {
       toast.error("Failed to export CSV");
@@ -124,141 +107,97 @@ const RoutesListPage = () => {
   const trimmedSearchTerm = searchTerm.trim().toLowerCase();
   const trimmedDistributorSearchTerm = distributorSearchTerm.trim().toLowerCase();
   const filteredAreas = allAreas.filter((area) =>
-    area.name.toLowerCase().includes(trimmedSearchTerm.toLowerCase()) &&
-    area.distributor?.toLowerCase().includes(trimmedDistributorSearchTerm.toLowerCase())
+    area.name.toLowerCase().includes(trimmedSearchTerm) &&
+    area.distributor?.toLowerCase().includes(trimmedDistributorSearchTerm)
   );
-
 
   return (
     <div className="p-4">
       <div className="flex justify-end md:justify-center mb-8">
-          <Navbar />
-        </div>
+        <Navbar />
+      </div>
       <div className="flex justify-center mb-4">
         <h2 className="text-2xl font-semibold text-amber-700">Routes List</h2>
       </div>
 
-      <div className="flex justify-end mb-4">
-        <div className="mt-4 md:mt-0">
-          <button
-            onClick={handleRefresh}
-            className="px-4 py-2 bg-amber-600 text-white text-md rounded hover:bg-amber-700 transition ml-8"
-          >
-            Refresh
-          </button>
+      {(isAdmin || isTL) && (
+        <div className="flex flex-col md:flex-row justify-end gap-4 mb-4">
+          <button onClick={handleRefresh} className="w-full md:w-auto px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition">Refresh</button>
+          <button onClick={() => setShowCreateModal(true)} className="w-full md:w-auto px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition">+ Create Route</button>
+          <button onClick={handleExportCsv} className="w-full md:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">CSV Export</button>
         </div>
-        <div className="mt-4 md:mt-0 ml-8">
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
-          >
-            + Create Route
-          </button>
-        </div>
-        <div className="mt-4 md:mt-0 ml-8">
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition"
-        >
-          CSV Export
-        </button>
+      )}
+
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <input
+          type="text"
+          placeholder="Search route name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+        />
+        <input
+          type="text"
+          placeholder="Search by distributor..."
+          value={distributorSearchTerm}
+          onChange={(e) => setDistributorSearchTerm(e.target.value)}
+          className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+        />
       </div>
-      </div>
-
-      
-
-      <div className="flex gap-4 mb-4">
-  <input
-    type="text"
-    placeholder="Search route name..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-  />
-  <input
-    type="text"
-    placeholder="Search by distributor..."
-    value={distributorSearchTerm}
-    onChange={(e) => setDistributorSearchTerm(e.target.value)}
-    className="w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-  />
-</div>
-
-
 
       {loading && <p>Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
+
       {!loading && !error && (
-        <table className="min-w-full border border-gray-300 text-md">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border p-2 text-left">Sr. No</th>
-              <th className="border p-2 text-left">Route Name</th>
-              <th className="border p-2 text-left">Areas Included</th>
-              <th className="border p-2 text-left">Distributor</th>
-              <th className="border p-2 text-left">Route Created By</th>
-              <th className="border p-2 text-left">Route Created At</th>
-              <th className="border p-2 text-left">Route Updated By</th>
-              <th className="border p-2 text-left">Route Updated At</th>
-              <th className="border p-2 text-left min-w-[120px]">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAreas.map((area, index) => (
-              <tr key={area._id} className="hover:bg-gray-50">
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{area.name}</td>
-                <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap">
-                  <div className="overflow-x-auto">{area.areas?.join(", ")}</div>
-                </td>
-                <td className="border p-2">{area.distributor}</td>
-                <td className="border p-2">{area.createdBy}</td>
-                <td className="border p-2">{new Date(area.createdAt).toLocaleString("en-IN", {
-                  timeZone: "Asia/Kolkata",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit"
-                })}
-                </td>
-                <td className="border p-2">{area.updatedBy}</td>
-                <td className="border p-2">{new Date(area.updatedAt).toLocaleString("en-IN", {
-                  timeZone: "Asia/Kolkata",
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit"
-                })}
-                </td>
-                <td className="border p-2 text-center space-x-2">
-                  <button
-                    onClick={() => handleDelete(area._id)}
-                    className="text-red-600 hover:text-red-800 text-xl p-2"
-                    title="Delete"
-                  >
-                    <FaTrash />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setSelectedRouteId(area._id);
-                      setSelectedRouteName(area.name);
-                      setSelectedRouteAreas(area.areas || []);
-                      setSelectedDist(area.distributor || "")
-                      setShowUpdateModal(true);
-                    }}
-                    className="text-blue-600 hover:text-blue-800 text-xl p-2"
-                    title="Edit"
-                  >
-                    <FaEdit />
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300 text-sm md:text-md">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="border p-2 text-left">Sr. No</th>
+                <th className="border p-2 text-left">Route Name</th>
+                <th className="border p-2 text-left">Areas Included</th>
+                <th className="border p-2 text-left">Distributor</th>
+                <th className="border p-2 text-left">Route Created By</th>
+                <th className="border p-2 text-left">Route Created At</th>
+                <th className="border p-2 text-left">Route Updated By</th>
+                <th className="border p-2 text-left">Route Updated At</th>
+                {(isAdmin || isTL) && <th className="border p-2 text-left min-w-[120px]">Action</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredAreas.map((area, index) => (
+                <tr key={area._id} className="hover:bg-gray-50">
+                  <td className="border p-2">{index + 1}</td>
+                  <td className="border p-2 min-w-[150px]">{area.name}</td>
+                  <td className="border p-2 min-w-[150px]">{area.areas?.join(", ")}</td>
+                  <td className="border p-2 min-w-[150px]">{area.distributor}</td>
+                  <td className="border p-2 min-w-[150px]">{area.createdBy}</td>
+                  <td className="border p-2 min-w-[180px]">{new Date(area.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+                  <td className="border p-2 min-w-[150px]">{area.updatedBy}</td>
+                  <td className="border p-2 min-w-[180px]">{new Date(area.updatedAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+                  {(isAdmin || isTL) && (
+                    <td className="border p-2 text-center space-x-2 whitespace-nowrap">
+                      <button onClick={() => handleDelete(area._id)} className="text-red-600 hover:text-red-800 text-xl p-2" title="Delete">
+                        <FaTrash />
+                      </button>
+                      <button onClick={() => {
+                        setSelectedRouteId(area._id);
+                        setSelectedRouteName(area.name);
+                        setSelectedRouteAreas(area.areas || []);
+                        setSelectedDist(area.distributor || "");
+                        setShowUpdateModal(true);
+                      }} className="text-blue-600 hover:text-blue-800 text-xl p-2" title="Edit">
+                        <FaEdit />
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
+
       <RenameRouteComponent
         isOpen={showUpdateModal}
         onClose={() => setShowUpdateModal(false)}
@@ -267,13 +206,14 @@ const RoutesListPage = () => {
         initialRoutes={selectedRouteAreas}
         initialDist={selectedDist}
       />
+
       <CreateRouteComponents
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreate}
       />
 
-      <div className="flex justify-center items-center mt-4 space-x-4">
+      <div className="flex flex-wrap justify-center items-center mt-4 gap-4">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
@@ -281,7 +221,7 @@ const RoutesListPage = () => {
         >
           <FaChevronLeft />
         </button>
-        <span className="text-md text-gray-700">
+        <span className="text-sm text-gray-700">
           Page {currentPage} of {totalPages}
         </span>
         <button
@@ -292,7 +232,6 @@ const RoutesListPage = () => {
           <FaChevronRight />
         </button>
       </div>
-
     </div>
   );
 };

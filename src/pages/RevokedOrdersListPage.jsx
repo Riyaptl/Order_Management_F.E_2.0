@@ -27,6 +27,7 @@ export default function RevokedOrdersListPage() {
     const isSR = role === 'sr'
     const isDistributor = role === 'distributor'
     const isAdmin = role === 'admin'
+    const isTL = role === 'tl';
 
     useEffect(() => {
         setCurrentPage(1)
@@ -41,7 +42,7 @@ export default function RevokedOrdersListPage() {
         if (isSR && user) {
             setSelectedSR(user)
         }
-        if (role === 'admin') {
+        if (isAdmin || isTL) {
             dispatch(getSRDetails());
         }
     }, [role, user, dispatch])
@@ -59,7 +60,7 @@ export default function RevokedOrdersListPage() {
             }
             ordersFunc()
         }
-        if (isAdmin) {
+        if ((isAdmin || isTL)) {
             const ordersFunc = async () => {
                 await fetchOrders("");
             }
@@ -103,7 +104,7 @@ export default function RevokedOrdersListPage() {
             }
             ordersFunc()
         }
-        if (isAdmin) {
+        if ((isAdmin || isTL)) {
             const ordersFunc = async () => {
                 await fetchOrders("");
             }
@@ -214,7 +215,7 @@ export default function RevokedOrdersListPage() {
             <div className="flex flex-col md:flex-row md:items-end md:flex-wrap gap-4 mt-4 mb-4">
 
                 {/* SR Selector */}
-                {role === "admin" && (
+                {(isAdmin || isTL) && (
                     <div className="w-full md:w-auto">
                         <label className="block text-lg font-medium text-amber-700 mb-2">Select SR</label>
                         <select
@@ -250,7 +251,7 @@ export default function RevokedOrdersListPage() {
                     </div>
 
                 {/* Refresh Button */}
-                {role !== "sr" && (
+                {!isSR && (
                     <div className="w-full md:w-auto">
                         <button
                             onClick={handleRefresh}
@@ -336,7 +337,7 @@ export default function RevokedOrdersListPage() {
                                     </th>
                                 ))}
                                 <th className="border p-2 text-left min-w-[180px] text-red-700">Total</th>
-                                {(role != "sr" && canceledOrdersTab) && <th className="border p-2 text-left min-w-[150px]">Actions</th>}
+                                {((!isTL && !isSR ) && canceledOrdersTab) && <th className="border p-2 text-left min-w-[150px]">Actions</th>}
                             </tr>
                         </thead>
 
@@ -475,7 +476,7 @@ export default function RevokedOrdersListPage() {
                                                     : "-"}
                                             </td>
 
-                                        {role != "sr" && canceledOrdersTab &&
+                                        {(!isTL && !isSR ) && canceledOrdersTab &&
                                             <td className="border p-2">
                                                 {role === "admin" && (
                                                     <button
