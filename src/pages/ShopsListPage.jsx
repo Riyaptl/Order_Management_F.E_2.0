@@ -31,6 +31,8 @@ const ShopsListPage = () => {
     const [selectedShops, setSelectedShops] = useState([]);
     const [activity, setActivity] = useState(false);
     const [allShops, setAllShops] = useState(false);
+    const [shopsWithOrders, setShopsWithOrders] = useState(false);
+
     const [type, setType] = useState("");
     const isSR = role === "sr"
     const isAdmin = role === "admin"
@@ -48,9 +50,9 @@ const ShopsListPage = () => {
 
     useEffect(() => {
         if (selectedArea) {
-            dispatch(fetchShops({ areaId: selectedArea, activity, type, allShops })).unwrap();
+            dispatch(fetchShops({ areaId: selectedArea, activity, type, allShops, ordered: shopsWithOrders })).unwrap();
         }
-    }, [dispatch, selectedArea, activity, type, allShops]);
+    }, [dispatch, selectedArea, activity, type, allShops, shopsWithOrders]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -160,7 +162,7 @@ const ShopsListPage = () => {
     const handleRefresh = async () => {
         try {
             if (selectedArea) {
-                dispatch(fetchShops({ areaId: selectedArea, activity, type, allShops })).unwrap();
+                dispatch(fetchShops({ areaId: selectedArea, activity, type, allShops, ordered: shopsWithOrders })).unwrap();
             }
         } catch (err) {
             toast.error(err || "Failed to fetch routes");
@@ -326,7 +328,7 @@ const ShopsListPage = () => {
                 {selectedArea && (
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-2 w-full md:w-auto">
                         <div className="flex items-center gap-3 w-full md:w-auto">
-                            <select
+                            {!isME && <select
                                 name="type"
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
@@ -336,7 +338,22 @@ const ShopsListPage = () => {
                                 <option value="">Shop Type</option>
                                 <option value="gt">GT</option>
                                 <option value="mt">MT</option>
-                            </select>
+                            </select>}
+
+                            {(isME || isAdmin )&& 
+                            <><label htmlFor="ordered" className="text-lg font-medium text-amber-700">
+                                Ordered
+                            </label>
+                            <label htmlFor="ordered" className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    id="ordered"
+                                    onChange={() => setShopsWithOrders((prev) => !prev)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                            </label></>}
 
                             <label htmlFor="activity" className="text-lg font-medium text-amber-700">
                                 Activity
@@ -352,6 +369,8 @@ const ShopsListPage = () => {
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
                             </label>
                             
+                            {!isME && 
+                            <>
                             <label htmlFor="activity" className="text-lg font-medium text-amber-700">
                                 All Shops
                             </label>
@@ -365,6 +384,7 @@ const ShopsListPage = () => {
                                 <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
                             </label>
+                            </>}
                         </div>
 
                         <button
