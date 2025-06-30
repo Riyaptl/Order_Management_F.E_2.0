@@ -46,7 +46,7 @@ const ShopsListPage = () => {
             data["dist_username"] = user
         }
         dispatch(fetchAreas(data));
-    }, [dispatch]);
+    }, [dispatch, role]);
 
     useEffect(() => {
         if (selectedArea) {
