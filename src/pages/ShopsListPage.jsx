@@ -42,7 +42,7 @@ const ShopsListPage = () => {
 
     useEffect(() => {
         const data = {}
-        if (isDistributor) {
+        if (role === "distributor") {
             data["dist_username"] = user
         }
         dispatch(fetchAreas(data));
