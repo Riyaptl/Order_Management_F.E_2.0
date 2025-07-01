@@ -245,7 +245,13 @@ export default function RevokedOrdersListPage() {
                                 setSelectedDate(e.target.value);
                             }}
                             className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
-                            min={new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0]}
+                            min={
+                            new Date(
+                                new Date().getFullYear(),
+                                new Date().getMonth() === 0 ? 11 : new Date().getMonth() - 1,
+                                21
+                            ).toISOString().split("T")[0]
+                            }
                             max={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split("T")[0]}
                         />
                     </div>

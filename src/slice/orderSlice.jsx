@@ -85,6 +85,8 @@ export const salesReport = createAsyncThunk(
   "order/salesReport",
   async (data, thunkAPI) => {
     try {
+      console.log(data);
+      
       return await salesReportService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
