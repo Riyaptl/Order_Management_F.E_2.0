@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchShopsByArea, fetchShopDetails, deleteShopService, updateShopService, createShopService, exportShopService, shiftShopService, importCSV, fetchShopOrders, blacklistShopService } from "../service/shopService";
+import { fetchShopsByArea, fetchShopDetails, deleteShopService, updateShopService, createShopService, exportShopService, shiftShopService, importCSV, fetchShopOrders, blacklistShopService, surveyShopService } from "../service/shopService";
 
 
 export const fetchShops = createAsyncThunk(
@@ -86,6 +86,17 @@ export const shiftShop = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       return await shiftShopService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const surveyShop = createAsyncThunk(
+  "shop/surveyShop",
+  async (data, thunkAPI) => {
+    try {
+      return await surveyShopService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -192,6 +203,18 @@ const shopSlice = createSlice({
         state.error = null;
       })
       .addCase(blacklistShop.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(surveyShop.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(surveyShop.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(surveyShop.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAreas } from "../slice/areaSlice";
-import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop, getShopOrders, blacklistShop } from "../slice/shopSlice";
+import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop, getShopOrders, blacklistShop, surveyShop } from "../slice/shopSlice";
 import Navbar from "../components/NavbarComponents";
 import toast from "react-hot-toast";
 import { FaTrash, FaEdit, FaExchangeAlt, FaReceipt, FaBan } from "react-icons/fa";
@@ -112,6 +112,21 @@ const ShopsListPage = () => {
             toast.error(err || "Could not update shop");
         }
     };
+
+    const handleSurvey = () => {
+        if (selectedShops.length == 0) {
+            return toast.error("Select Shops first")
+        }
+        if (window.confirm("Are you sure you want to add this shop in survey?")) {
+            try {
+                const res = dispatch(surveyShop({ ids: selectedShops})).unwrap()
+                setSelectedShops([]);
+                toast.success(res.message || "Shops updated successfully");
+            } catch (error) {
+                toast.error(error || "Failed to update shop")
+            }
+        }
+    }
 
     const handleShift = ({ shopId, fromAreaId, toAreaId }) => {
         if (shopId.length == 0) {
@@ -332,7 +347,7 @@ const ShopsListPage = () => {
                                 name="type"
                                 value={type}
                                 onChange={(e) => setType(e.target.value)}
-                                className="w-full border border-gray-300 p-2 rounded text-md focus:outline-none focus:ring-2 focus:ring-beige-400"
+                                className="w-full border border-gray-300 p-2 rounded text-sm focus:outline-none focus:ring-2 focus:ring-beige-400"
                                 required
                             >
                                 <option value="">Shop Type</option>
@@ -340,8 +355,8 @@ const ShopsListPage = () => {
                                 <option value="mt">MT</option>
                             </select>}
 
-                            {(isME || isAdmin )&& 
-                            <><label htmlFor="ordered" className="text-lg font-medium text-amber-700">
+                            {!isDistributor && 
+                            <><label htmlFor="ordered" className="text-md font-medium text-amber-700">
                                 Ordered
                             </label>
                             <label htmlFor="ordered" className="relative inline-flex items-center cursor-pointer">
@@ -351,11 +366,11 @@ const ShopsListPage = () => {
                                     onChange={() => setShopsWithOrders((prev) => !prev)}
                                     className="sr-only peer"
                                 />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
-                            </label></>}
+                            </label>
 
-                            <label htmlFor="activity" className="text-lg font-medium text-amber-700">
+                            <label htmlFor="activity" className="text-md font-medium text-amber-700">
                                 Activity
                             </label>
                             <label htmlFor="activity" className="relative inline-flex items-center cursor-pointer">
@@ -365,14 +380,15 @@ const ShopsListPage = () => {
                                     onChange={() => setActivity((prev) => !prev)}
                                     className="sr-only peer"
                                 />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
                             </label>
+                            </>}
                             
                             {!isME && 
                             <>
-                            <label htmlFor="activity" className="text-lg font-medium text-amber-700">
-                                All Shops
+                            <label htmlFor="activity" className="text-md font-medium text-amber-700">
+                                Shops
                             </label>
                             <label htmlFor="allShops" className="relative inline-flex items-center cursor-pointer">
                                 <input
@@ -381,7 +397,7 @@ const ShopsListPage = () => {
                                     onChange={() => setAllShops((prev) => !prev)}
                                     className="sr-only peer"
                                 />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
                                 <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
                             </label>
                             </>}
@@ -412,6 +428,14 @@ const ShopsListPage = () => {
                             className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
                         >
                             Shift Route
+                        </button>}
+                        {(isAdmin || isME) && <button
+                            onClick={() => {
+                                setShowShiftModal(true);
+                            }}
+                            className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
+                        >
+                            Survey
                         </button>}
                         <button
                             onClick={handleExportCsv}
