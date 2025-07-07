@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAreas } from "../slice/areaSlice";
-import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop, getShopOrders, blacklistShop, surveyShop } from "../slice/shopSlice";
+import { fetchShops, deleteShop, updateShop, createShop, exportCSVShop, shiftShop, getShopOrders, blacklistShop, surveyShop, activityPerformedShop } from "../slice/shopSlice";
 import Navbar from "../components/NavbarComponents";
 import toast from "react-hot-toast";
 import { FaTrash, FaEdit, FaExchangeAlt, FaReceipt, FaBan } from "react-icons/fa";
@@ -32,6 +32,9 @@ const ShopsListPage = () => {
     const [activity, setActivity] = useState(false);
     const [allShops, setAllShops] = useState(false);
     const [shopsWithOrders, setShopsWithOrders] = useState(false);
+    const [datePopup, setDatePopup] = useState(false);
+    const [survey, setSurvey] = useState(false);
+    const [selectedDate, setSelectedDate] = useState("");
 
     const [type, setType] = useState("");
     const isSR = role === "sr"
@@ -93,7 +96,7 @@ const ShopsListPage = () => {
     };
 
     const handleUpdate = async (updatedData) => {
-        const { name, address, contactNumber, addressLink, activity } = updatedData;
+        const { name, handler, address, contactNumber, addressLink, activity } = updatedData;
 
         if (!name.trim()) {
             toast.error("Shop name cannot be empty");
@@ -103,7 +106,7 @@ const ShopsListPage = () => {
         try {
             const res = await dispatch(updateShop({
                 id: selectedShopData._id,
-                updates: { name, address, contactNumber, addressLink, activity }
+                updates: { name, handler, address, contactNumber, addressLink, activity }
             })).unwrap();
 
             toast.success(res.message || "Shop updated successfully");
@@ -114,16 +117,49 @@ const ShopsListPage = () => {
     };
 
     const handleSurvey = () => {
+        if (!selectedDate) return;
         if (selectedShops.length == 0) {
             return toast.error("Select Shops first")
         }
         if (window.confirm("Are you sure you want to add this shop in survey?")) {
             try {
-                const res = dispatch(surveyShop({ ids: selectedShops})).unwrap()
-                setSelectedShops([]);
+                const date = new Date(selectedDate);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const year = date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`;
+                const res = dispatch(surveyShop({ ids: selectedShops, formattedDate })).unwrap()
                 toast.success(res.message || "Shops updated successfully");
             } catch (error) {
                 toast.error(error || "Failed to update shop")
+            } finally {
+                setSelectedShops([]);
+                setSurvey(false)
+                setDatePopup(false)
+            }
+        }
+    }
+
+    const handleActivityPerformed = () => {
+        if (!selectedDate) return;
+        if (selectedShops.length == 0) {
+            return toast.error("Select Shops first")
+        }
+        if (window.confirm("Are you sure you want to add this shop in activity performed?")) {
+            try {
+                const date = new Date(selectedDate);
+                const day = String(date.getDate()).padStart(2, "0");
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const year = date.getFullYear();
+                const formattedDate = `${day}/${month}/${year}`;
+                const res = dispatch(activityPerformedShop({ ids: selectedShops, formattedDate })).unwrap()
+                toast.success(res.message || "Shops updated successfully");
+            } catch (error) {
+                toast.error(error || "Failed to update shop")
+            } finally {
+                setSelectedShops([]);
+                setSurvey(false)
+                setDatePopup(false)
             }
         }
     }
@@ -144,7 +180,7 @@ const ShopsListPage = () => {
         }
     };
 
-    const handleCreate = async ({ name, address, contactNumber, activity, type }) => {
+    const handleCreate = async ({ name, handler, address, contactNumber, activity, type }) => {
         if (!name.trim()) {
             toast.error("Shop name cannot be empty");
             return;
@@ -157,7 +193,7 @@ const ShopsListPage = () => {
 
         try {
 
-            let data = { name, address, contactNumber, areaId: selectedArea, activity, type }
+            let data = { name, handler, address, contactNumber, areaId: selectedArea, activity, type }
             if (isSR) {
                 const loc = await getCurrentLocation();
                 const { latitude, longitude } = loc;
@@ -355,52 +391,52 @@ const ShopsListPage = () => {
                                 <option value="mt">MT</option>
                             </select>}
 
-                            {!isDistributor && 
-                            <><label htmlFor="ordered" className="text-md font-medium text-amber-700">
-                                Ordered
-                            </label>
-                            <label htmlFor="ordered" className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    id="ordered"
-                                    onChange={() => setShopsWithOrders((prev) => !prev)}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
-                                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
-                            </label>
+                            {!isDistributor &&
+                                <><label htmlFor="ordered" className="text-md font-medium text-amber-700">
+                                    Ordered
+                                </label>
+                                    <label htmlFor="ordered" className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            id="ordered"
+                                            onChange={() => setShopsWithOrders((prev) => !prev)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                    </label>
 
-                            <label htmlFor="activity" className="text-md font-medium text-amber-700">
-                                Activity
-                            </label>
-                            <label htmlFor="activity" className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    id="activity"
-                                    onChange={() => setActivity((prev) => !prev)}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
-                                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
-                            </label>
-                            </>}
-                            
-                            {!isME && 
-                            <>
-                            <label htmlFor="activity" className="text-md font-medium text-amber-700">
-                                Shops
-                            </label>
-                            <label htmlFor="allShops" className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    id="allShops"
-                                    onChange={() => setAllShops((prev) => !prev)}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
-                                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
-                            </label>
-                            </>}
+                                    <label htmlFor="activity" className="text-md font-medium text-amber-700">
+                                        Activity
+                                    </label>
+                                    <label htmlFor="activity" className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            id="activity"
+                                            onChange={() => setActivity((prev) => !prev)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                    </label>
+                                </>}
+
+                            {!isME &&
+                                <>
+                                    <label htmlFor="activity" className="text-md font-medium text-amber-700">
+                                        Shops
+                                    </label>
+                                    <label htmlFor="allShops" className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            id="allShops"
+                                            onChange={() => setAllShops((prev) => !prev)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-8 h-6 bg-gray-200 rounded-full peer peer-checked:bg-amber-600 transition-all duration-300"></div>
+                                        <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 peer-checked:translate-x-5"></div>
+                                    </label>
+                                </>}
                         </div>
 
                         <button
@@ -429,14 +465,28 @@ const ShopsListPage = () => {
                         >
                             Shift Route
                         </button>}
-                        {(isAdmin || isME) && <button
-                            onClick={() => {
-                                setShowShiftModal(true);
-                            }}
-                            className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
-                        >
-                            Survey
-                        </button>}
+                        {(isAdmin || isME) &&
+                                <button
+                                    onClick={() => {
+                                        setDatePopup(true)
+                                        setSurvey(true)
+                                    }}
+                                    className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
+                                >
+                                    Survey
+                                </button>
+                        }
+                        {!isDistributor && 
+                        <button
+                                    onClick={() => {
+                                        setDatePopup(true)
+                                    }}
+                                    className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
+                                >
+                                    Activity Performed
+                                </button>
+                                }
+
                         <button
                             onClick={handleExportCsv}
                             className="w-full md:w-auto px-4 py-2 bg-green-600 text-white text-md rounded hover:bg-green-700 transition"
@@ -486,8 +536,15 @@ const ShopsListPage = () => {
                                     </th>
                                     <th className="border p-2 text-left min-w-[50px]">Sr. No</th>
                                     <th className="border p-2 text-left min-w-[150px]">Shop Name</th>
+                                    {(isAdmin || isME) &&
+                                        <>
+                                            <th className="border p-2 text-left min-w-[150px]">Surveyed On</th>
+                                        </>
+                                    }
                                     <th className="border p-2 text-left min-w-[150px]">Visited At</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Activity On</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Shop Handler</th>
                                     <th className="border p-2 text-left min-w-[120px]">Contact Number</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address Link</th>
                                     <th className="border p-2 text-left min-w-[150px]">Previous Route</th>
@@ -527,17 +584,30 @@ const ShopsListPage = () => {
                                         >
                                             {shop.name}
                                         </td>
+                                        {(isAdmin || isME) &&
+                                            <>
+                                                <td className="border p-2">
+                                                    {Array.isArray(shop.survey) ? shop.survey.join(", ") : ""}
+                                                </td>
+
+                                            </>
+                                        }
+
                                         {shop.visitedAt ? <td className="border p-2">{new Date(shop.visitedAt).toLocaleString("en-IN", {
                                             timeZone: "Asia/Kolkata",
                                             day: "2-digit",
                                             month: "2-digit",
                                             year: "numeric"
                                         })}</td> : "-"}
+                                        <td className="border p-2">
+                                                    {Array.isArray(shop.activityPerformedAt) ? shop.activityPerformedAt.join(", ") : ""}
+                                                </td>
                                         <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap cursor-pointer">
                                             <div className="min-w-[200px] inline-block">
                                                 {shop.address}
                                             </div>
                                         </td>
+                                        <td className="border p-2">{shop.handler}</td>
                                         <td className="border p-2">{shop.contactNumber}</td>
                                         <td className="border p-2 break-words">
                                             {shop.addressLink ? (
@@ -645,6 +715,37 @@ const ShopsListPage = () => {
                     </div>
                 </>
             )}
+
+            {datePopup && <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg w-full max-w-sm shadow-lg">
+                    <h2 className="text-xl font-semibold mb-4">Select Date</h2>
+                    <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="w-full p-2 border rounded mb-4"
+                    />
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={() => {
+                                // setSelectedDate("")
+                                setSurvey(false)
+                                setDatePopup(false)
+                            }}
+                            className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={survey ? handleSurvey : handleActivityPerformed}
+                            className="px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-700"
+                        >
+                            Select
+                        </button>
+                    </div>
+                </div>
+            </div>}
+
             {!isME && selectedShop && selectedArea && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
                     {/* Modal Content Wrapper */}

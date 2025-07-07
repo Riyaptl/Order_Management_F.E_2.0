@@ -7,6 +7,7 @@ const UpdateShopComponents = ({ isOpen, onClose, onUpdate, initialData }) => {
 
   const [formData, setFormData] = useState({
     name: "",
+    handler: "",
     address: "",
     contactNumber: "",
     addressLink: "",
@@ -52,7 +53,7 @@ const UpdateShopComponents = ({ isOpen, onClose, onUpdate, initialData }) => {
       <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-md">
         <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">Update Shop Details</h2>
 
-        {["name", "address"].map((field) => (
+        {["name", "handler", "address"].map((field) => (
           <input
             key={field}
             name={field}

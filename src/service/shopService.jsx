@@ -176,7 +176,29 @@ export const surveyShopService = async (data) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
 
-  const response = await fetch(`${API_BASE_URL}/survey`, {
+  const response = await fetch(`${API_BASE_URL}/survey/multiple`, {
+    method: "POST",
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    const errData = await response.json();
+    throw new Error(errData.message || "Failed to update shop");
+  }
+
+  return await response.json();
+};
+
+export const activityPerformedShopService = async (data) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Auth token not found");
+
+  const response = await fetch(`${API_BASE_URL}/activity/multiple`, {
     method: "POST",
     credentials: 'include',
     headers: {

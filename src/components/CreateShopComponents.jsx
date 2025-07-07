@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
   const [formData, setFormData] = useState({
     name: "",
+    handler: "",
     address: "",
     contactNumber: "",
     activity: false,
@@ -26,15 +27,16 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
   };
 
   const handleCreate = () => {
-    const { name, address, contactNumber, activity, type } = formData;
+    const { name, handler, address, contactNumber, activity, type } = formData;
     if (!name.trim()) return;
-    onCreate({ name, address, contactNumber, activity, type });
-    setFormData({ name: "", address: "", contactNumber: "", activity: false, type: "gt"});
+    onCreate({ name, handler, address, contactNumber, activity, type });
+    setFormData({ name: "", handler: "", address: "", contactNumber: "", activity: false, type: "gt"});
   };
 
   const handleCancel = () => {
     setFormData({
       name: "",
+      handler: "",
       address: "",
       contactNumber: "",
       activity: false,
@@ -58,6 +60,14 @@ const CreateShopComponents = ({ isOpen, onClose, onCreate }) => {
           onChange={handleChange}
           className="w-full border rounded px-3 py-2 mb-3"
           placeholder="Shop Name"
+        />
+        <input
+          name="handler"
+          type="text"
+          value={formData.handler}
+          onChange={handleChange}
+          className="w-full border rounded px-3 py-2 mb-3"
+          placeholder="Shop handler name"
         />
         <input
           name="address"
