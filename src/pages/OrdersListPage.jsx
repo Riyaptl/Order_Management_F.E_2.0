@@ -506,7 +506,16 @@ export default function OrdersListPage() {
                                             />
                                         </td>
                                         <td className="border p-2">{order.type}</td>
-                                        <td className="border p-2">{order.shopId.name}</td>
+                                        {console.log(order.shopId)
+                                        }
+                                        <td
+                                            className={`border p-2 cursor-pointer
+                                                ${order.shopId.blacklisted ? "text-red-700 font-bold" : ""}
+                                                ${order.shopId.repeat ? "text-green-700 font-semibold" : ""}
+                                            `}
+                                            >
+                                            {order.shopId.name}
+                                        </td>
                                         <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
                                             <div className="overflow-x-auto max-w-[350px]">
                                                 <span
