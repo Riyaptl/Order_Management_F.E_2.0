@@ -34,10 +34,23 @@ export default function OrdersListPage() {
     const isTL = role === 'tl';
     const isAdmin = role === 'admin';
     const isDistributor = role === "distributor"
-
-
-    // const today = new Date().toISOString().split("T")[0];
     const [selectedDate, setSelectedDate] = useState("");
+    const [options, setOptions] = useState([]);
+    const [month, setMonth] = useState("");
+    
+        useEffect(() => {
+            const now = new Date();
+            const months = [];
+    
+            for (let i = 1; i <= 3; i++) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const label = date.toLocaleString("default", { month: "long" });
+            months.push(label);
+            }
+    
+            setOptions(months);
+        }, []);
+    
 
     useEffect(() => {
         setCurrentPage(1)
@@ -69,7 +82,7 @@ export default function OrdersListPage() {
             await fetchOrders();
         }
         ordersFunc()
-    }, [dispatch, currentPage, selectedArea, selectedSR, selectedDate, showCompleteData, placedOrdersTab]);
+    }, [dispatch, currentPage, selectedArea, selectedSR, selectedDate, showCompleteData, placedOrdersTab, month]);
 
     const fetchOrders = async () => {
         try {
@@ -78,7 +91,8 @@ export default function OrdersListPage() {
                     areaId: selectedArea,
                     page: currentPage,
                     completeData: showCompleteData,
-                    placedOrders: placedOrdersTab
+                    placedOrders: placedOrdersTab,
+                    month
                 })).unwrap();
                 setTotalPages(res.totalPages);
                 setShowOrders(true)
@@ -103,7 +117,8 @@ export default function OrdersListPage() {
                     username: selectedSR,
                     page: currentPage,
                     completeData: showCompleteData,
-                    placedOrders: placedOrdersTab
+                    placedOrders: placedOrdersTab,
+                    month
                 })).unwrap();
                 setTotalPages(res.totalPages);
                 setShowOrders(true)
@@ -302,6 +317,7 @@ export default function OrdersListPage() {
                         onChange={(e) => {
                             setSelectedDate(e.target.value);
                             setSelectedArea("");
+                            setMonth("")
                         }}
                         className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                         // min={
@@ -314,9 +330,31 @@ export default function OrdersListPage() {
                         max={new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split("T")[0]}
                     />
                 </div>
+                
+                {/* Month selector */}
+                    {(selectedArea || selectedSR) && <div className="flex flex-col">
+                        <label className="text-lg font-medium text-amber-700 mb-1">Select Month</label>
+                        <select
+                            name="month"
+                            value={month}
+                            onChange={(e) => {
+                                setMonth(e.target.value)
+                                setSelectedDate("");
+                                setShowCompleteData(false)
+                            }}
+                            className="border rounded px-3 py-2 text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                            <option value="">Select Month</option>
+                            {options.map((m) => (
+                                <option key={m} value={m}>
+                                    {m}
+                                </option>
+                            ))}
+                        </select>
+                    </div>}
 
                 {/* Toggle */}
-                {(showOrders && !selectedDate) && (
+                {(showOrders && !selectedDate && !month) && (
                     <div className="flex flex-col w-full md:w-auto">
                         <label htmlFor="completeData" className="text-lg font-medium text-amber-700 mb-1">
                             Show {monthName} Month's Data
