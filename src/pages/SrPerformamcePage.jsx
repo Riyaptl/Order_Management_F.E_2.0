@@ -132,10 +132,12 @@ const SrPerformancePage = () => {
                                     <th className="p-2 border min-w-[150px]">Ordered Coffee 50g</th>
                                     <th className="p-2 border min-w-[150px]">Ordered Regular 25g</th>
                                     <th className="p-2 border min-w-[150px]">Ordered Coffee 25g</th>
+                                    <th className="p-2 border min-w-[150px]">Ordered Gift box</th>
                                     <th className="p-2 border min-w-[150px]">Cancelled Regular 50g</th>
                                     <th className="p-2 border min-w-[150px]">Cancelled Coffee 50g</th>
                                     <th className="p-2 border min-w-[150px]">Cancelled Regular 25g</th>
                                     <th className="p-2 border min-w-[150px]">Cancelled Coffee 25g</th>
+                                    <th className="p-2 border min-w-[150px]">Cancelled Gift box</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -148,10 +150,12 @@ const SrPerformancePage = () => {
                                         <td className="border p-2">{entry["Ordered Coffee 50g"]}</td>
                                         <td className="border p-2">{entry["Ordered Regular 25g"]}</td>
                                         <td className="border p-2">{entry["Ordered Coffee 25g"]}</td>
+                                        <td className="border p-2">{entry["Ordered Gift box"]}</td>
                                         <td className="border p-2">{entry["Cancelled Regular 50g"]}</td>
                                         <td className="border p-2">{entry["Cancelled Coffee 50g"]}</td>
                                         <td className="border p-2">{entry["Cancelled Regular 25g"]}</td>
                                         <td className="border p-2">{entry["Cancelled Coffee 25g"]}</td>
+                                        <td className="border p-2">{entry["Cancelled Gift box"]}</td>
                                     </tr>
                                 ))}
                             </tbody>
