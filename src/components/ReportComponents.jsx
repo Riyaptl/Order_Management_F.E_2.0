@@ -8,6 +8,7 @@ export default function ReportComponents({
     title = "Sales Report",
     reportData = {},
     replaceReportData = {},
+    returnReportData = {},
     loading = false,
     queryAction,
 }) {
@@ -223,6 +224,9 @@ export default function ReportComponents({
                                 <div className="text-lg font-bold text-green-700 text-left mb-2">
                                     Replacement Amount: ₹{replaceReportData.amount || 0}
                                 </div>
+                                <div className="text-lg font-bold text-green-700 text-left mb-2">
+                                    Return Amount: ₹{returnReportData.amount || 0}
+                                </div>
                             </>
                         )}
                         <div className="overflow-x-auto">
@@ -232,6 +236,7 @@ export default function ReportComponents({
                                         <th className="border p-2 text-left min-w-[140px]">Product</th>
                                         <th className="border p-2 text-left">Ordered</th>
                                         <th className="border p-2 text-left">Replaced</th>
+                                        <th className="border p-2 text-left">Returned</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -240,16 +245,18 @@ export default function ReportComponents({
                                             <td className="border p-2">{key}</td>
                                             <td className="border p-2">{reportData.productTotals[key]}</td>
                                             <td className="border p-2">{replaceReportData.productTotals?.[key] || 0}</td>
+                                            <td className="border p-2">{returnReportData.productTotals?.[key] || 0}</td>
                                         </tr>
                                     ))}
                                     <tr className="bg-gray-200">
-                                        <td colSpan={3} className="text-center font-semibold p-2">Overall Totals</td>
+                                        <td colSpan={4} className="text-center font-semibold p-2">Overall Totals</td>
                                     </tr>
                                     {overallKeys.map((key) => (
                                         <tr key={key} className="hover:bg-gray-50">
                                             <td className="border p-2">{key}</td>
                                             <td className="border p-2">{reportData.overallTotals[key]}</td>
                                             <td className="border p-2">{replaceReportData.overallTotals?.[key] || 0}</td>
+                                            <td className="border p-2">{returnReportData.overallTotals?.[key] || 0}</td>
                                         </tr>
                                     ))}
                                 </tbody>

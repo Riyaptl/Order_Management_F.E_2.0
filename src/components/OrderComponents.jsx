@@ -249,7 +249,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
           value={paymentTerms}
           onChange={(e) => setPaymentTerms(e.target.value.toLowerCase())}
           className="w-full border border-gray-300 rounded px-3 py-2 text-md"
-          disabled={noOrder || type==='replacement'}
+          disabled={noOrder || type==='replacement' || type==='return'}
           required
         >
           <option value="">Select Payment Terms</option>
@@ -302,6 +302,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
           {/* <option value="">Select Type</option> */}
           <option value="order">Order</option>
           <option value="replacement">Replacement</option>
+          <option value="return">Return</option>
         </select>
       </div>
 

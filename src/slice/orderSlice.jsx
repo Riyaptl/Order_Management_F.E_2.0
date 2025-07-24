@@ -85,8 +85,7 @@ export const salesReport = createAsyncThunk(
   "order/salesReport",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
-      
+
       return await salesReportService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
@@ -172,12 +171,22 @@ const orderSlice = createSlice({
       overallTotals: {},
       amount: 0
     },
+    saleReturnReport: {
+      productTotals: {},
+      overallTotals: {},
+      amount: 0
+    },
     cancelledReport: {
       productTotals: {},
       overallTotals: {},
       amount: 0
     },
     cancelledReplaceReport: {
+      productTotals: {},
+      overallTotals: {},
+      amount: 0
+    },
+    cancelledReturnReport: {
       productTotals: {},
       overallTotals: {},
       amount: 0
@@ -285,6 +294,7 @@ const orderSlice = createSlice({
         state.loading = false;
         state.saleReport = action.payload.saleReport       
         state.saleReplaceReport = action.payload.saleReplaceReport   
+        state.saleReturnReport = action.payload.saleReturnReport   
       })
       .addCase(salesReport.rejected, (state, action) => {
         state.loading = false;
@@ -298,6 +308,7 @@ const orderSlice = createSlice({
         state.loading = false;
         state.cancelledReport = action.payload.cancelledReport       
         state.cancelledReplaceReport = action.payload.cancelledReplaceReport   
+        state.cancelledReturnReport = action.payload.cancelledReturnReport   
       })
       .addCase(cancelReport.rejected, (state, action) => {
         state.loading = false;

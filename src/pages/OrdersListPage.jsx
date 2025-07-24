@@ -112,7 +112,6 @@ export default function OrdersListPage() {
                 setShowOrders(true)
             }
             else if (selectedSR) {
-                console.log('hit');
                 const res = await dispatch(getOrdersSR({
                     username: selectedSR,
                     page: currentPage,
@@ -506,8 +505,6 @@ export default function OrdersListPage() {
                                             />
                                         </td>
                                         <td className="border p-2">{order.type}</td>
-                                        {console.log(order.shopId)
-                                        }
                                         <td
                                             className={`border p-2 cursor-pointer
                                                 ${order.shopId.blacklisted ? "text-red-700 font-bold" : ""}
