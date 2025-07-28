@@ -437,6 +437,7 @@ export default function OrdersListPage() {
                                     />
                                 </th>
                                 <th className="border p-2 text-left min-w-[100px]">Type</th>
+                                {placedOrdersTab && <th className="border p-2 text-left min-w-[100px]">Gift box</th>}
                                 <th className="border p-2 text-left min-w-[200px]">Shop Name</th>
                                 <th className="border p-2 text-left min-w-[200px]">Shop Address</th>
                                 <th className="border p-2 text-left min-w-[180px]">Contact Number</th>
@@ -505,10 +506,16 @@ export default function OrdersListPage() {
                                             />
                                         </td>
                                         <td className="border p-2">{order.type}</td>
+                                        {placedOrdersTab && <td className="border p-2">
+                                                {order.products && order.products["Gift box"] !== undefined
+                                                    ? order.products["Gift box"]
+                                                    : "-"}
+                                            </td>
+                                            }
                                         <td
                                             className={`border p-2 cursor-pointer
-                                                ${order.shopId.blacklisted ? "text-red-700 font-bold" : ""}
                                                 ${order.shopId.repeat ? "text-green-700 font-semibold" : ""}
+                                                ${order.shopId.blacklisted ? "text-red-700 font-bold" : ""}
                                             `}
                                             >
                                             {order.shopId.name}

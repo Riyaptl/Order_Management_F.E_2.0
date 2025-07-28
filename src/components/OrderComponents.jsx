@@ -254,6 +254,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         >
           <option value="">Select Payment Terms</option>
           <option value="cash">Cash</option>
+          <option value="cheque">Cheque</option>
           <option value="company credit">Company Credit</option>
           <option value="sr credit">SR Credit</option>
           <option value="distributor credit">Distributor Credit</option>

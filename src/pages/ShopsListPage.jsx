@@ -580,9 +580,9 @@ const ShopsListPage = () => {
                                         <td className="border p-2">{index + 1}</td>
                                         <td
                                             className={`border p-2 cursor-pointer
-                                                ${shop.blacklisted ? "text-red-700 font-bold" : ""}
                                                 ${shop.first ? "text-yellow-700 font-semibold" : ""}
                                                 ${shop.repeat ? "text-green-700 font-semibold" : ""}
+                                                ${shop.blacklisted ? "text-red-700 font-bold" : ""}
                                             `}
                                             >
                                             {shop.name}
