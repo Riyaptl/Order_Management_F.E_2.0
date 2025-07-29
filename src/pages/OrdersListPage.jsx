@@ -488,7 +488,7 @@ export default function OrdersListPage() {
                                 <>
                                     {/* {console.log('in table', order)} */}
                                     <tr key={order._id} className="hover:bg-gray-50"  onClick={(e) => {
-                                        if (placedOrdersTab && e.target.closest("td")?.cellIndex === 2) {
+                                        if (placedOrdersTab && (e.target.closest("td")?.cellIndex === 2 || e.target.closest("td")?.cellIndex === 3)) {
                                             setSelectedShop(order);
                                         }
                                     }}>
