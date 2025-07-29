@@ -82,7 +82,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
     }    
 
     // add address in shop addressLink
-    if (isSR && !shopLink) {
+    if ((isSR || isTL) && !shopLink) {
       let addressLink
       if (!noOrder){
         const location = await getCurrentLocation();
