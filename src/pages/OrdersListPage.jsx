@@ -37,20 +37,22 @@ export default function OrdersListPage() {
     const [selectedDate, setSelectedDate] = useState("");
     const [options, setOptions] = useState([]);
     const [month, setMonth] = useState("");
-    
-        useEffect(() => {
-            const now = new Date();
-            const months = [];
-    
-            for (let i = 1; i <= 3; i++) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [srSearchTerm, setSRSearchTerm] = useState("");
+
+    useEffect(() => {
+        const now = new Date();
+        const months = [];
+
+        for (let i = 1; i <= 3; i++) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const label = date.toLocaleString("default", { month: "long" });
             months.push(label);
-            }
-    
-            setOptions(months);
-        }, []);
-    
+        }
+
+        setOptions(months);
+    }, []);
+
 
     useEffect(() => {
         setCurrentPage(1)
@@ -86,7 +88,7 @@ export default function OrdersListPage() {
 
     const fetchOrders = async () => {
         try {
-            if (selectedArea) {               
+            if (selectedArea) {
                 const res = await dispatch(getOrders({
                     areaId: selectedArea,
                     page: currentPage,
@@ -233,6 +235,13 @@ export default function OrdersListPage() {
     const now = new Date();
     const monthName = now.toLocaleString("default", { month: "long" });
 
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+    const trimmedSRSearchTerm = srSearchTerm.trim().toLowerCase();
+    const filteredOrders = orders.filter((order) =>
+        order.shopId.name.toLowerCase().includes(trimmedSearchTerm) &&
+        order.placedBy?.toLowerCase().includes(trimmedSRSearchTerm)
+    );
+
     return (
         <div className="p-4">
             <div className="flex justify-end md:justify-center mb-8">
@@ -264,25 +273,25 @@ export default function OrdersListPage() {
 
                 {/* Area Selector */}
                 {/* {!isSR && ( */}
-                    <div className="w-full md:w-auto">
-                        <label className="block text-lg font-medium text-amber-700 mb-2">Select Route</label>
-                        <select
-                            value={selectedArea}
-                            onChange={(e) => {
-                                setSelectedArea(e.target.value);
-                                setSelectedSR("");
-                                setSelectedDate("");
-                            }}
-                            className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
-                        >
-                            <option value="">-- Select Route --</option>
-                            {areas.map((area) => (
-                                <option key={area._id} value={area._id}>
-                                    {area.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                <div className="w-full md:w-auto">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">Select Route</label>
+                    <select
+                        value={selectedArea}
+                        onChange={(e) => {
+                            setSelectedArea(e.target.value);
+                            setSelectedSR("");
+                            setSelectedDate("");
+                        }}
+                        className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
+                    >
+                        <option value="">-- Select Route --</option>
+                        {areas.map((area) => (
+                            <option key={area._id} value={area._id}>
+                                {area.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 {/* )} */}
 
                 {/* SR Selector */}
@@ -292,8 +301,16 @@ export default function OrdersListPage() {
                         <select
                             value={selectedSR}
                             onChange={(e) => {
-                                setSelectedSR(e.target.value);
-                                setSelectedArea("");
+                                const value = e.target.value;
+                                if (value === "old") {
+                                    // setOld(true);
+                                    setSelectedSR("old"); 
+                                    setSelectedArea(""); 
+                                } else {
+                                    // setOld(false);
+                                    setSelectedSR(value);
+                                    setSelectedArea("");
+                                }
                             }}
                             className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                         >
@@ -303,7 +320,9 @@ export default function OrdersListPage() {
                                     {sr.username}
                                 </option>
                             ))}
+                            <option value="old">Ex SRs</option>
                         </select>
+
                     </div>
                 )}
 
@@ -321,28 +340,28 @@ export default function OrdersListPage() {
                         className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                     />
                 </div>
-                
+
                 {/* Month selector */}
-                    {(selectedArea || selectedSR) && <div className="flex flex-col">
-                        <label className="text-lg font-medium text-amber-700 mb-1">Select Month</label>
-                        <select
-                            name="month"
-                            value={month}
-                            onChange={(e) => {
-                                setMonth(e.target.value)
-                                setSelectedDate("");
-                                setShowCompleteData(false)
-                            }}
-                            className="border rounded px-3 py-2 text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        >
-                            <option value="">Select Month</option>
-                            {options.map((m) => (
-                                <option key={m} value={m}>
-                                    {m}
-                                </option>
-                            ))}
-                        </select>
-                    </div>}
+                {(selectedArea || selectedSR) && <div className="flex flex-col">
+                    <label className="text-lg font-medium text-amber-700 mb-1">Select Month</label>
+                    <select
+                        name="month"
+                        value={month}
+                        onChange={(e) => {
+                            setMonth(e.target.value)
+                            setSelectedDate("");
+                            setShowCompleteData(false)
+                        }}
+                        className="border rounded px-3 py-2 text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                        <option value="">Select Month</option>
+                        {options.map((m) => (
+                            <option key={m} value={m}>
+                                {m}
+                            </option>
+                        ))}
+                    </select>
+                </div>}
 
                 {/* Toggle */}
                 {(showOrders && !selectedDate && !month) && (
@@ -403,6 +422,23 @@ export default function OrdersListPage() {
                         </button>
                     </div>
                 )}
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+                <input
+                type="text"
+                placeholder="Search shop name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+                <input
+                type="text"
+                placeholder="Search by SR / Distributor..."
+                value={srSearchTerm}
+                onChange={(e) => setSRSearchTerm(e.target.value)}
+                className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
             </div>
 
             {!error && !loading && orders.length == 0 && (<p className="text-center text-gray-500">No records to show</p>)}
@@ -471,15 +507,15 @@ export default function OrdersListPage() {
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[100px]">Status</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[180px]">Comment</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[200px]">Status Updated At</th>}
-                                {(!isSR && !isTL)&& <th className="border p-2 text-left min-w-[150px]">Actions</th>}
+                                {(!isSR && !isTL) && <th className="border p-2 text-left min-w-[150px]">Actions</th>}
                             </tr>
                         </thead>
 
                         <tbody>
-                            {orders.map((order) => (
+                            {filteredOrders.map((order) => (
                                 <>
                                     {/* {console.log('in table', order)} */}
-                                    <tr key={order._id} className="hover:bg-gray-50"  onClick={(e) => {
+                                    <tr key={order._id} className="hover:bg-gray-50" onClick={(e) => {
                                         if (placedOrdersTab && (e.target.closest("td")?.cellIndex === 2 || e.target.closest("td")?.cellIndex === 3)) {
                                             setSelectedShop(order);
                                         }
@@ -499,17 +535,17 @@ export default function OrdersListPage() {
                                         </td>
                                         <td className="border p-2">{order.type}</td>
                                         {placedOrdersTab && <td className="border p-2">
-                                                {order.products && order.products["Gift box"] !== undefined
-                                                    ? order.products["Gift box"]
-                                                    : "-"}
-                                            </td>
-                                            }
+                                            {order.products && order.products["Gift box"] !== undefined
+                                                ? order.products["Gift box"]
+                                                : "-"}
+                                        </td>
+                                        }
                                         <td
                                             className={`border p-2 cursor-pointer
                                                 ${order.shopId.repeat ? "text-green-700 font-semibold" : ""}
                                                 ${order.shopId.blacklisted ? "text-red-700 font-bold" : ""}
                                             `}
-                                            >
+                                        >
                                             {order.shopId.name}
                                         </td>
                                         <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
@@ -550,8 +586,8 @@ export default function OrdersListPage() {
                                                 </span>
                                             </div>
                                         </td>
-                                        { isSR && <td className="border p-2">{order.placedBy}</td> }
-                                        { !isSR && <td className="border p-2">{order.placedBy}</td> }
+                                        {isSR && <td className="border p-2">{order.placedBy}</td>}
+                                        {!isSR && <td className="border p-2">{order.placedBy}</td>}
                                         {/* {placedOrdersTab && (<> {productsList.map((key) => (
                                             <td key={key} className="border p-2">
                                                 {order.products && order.products[key] !== undefined
@@ -606,13 +642,13 @@ export default function OrdersListPage() {
                                             </td>
                                         )}
                                         {placedOrdersTab && <td className="border p-2 font-semibold">
-                                                {order.total
-                                                    ? totalList.reduce((sum, key) => {
-                                                        const val = order.total[key];
-                                                        return sum + (typeof val === "number" ? val : 0);
-                                                    }, 0)
-                                                    : "-"}
-                                            </td>}
+                                            {order.total
+                                                ? totalList.reduce((sum, key) => {
+                                                    const val = order.total[key];
+                                                    return sum + (typeof val === "number" ? val : 0);
+                                                }, 0)
+                                                : "-"}
+                                        </td>}
                                         {placedOrdersTab && <td className="border p-2 text-left min-w-[100px]">{order.status || '-'}</td>}
                                         {placedOrdersTab && (
                                             <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
@@ -636,7 +672,7 @@ export default function OrdersListPage() {
                                                 const minutes = String(date.getMinutes()).padStart(2, "0");
 
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                            })(): "-"}
+                                            })() : "-"}
                                         </td>)}
                                         {(!isSR && !isTL) &&
                                             <td className="border p-2">
@@ -677,7 +713,7 @@ export default function OrdersListPage() {
                 </div>
             )}
 
-{showOrders && selectedShop && placedOrdersTab&& (
+            {showOrders && selectedShop && placedOrdersTab && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                         <h2 className="text-xl font-semibold mb-4 text-amber-700 text-center">Order Details</h2>

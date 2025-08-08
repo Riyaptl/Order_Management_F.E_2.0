@@ -221,7 +221,14 @@ export default function RevokedOrdersListPage() {
                         <select
                             value={selectedSR}
                             onChange={(e) => {
-                                setSelectedSR(e.target.value);
+                                const value = e.target.value;
+                                if (value === "old") {
+                                    // setOld(true);
+                                    setSelectedSR("old"); 
+                                } else {
+                                    // setOld(false);
+                                    setSelectedSR(value);
+                                }
                             }}
                             className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                         >
@@ -231,7 +238,9 @@ export default function RevokedOrdersListPage() {
                                     {sr.username}
                                 </option>
                             ))}
+                            <option value="old">Ex SRs</option>
                         </select>
+
                     </div>
                 )}
 
