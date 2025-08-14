@@ -18,21 +18,21 @@ export const loginUser = async (data) => {
   return res.json(); // { token, user }
 };
 
-export const logoutUser = async (data) => {
-  const res = await fetch(`${API_BASE}/logout`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
+// export const logoutUser = async (data) => {
+//   const res = await fetch(`${API_BASE}/logout`, {
+//     method: 'POST',
+//     credentials: 'include',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify(data),
+//   });
 
-  if (!res.ok) {
-    const msg = await res.text();
-    throw new Error(msg || 'Logout failed');
-  }
+//   if (!res.ok) {
+//     const msg = await res.text();
+//     throw new Error(msg || 'Logout failed');
+//   }
 
-  return res.json(); 
-};
+//   return res.json(); 
+// };
 
 export const sendSignupOtp = async (userData) => {
   const response = await fetch(`${API_BASE}/sendOTP`, {

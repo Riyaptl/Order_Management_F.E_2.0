@@ -21,14 +21,14 @@ export const login = createAsyncThunk('auth/login', async (credentials, thunkAPI
   }
 });
 
-export const logout = createAsyncThunk('auth/logout', async (credentials, thunkAPI) => {
-  try {
-    const data = await logoutUser(credentials);
-    return data;
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.message);
-  }
-});
+// export const logout = createAsyncThunk('auth/logout', async (credentials, thunkAPI) => {
+//   try {
+//     const data = await logoutUser(credentials);
+//     return data;
+//   } catch (err) {
+//     return thunkAPI.rejectWithValue(err.message);
+//   }
+// });
 
 export const sendOtp = createAsyncThunk(
   "auth/sendOtp",
@@ -81,6 +81,23 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    logout: (state) => {
+      // Clear localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem("user");
+      localStorage.removeItem("role");
+      localStorage.removeItem("choseAreaName");
+      localStorage.removeItem("chosenArea");
+
+      // Reset Redux state
+      state.token = null;
+      state.user = null;
+      state.role = null;
+      state.isAuthenticated = false;
+      state.loading = false;
+      state.error = null;
+      state.otpSent = false;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -99,26 +116,6 @@ const authSlice = createSlice({
         localStorage.setItem('role', action.payload.role);
       })
       .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(logout.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(logout.fulfilled, (state, action) => {
-        state.loading = false;
-        state.token = null;
-        state.user = null;
-        state.role = null
-        state.isAuthenticated = false;
-        localStorage.removeItem('token');
-        localStorage.removeItem("user");
-        localStorage.removeItem("role");
-        localStorage.removeItem("choseAreaName");
-        localStorage.removeItem("chosenArea");
-      })
-      .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -183,4 +180,5 @@ const authSlice = createSlice({
   },
 });
 
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
