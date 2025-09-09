@@ -525,7 +525,7 @@ export default function OrdersListPage() {
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[100px]">Status</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[180px]">Comment</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[200px]">Status Updated At</th>}
-                                {(!isSR && !isTL) && <th className="border p-2 text-left min-w-[150px]">Actions</th>}
+                                {<th className="border p-2 text-left min-w-[150px]">Actions</th>}
                             </tr>
                         </thead>
 
