@@ -10,7 +10,8 @@ const productFields = [
   "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
   "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g",
   "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
-  "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box"
+  "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
+  "Hazelnut & Blueberries", "Roasted Almonds & Pink Salt", "Kiwi & Pineapple", "Ginger & Cinnamon", "Pistachio & Black Raisin", "Dates & Raisin"
 ];
 
 export default function OrderComponent({ shopId, onClose, selectedArea, shopLink }) {

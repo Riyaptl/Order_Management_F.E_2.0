@@ -4,7 +4,7 @@ import { getOrders, deleteOrder, exportOrdersCsv, getOrdersSR, statusOrder, getO
 import toast from "react-hot-toast";
 import Navbar from "../components/NavbarComponents";
 import { fetchAreas } from "../slice/areaSlice";
-import { FaChevronLeft, FaChevronRight, FaTrash, FaBan, FaEdit } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaTrash, FaBan, FaEdit, FaUndoAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../slice/authSlice";
 import { getSRDetails } from "../slice/userSlice";
@@ -25,10 +25,13 @@ export default function OrdersListPage() {
     const [selectedSR, setSelectedSR] = useState("");
     const [calls, setCalls] = useState(0);
     const [showModal, setShowModal] = useState(false);
+    const [showReturnModal, setShowReturnModal] = useState(false);
     const [status, setStatus] = useState("");
     const [reason, setReason] = useState("");
+    const [returnProducts, setReturnProducts] = useState({});
     const [selectedShop, setSelectedShop] = useState(null);
     const [selectedOrders, setSelectedOrders] = useState([]);
+    const [selectedOrder, setSelectedOrder] = useState(null)
     const [showOrders, setShowOrders] = useState(false);
     const isSR = role === 'sr'
     const isTL = role === 'tl';
@@ -52,6 +55,18 @@ export default function OrdersListPage() {
 
         setOptions(months);
     }, []);
+
+    useEffect(() => {
+        if (showModal && selectedOrders.length > 0) {
+            const initialReturns = {};
+            Object.keys(selectedOrders[0].products || {}).forEach(
+                (key) => (initialReturns[key] = 0)
+            );
+            setReturnProducts(initialReturns);
+            setStatus("");
+            setReason("");
+        }
+    }, [showModal, selectedOrders]);
 
 
     useEffect(() => {
@@ -164,7 +179,7 @@ export default function OrdersListPage() {
         }
         try {
             if (window.confirm("Are you sure you want to update the status?")) {
-                const res = dispatch(statusOrder({ ids: selectedOrders, status, reason })).unwrap()
+                const res = dispatch(statusOrder({ ids: selectedOrders, status, reason, returnProducts })).unwrap()
                 toast.success(res.message || "Order status updated successfully")
             }
         }
@@ -174,6 +189,7 @@ export default function OrdersListPage() {
         setReason("")
         setStatus("")
         setSelectedOrders([])
+        setSelectedOrder(null)
         setShowModal(false)
     }
 
@@ -224,11 +240,13 @@ export default function OrdersListPage() {
         "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
         "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g",
         "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
-        "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box"
+        "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
+        "Hazelnut & Blueberries", "Roasted Almonds & Pink Salt", "Kiwi & Pineapple", "Ginger & Cinnamon", "Pistachio & Black Raisin", "Dates & Raisin"
     ];
 
     const totalList = [
-        "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box"
+        "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box",
+        "Hazelnut & Blueberries", "Roasted Almonds & Pink Salt", "Kiwi & Pineapple", "Ginger & Cinnamon", "Pistachio & Black Raisin", "Dates & Raisin"
     ];
 
 
@@ -304,8 +322,8 @@ export default function OrdersListPage() {
                                 const value = e.target.value;
                                 if (value === "old") {
                                     // setOld(true);
-                                    setSelectedSR("old"); 
-                                    setSelectedArea(""); 
+                                    setSelectedSR("old");
+                                    setSelectedArea("");
                                 } else {
                                     // setOld(false);
                                     setSelectedSR(value);
@@ -426,18 +444,18 @@ export default function OrdersListPage() {
 
             <div className="flex flex-col md:flex-row gap-4 mb-4">
                 <input
-                type="text"
-                placeholder="Search shop name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    type="text"
+                    placeholder="Search shop name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
                 <input
-                type="text"
-                placeholder="Search by SR / Distributor..."
-                value={srSearchTerm}
-                onChange={(e) => setSRSearchTerm(e.target.value)}
-                className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    type="text"
+                    placeholder="Search by SR / Distributor..."
+                    value={srSearchTerm}
+                    onChange={(e) => setSRSearchTerm(e.target.value)}
+                    className="w-full md:w-1/2 border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
             </div>
 
@@ -503,6 +521,7 @@ export default function OrdersListPage() {
                                     <th className="border p-2 text-left min-w-[250px]">Location Link</th>
                                 )}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[180px] text-red-700">Total</th>}
+                                {placedOrdersTab && <th className="border p-2 text-left min-w-[180px] text-red-700">Return Total</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[100px]">Status</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[180px]">Comment</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[200px]">Status Updated At</th>}
@@ -642,6 +661,14 @@ export default function OrdersListPage() {
                                                 }, 0)
                                                 : "-"}
                                         </td>}
+                                        {placedOrdersTab && <td className="border p-2 font-semibold">
+                                            {order.return_total
+                                                ? totalList.reduce((sum, key) => {
+                                                    const val = order.return_total[key];
+                                                    return sum + (typeof val === "number" ? val : 0);
+                                                }, 0)
+                                                : "-"}
+                                        </td>}
                                         {placedOrdersTab && <td className="border p-2 text-left min-w-[100px]">{order.status || '-'}</td>}
                                         {placedOrdersTab && (
                                             <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
@@ -688,6 +715,7 @@ export default function OrdersListPage() {
                                                     <button
                                                         onClick={() => {
                                                             setSelectedOrders([order._id])
+                                                            setSelectedOrder(order)
                                                             setShowModal(true)
                                                         }}
                                                         className="text-blue-600 hover:text-blue-800 text-xl p-2"
@@ -695,6 +723,19 @@ export default function OrdersListPage() {
                                                     >
                                                         <FaEdit />
                                                     </button>)}
+                                                {order.type === 'order' && Object.keys(order.return_products || {}).length > 0 && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedOrder(order);
+                                                            setReturnProducts(order.return_products);
+                                                            setShowReturnModal(true);
+                                                        }}
+                                                        className="text-amber-600 hover:text-amber-800 text-xl p-2"
+                                                        title="Partial Return"
+                                                    >
+                                                        <FaUndoAlt />
+                                                    </button>
+                                                )}
                                             </td>
                                         }
 
@@ -732,7 +773,7 @@ export default function OrdersListPage() {
                                 {totalList.map((item) => (
                                     <div
                                         key={item}
-                                        className="border rounded p-2 flex justify-between items-center"
+                                        className="border rounded p-2 flex justify-between items-center px-3"
                                     >
                                         <span>{item}</span>
                                         <span className="font-medium">{selectedShop.total[item] || 0}</span>
@@ -773,6 +814,7 @@ export default function OrdersListPage() {
                     </div>
                 </div>
             )}
+
             {showOrders && (<div className="flex justify-center items-center mt-4 space-x-4">
                 <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -793,13 +835,12 @@ export default function OrdersListPage() {
                 </button>
             </div>)}
 
-            {showModal && (
+            {showModal && selectedOrder && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-2">
                     <div className="relative bg-white max-h-[90vh] w-full sm:w-[95%] max-w-md overflow-auto rounded-lg shadow-lg p-6">
                         <h2 className="text-lg font-semibold mb-4 text-center text-gray-800">
                             Update Status
                         </h2>
-
                         <div className="flex flex-col gap-4">
                             {/* Status Dropdown */}
                             <div>
@@ -815,8 +856,13 @@ export default function OrdersListPage() {
                                     <option value="pending">Pending</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="canceled">Canceled</option>
+                                    {selectedOrder.type === "order" && (
+                                        <option value="partial return">Partial Return</option>
+                                    )}
                                 </select>
                             </div>
+
+                            {/* Reason Input */}
                             <div>
                                 <label className="block text-md font-medium text-gray-700 mb-1">
                                     Reason
@@ -826,9 +872,38 @@ export default function OrdersListPage() {
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
                                     className="w-full border border-gray-300 rounded px-3 py-2 text-md"
-                                    placeholder="Enter reason for cancellation"
+                                    placeholder="Enter reason for status change"
                                 />
                             </div>
+
+                            {/* Partial Return Products Input */}
+                            {status === "partial return" && (
+                                <div>
+                                    <label className="block text-md font-medium text-gray-700 mb-2">
+                                        Return Quantities
+                                    </label>
+                                    {Object.entries(selectedOrder?.products || {}).map(([key, qty]) => (
+                                        <div key={key} className="flex items-center gap-2 mb-2">
+                                            <span className="w-32 text-gray-800">{key}</span>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max={qty}
+                                                value={returnProducts[key] || ""}
+                                                onChange={(e) =>
+                                                    setReturnProducts({
+                                                        ...returnProducts,
+                                                        [key]: Number(e.target.value),
+                                                    })
+                                                }
+                                                className="border border-gray-300 rounded px-2 py-1 w-20"
+                                            />
+                                            <span className="text-sm text-gray-500">/ {qty}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             {/* Buttons */}
                             <div className="flex justify-end gap-3 pt-2">
                                 <button
@@ -838,12 +913,57 @@ export default function OrdersListPage() {
                                     Close
                                 </button>
                                 <button
-                                    onClick={handleSubmit}
+                                    onClick={() =>
+                                        handleSubmit({
+                                            id: selectedOrders[0]._id,
+                                            status,
+                                            reason,
+                                            ...(status === "partial return" && { returnProducts }),
+                                        })
+                                    }
                                     className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
                                 >
                                     Submit
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showReturnModal && selectedOrder && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center px-2">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                        <h2 className="text-xl font-semibold mb-4 text-amber-700 text-center">
+                            Partial Return Details
+                        </h2>
+
+                        <div className="mb-4">
+                            <h3 className="font-semibold text-lg mb-2 text-gray-700">Products Returned:</h3>
+                            {Object.keys(returnProducts).length === 0 ? (
+                                <p className="text-gray-500 text-center">No products returned.</p>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                    {Object.entries(returnProducts).map(([product, qty]) => (
+                                        <div
+                                            key={product}
+                                            className="border rounded p-2 flex justify-between items-center"
+                                        >
+                                            <span>{product}</span>
+                                            <span className="font-medium">{qty}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end mt-6">
+                            <button
+                                onClick={() => setShowReturnModal(false)}
+                                className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
+                            >
+                                Close
+                            </button>
                         </div>
                     </div>
                 </div>
