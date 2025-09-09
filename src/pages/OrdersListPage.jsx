@@ -694,50 +694,55 @@ export default function OrdersListPage() {
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
                                             })() : "-"}
                                         </td>)}
-                                        {(!isSR && !isTL) &&
-                                            <td className="border p-2">
-                                                {isAdmin && (
+                                        <td className="border p-2">
+                                            {(!isSR && !isTL) && (
+                                                <>
+                                                    {isAdmin && (
+                                                        <button
+                                                            onClick={() => handleDelete(order._id)}
+                                                            className="text-red-500 hover:text-red-600 p-2 text-xl"
+                                                        >
+                                                            <FaTrash />
+                                                        </button>
+                                                    )}
                                                     <button
-                                                        onClick={() => handleDelete(order._id)}
-                                                        className="text-red-500 hover:text-red-600 p-2 text-xl"
+                                                        onClick={() => handleBlacklist(order.shopId._id)}
+                                                        className="text-black-600 hover:text-black-800 text-xl p-2"
+                                                        title="Blacklist"
                                                     >
-                                                        <FaTrash />
+                                                        <FaBan />
                                                     </button>
-                                                )}
+                                                    {order.status === 'pending' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedOrders([order._id]);
+                                                                setSelectedOrder(order);
+                                                                setShowModal(true);
+                                                            }}
+                                                            className="text-blue-600 hover:text-blue-800 text-xl p-2"
+                                                            title="Status Update"
+                                                        >
+                                                            <FaEdit />
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+
+                                            {/* FaUndoAlt always visible if conditions match */}
+                                            {order.type === 'order' && Object.keys(order.return_products || {}).length > 0 && (
                                                 <button
-                                                    onClick={() => handleBlacklist(order.shopId._id)}
-                                                    className="text-black-600 hover:text-black-800 text-xl p-2"
-                                                    title="Blacklist"
+                                                    onClick={() => {
+                                                        setSelectedOrder(order);
+                                                        setReturnProducts(order.return_products);
+                                                        setShowReturnModal(true);
+                                                    }}
+                                                    className="text-amber-600 hover:text-amber-800 text-xl p-2"
+                                                    title="Partial Return"
                                                 >
-                                                    <FaBan />
+                                                    <FaUndoAlt />
                                                 </button>
-                                                {order.status === 'pending' && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedOrders([order._id])
-                                                            setSelectedOrder(order)
-                                                            setShowModal(true)
-                                                        }}
-                                                        className="text-blue-600 hover:text-blue-800 text-xl p-2"
-                                                        title="Status Update"
-                                                    >
-                                                        <FaEdit />
-                                                    </button>)}
-                                                {order.type === 'order' && Object.keys(order.return_products || {}).length > 0 && (
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedOrder(order);
-                                                            setReturnProducts(order.return_products);
-                                                            setShowReturnModal(true);
-                                                        }}
-                                                        className="text-amber-600 hover:text-amber-800 text-xl p-2"
-                                                        title="Partial Return"
-                                                    >
-                                                        <FaUndoAlt />
-                                                    </button>
-                                                )}
-                                            </td>
-                                        }
+                                            )}
+                                        </td>
 
                                     </tr>
                                 </>
