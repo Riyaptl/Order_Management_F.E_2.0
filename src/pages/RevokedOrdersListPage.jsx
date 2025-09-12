@@ -175,12 +175,12 @@ export default function RevokedOrdersListPage() {
         "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g", "Blueberry 25g",
         "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
         "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
-        "Hazelnut & Blueberries", "Roasted Almonds & Pink Salt", "Kiwi & Pineapple", "Ginger & Cinnamon", "Pistachio & Black Raisin", "Dates & Raisin"
+        "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
     ];
 
     const totalList = [
         "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box",
-        "Hazelnut & Blueberries", "Roasted Almonds & Pink Salt", "Kiwi & Pineapple", "Ginger & Cinnamon", "Pistachio & Black Raisin", "Dates & Raisin"
+        "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
     ];
 
 

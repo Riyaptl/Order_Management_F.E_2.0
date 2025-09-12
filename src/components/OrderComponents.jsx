@@ -11,8 +11,10 @@ const productFields = [
   "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g", "Blueberry 25g",
   "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
   "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
-  "Hazelnut & Blueberries", "Roasted Almonds & Pink Salt", "Kiwi & Pineapple", "Ginger & Cinnamon", "Pistachio & Black Raisin", "Dates & Raisin"
+  "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
 ];
+
+
 
 export default function OrderComponent({ shopId, onClose, selectedArea, shopLink }) {
   const dispatch = useDispatch();
@@ -31,6 +33,13 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
   const isAdmin = role === "admin"
   const isTL = role === 'tl';
   const isDistributor = role === "distributor"
+  const [editRate, setEditRate] = useState(false);
+  const [rate, setRate] = useState({
+    "25g": 28,
+    "50g": 40,
+    "55g": 40,
+    "gift": 40
+  });
 
   useEffect(() => {
     if (isAdmin)
@@ -49,6 +58,13 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
     const value = e.target.value.trim();
     if (value === "" || /^\d+$/.test(value)) {
       setFormData({ ...formData, [field]: value });
+    }
+  };
+
+   const handleRateChange = (e, key) => {
+    const value = e.target.value.trim();
+    if (value === "" || /^\d+$/.test(value)) {
+      setRate({ ...rate, [key]: value === "" ? "" : parseInt(value) });
     }
   };
 
@@ -114,6 +130,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
       shopId,
       areaId: selectedArea,
       products: filteredProducts,
+      rate,
       placedBy: selectedSR,
       remarks,
       paymentTerms,
@@ -162,6 +179,8 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+   
+
       {(isSR || isTL) && (<><label className="flex items-center gap-2 text-lg font-medium text-gray-800">
         <input
           type="checkbox"
@@ -321,6 +340,31 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
           />
         </div>
       )}
+
+       <div className="p-4 border rounded bg-gray-50">
+        <label className="flex items-center gap-2 font-medium text-gray-800 mb-2">
+          <input
+            type="checkbox"
+            checked={editRate}
+            onChange={() => setEditRate(!editRate)}
+          />
+          Edit Rates
+        </label>
+        {editRate && <div className="grid grid-cols-2 gap-3">
+          {Object.keys(rate).map((key) => (
+            <div key={key} className="flex flex-col">
+              <label className="text-sm text-gray-600 mb-1">{key}</label>
+              <input
+                type="number"
+                value={rate[key]}
+                onChange={(e) => handleRateChange(e, key)}
+                disabled={!editRate}
+                className="border border-gray-300 p-2 rounded"
+              />
+            </div>
+          ))}
+        </div>}
+      </div>
 
       <button
         type="submit"
