@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Navbar from "./NavbarComponents";
 import { getSRDetails } from "../slice/userSlice";
 import { fetchAreas } from "../slice/areaSlice";
+import { fetchCities } from "../slice/citySlice";
 
 export default function ReportComponents({
     title = "Sales Report",
@@ -15,11 +16,13 @@ export default function ReportComponents({
     const dispatch = useDispatch();
     const { user, role } = useSelector((state) => state.auth);
     const { srs } = useSelector((state) => state.user);
+    const { cities } = useSelector((state) => state.city);
 
     const [selectedDate, setSelectedDate] = useState("");
     const [showCurrentMonth, setShowCurrentMonth] = useState(false);
     const [username, setUsername] = useState("");
     const [selectedArea, setSelectedArea] = useState("");
+    const [selectedCity, setSelectedCity] = useState("");
 
     const isDistributor = role === "distributor";
     const isSR = role === "sr";
@@ -35,6 +38,7 @@ export default function ReportComponents({
             data["dist_username"] = user
         }
         dispatch(fetchAreas(data));
+        
     }, [dispatch]);
 
     useEffect(() => {
@@ -53,6 +57,7 @@ export default function ReportComponents({
     useEffect(() => {
         if (isAdmin || isTL) {
             dispatch(getSRDetails());
+            dispatch(fetchCities())
         }
     }, [dispatch, role]);
 
@@ -60,6 +65,9 @@ export default function ReportComponents({
         const query = { month };
         if (selectedArea){
             query.areaId = selectedArea
+        }
+        if (selectedCity){
+            query.city = selectedCity
         }
         if (selectedDate) {
             query.date = selectedDate;
@@ -78,7 +86,7 @@ export default function ReportComponents({
         }
 
         if (queryAction) dispatch(queryAction(query));
-    }, [dispatch, user, selectedDate, showCurrentMonth, username, month, selectedArea, queryAction]);
+    }, [dispatch, user, selectedDate, showCurrentMonth, username, month, selectedArea, selectedCity, queryAction]);
 
     const productKeys = reportData.productTotals ? Object.keys(reportData.productTotals) : [];
     const overallKeys = reportData.overallTotals ? Object.keys(reportData.overallTotals) : [];
@@ -102,6 +110,28 @@ export default function ReportComponents({
             {/* Filter Bar */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 px-4 md:px-6 mb-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+                    {/* City Selector */}
+                    {!isDistributor && 
+                    <div className="w-full md:w-auto">
+                        <label className="block text-lg font-medium text-amber-700 mb-2">Select City</label>
+                        <select
+                            value={selectedCity}
+                            onChange={(e) => {
+                                setSelectedCity(e.target.value);
+                                setSelectedArea("")
+                            }}
+                            className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
+                        >
+                            <option value="">-- Select City --</option>
+                            {cities.map((city) => (
+                                <option key={city._id} value={city._id}>
+                                    {city.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    }
+
                     {/* Area Selector */}
                     <div className="w-full md:w-auto">
                         <label className="block text-lg font-medium text-amber-700 mb-2">Select Route</label>
@@ -109,6 +139,7 @@ export default function ReportComponents({
                             value={selectedArea}
                             onChange={(e) => {
                                 setSelectedArea(e.target.value);
+                                setSelectedCity("")
                             }}
                             className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                         >

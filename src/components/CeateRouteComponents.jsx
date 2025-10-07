@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDistDetails } from "../slice/userSlice";
+import { fetchCities } from "../slice/citySlice";
 
 const CreateRouteComponents = ({ isOpen, onClose, onCreate }) => {
   const dispatch = useDispatch();
@@ -9,10 +10,13 @@ const CreateRouteComponents = ({ isOpen, onClose, onCreate }) => {
   const [input, setInput] = useState("");
   const [routes, setRoutes] = useState([]);
   const [selectedDist, setSelectedDist] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const { dists } = useSelector((state) => state.user);
+  const { cities } = useSelector((state) => state.city);
 
   useEffect(() => {
     dispatch(getDistDetails());
+    dispatch(fetchCities())
   }, [dispatch]);
 
   const handleAddRoute = () => {
@@ -36,10 +40,11 @@ const CreateRouteComponents = ({ isOpen, onClose, onCreate }) => {
 
   const handleCreate = () => {
     if (!name.trim()) return;
-    onCreate({ name: name.trim(), routes, distributor: selectedDist });
+    onCreate({ name: name.trim(), routes, distributor: selectedDist, city: selectedCity });
     setName("");
     setRoutes([]);
     setSelectedDist("");
+    setSelectedCity("")
     setInput("");
   };
 
@@ -101,6 +106,22 @@ const CreateRouteComponents = ({ isOpen, onClose, onCreate }) => {
             {dists.map((dist) => (
               <option key={dist._id} value={dist.username}>
                 {dist.username}
+              </option>
+            ))}
+          </select>
+        </div>
+       
+        {/* City Selection */}
+        <div className="flex flex-col mb-5">
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <option value="">-- Select City --</option>
+            {cities.map((city) => (
+              <option key={city._id} value={city._id}>
+                {city.name}
               </option>
             ))}
           </select>

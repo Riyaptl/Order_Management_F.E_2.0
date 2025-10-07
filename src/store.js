@@ -5,6 +5,7 @@ import areaReducer from "./slice/areaSlice";
 import shopReducer from "./slice/shopSlice";
 import orderReducer from "./slice/orderSlice";
 import userReducer from "./slice/userSlice";
+import cityReducer from "./slice/citySlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,5 +14,6 @@ export const store = configureStore({
     shop: shopReducer,
     order: orderReducer,
     user: userReducer,
+    city: cityReducer
   },
 });

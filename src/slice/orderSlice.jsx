@@ -119,8 +119,7 @@ export const statusOrder = createAsyncThunk(
   "order/statusOrder",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
-      
+
       return await statusOrderService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);

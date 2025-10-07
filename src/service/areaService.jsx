@@ -73,7 +73,7 @@ export const deleteAreaService = async (id) => {
   return data;
 };
 
-export const updateAreaService = async ({id, name, areas, distributor}) => {
+export const updateAreaService = async ({id, name, areas, distributor, city}) => {
     
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
@@ -85,7 +85,7 @@ export const updateAreaService = async ({id, name, areas, distributor}) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({name, areas, distributor})
+    body: JSON.stringify({name, areas, distributor, city})
   });
 
   if (!res.ok) {

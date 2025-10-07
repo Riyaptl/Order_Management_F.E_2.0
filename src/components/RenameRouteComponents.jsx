@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDistDetails } from "../slice/userSlice";
+import { fetchCities } from "../slice/citySlice";
 
 const RenameRouteComponent = ({
   isOpen,
@@ -9,22 +10,27 @@ const RenameRouteComponent = ({
   initialName,
   initialRoutes,
   initialDist,
+  initialCity
 }) => {
   const [name, setName] = useState(initialName);
   const [routesText, setRoutesText] = useState(initialRoutes.join(", "));
   const [selectedDist, setSelectedDist] = useState(initialDist);
+  const [selectedCity, setSelectedCity] = useState(initialCity);
 
   const dispatch = useDispatch();
   const { dists } = useSelector((state) => state.user);
+  const { cities } = useSelector((state) => state.city);
 
   useEffect(() => {
     setName(initialName);
     setRoutesText(initialRoutes.join(", "));
     setSelectedDist(initialDist); 
-  }, [initialName, initialRoutes, initialDist]);
+    setSelectedCity(initialCity); 
+  }, [initialName, initialRoutes, initialDist, initialCity]);
 
   useEffect(() => {
     dispatch(getDistDetails());
+    dispatch(fetchCities())
   }, [dispatch]);
 
   if (!isOpen) return null;
@@ -35,7 +41,7 @@ const RenameRouteComponent = ({
       .map((r) => r.trim())
       .filter((r) => r.length > 0);
 
-    onUpdate(name, routesArray, selectedDist); 
+    onUpdate(name, routesArray, selectedDist, selectedCity); 
   };
 
   return (
@@ -68,6 +74,22 @@ const RenameRouteComponent = ({
             {dists.map((dist) => (
               <option key={dist._id} value={dist.username}>
                 {dist.username}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Distributor Selection */}
+        <div className="flex flex-col mb-5">
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <option value="">-- Select City --</option>
+            {cities.map((city) => (
+              <option key={city._id} value={city._id}>
+                {city.name}
               </option>
             ))}
           </select>

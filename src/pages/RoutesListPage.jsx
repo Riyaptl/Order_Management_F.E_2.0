@@ -48,13 +48,13 @@ const RoutesListPage = () => {
     }
   };
 
-  const handleUpdate = async (newName, newRoutes, newDist) => {
+  const handleUpdate = async (newName, newRoutes, newDist, newCity) => {
     if (!newName.trim()) {
       toast.error("Route name cannot be empty");
       return;
     }
     try {
-      const res = await dispatch(updateArea({ id: selectedRouteId, name: newName, areas: newRoutes, distributor: newDist })).unwrap();
+      const res = await dispatch(updateArea({ id: selectedRouteId, name: newName, areas: newRoutes, distributor: newDist, city: newCity })).unwrap();
       toast.success(res.message || "Route updated successfully");
       setShowUpdateModal(false);
     } catch (err) {
@@ -62,14 +62,14 @@ const RoutesListPage = () => {
     }
   };
 
-  const handleCreate = async ({ name, routes, distributor }) => {
+  const handleCreate = async ({ name, routes, distributor, city }) => {
     if (!name.trim()) {
       toast.error("Route name cannot be empty");
       return;
     }
 
     try {
-      const res = await dispatch(createArea({ name, areas: routes, distributor })).unwrap();
+      const res = await dispatch(createArea({ name, areas: routes, distributor, city })).unwrap();
       toast.success(res.message || "Route created successfully");
       setShowCreateModal(false);
     } catch (err) {
@@ -155,6 +155,7 @@ const RoutesListPage = () => {
               <tr>
                 <th className="border p-2 text-left">Sr. No</th>
                 <th className="border p-2 text-left">Route Name</th>
+                <th className="border p-2 text-left">City</th>
                 <th className="border p-2 text-left">Areas Included</th>
                 <th className="border p-2 text-left">Distributor</th>
                 <th className="border p-2 text-left">Route Created By</th>
@@ -169,6 +170,7 @@ const RoutesListPage = () => {
                 <tr key={area._id} className="hover:bg-gray-50">
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2 min-w-[150px]">{area.name}</td>
+                  <td className="border p-2 min-w-[150px]">{area.city ? area.city.name: "-"}</td>
                   <td className="border p-2 min-w-[150px]">{area.areas?.join(", ")}</td>
                   <td className="border p-2 min-w-[150px]">{area.distributor}</td>
                   <td className="border p-2 min-w-[150px]">{area.createdBy}</td>

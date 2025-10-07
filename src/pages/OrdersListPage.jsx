@@ -9,11 +9,13 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../slice/authSlice";
 import { getSRDetails } from "../slice/userSlice";
 import { blacklistShop, getShopOrders } from "../slice/shopSlice";
+import { fetchCities } from "../slice/citySlice";
 
 export default function OrdersListPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { areas } = useSelector((state) => state.area);
+    const { cities } = useSelector((state) => state.city);
     const { shopOrders } = useSelector((state) => state.shop);
     const { user, role } = useSelector((state) => state.auth);
     const { orders, loading, error } = useSelector((state) => state.order);
@@ -23,6 +25,7 @@ export default function OrdersListPage() {
     const [showCompleteData, setShowCompleteData] = useState(false);
     const [placedOrdersTab, setPlacedOrdersTab] = useState(true);
     const [selectedArea, setSelectedArea] = useState("");
+    const [selectedCity, setSelectedCity] = useState("");
     const [selectedSR, setSelectedSR] = useState("");
     const [calls, setCalls] = useState(0);
     const [showModal, setShowModal] = useState(false);
@@ -94,6 +97,7 @@ export default function OrdersListPage() {
             data["dist_username"] = user
         }
         dispatch(fetchAreas(data));
+        dispatch(fetchCities())
     }, [dispatch]);
 
     useEffect(() => {
@@ -101,7 +105,7 @@ export default function OrdersListPage() {
             await fetchOrders();
         }
         ordersFunc()
-    }, [dispatch, currentPage, selectedArea, selectedSR, selectedDate, showCompleteData, placedOrdersTab, month]);
+    }, [dispatch, currentPage, selectedArea, selectedSR, selectedDate, selectedCity, showCompleteData, placedOrdersTab, month]);
 
     const fetchOrders = async () => {
         try {
@@ -109,6 +113,19 @@ export default function OrdersListPage() {
                 const res = await dispatch(getOrders({
                     areaId: selectedArea,
                     page: currentPage,
+                    date: selectedDate,
+                    completeData: showCompleteData,
+                    placedOrders: placedOrdersTab,
+                    month
+                })).unwrap();
+                setTotalPages(res.totalPages);
+                setShowOrders(true)
+            }
+            else if (selectedCity) {
+                const res = await dispatch(getOrders({
+                    city: selectedCity,
+                    page: currentPage,
+                    date: selectedDate,
                     completeData: showCompleteData,
                     placedOrders: placedOrdersTab,
                     month
@@ -134,6 +151,7 @@ export default function OrdersListPage() {
                 const res = await dispatch(getOrdersSR({
                     username: selectedSR,
                     page: currentPage,
+                    date: selectedDate,
                     completeData: showCompleteData,
                     placedOrders: placedOrdersTab,
                     month
@@ -239,8 +257,6 @@ export default function OrdersListPage() {
 
     const handleShowHistory = (id) => {
         try {
-            console.log(id);
-            
             dispatch(getShopOrders(id))
             setShowHistory(true)
         } catch (error) {
@@ -302,16 +318,36 @@ export default function OrdersListPage() {
 
             <div className="flex flex-col md:flex-row md:items-end md:flex-wrap gap-4 mt-4 mb-4">
 
-                {/* Area Selector */}
-                {/* {!isSR && ( */}
+                {/* City Selector */}
+                {!isDistributor && 
+                <div className="w-full md:w-auto">
+                    <label className="block text-lg font-medium text-amber-700 mb-2">Select City</label>
+                    <select
+                        value={selectedCity}
+                        onChange={(e) => {
+                            setSelectedCity(e.target.value);
+                            setSelectedArea("")
+                            setSelectedSR("");
+                        }}
+                        className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
+                    >
+                        <option value="">-- Select City --</option>
+                        {cities.map((city) => (
+                            <option key={city._id} value={city._id}>
+                                {city.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                }
                 <div className="w-full md:w-auto">
                     <label className="block text-lg font-medium text-amber-700 mb-2">Select Route</label>
                     <select
                         value={selectedArea}
                         onChange={(e) => {
                             setSelectedArea(e.target.value);
+                            setSelectedCity("")
                             setSelectedSR("");
-                            setSelectedDate("");
                         }}
                         className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                     >
@@ -367,13 +403,14 @@ export default function OrdersListPage() {
                             setSelectedDate(e.target.value);
                             setSelectedArea("");
                             setMonth("")
+                            setShowCompleteData(false)
                         }}
                         className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                     />
                 </div>
 
                 {/* Month selector */}
-                {(selectedArea || selectedSR) && <div className="flex flex-col">
+                {(selectedArea || selectedSR || selectedCity) && <div className="flex flex-col">
                     <label className="text-lg font-medium text-amber-700 mb-1">Select Month</label>
                     <select
                         name="month"
