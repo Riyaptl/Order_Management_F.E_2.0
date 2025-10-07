@@ -141,7 +141,7 @@ const shopSlice = createSlice({
   name: "shop",
   initialState: {
     shops: [],
-    orders: [],
+    shopOrders: [],
     loading: false,
     error: null,
     shopDetails: null,
@@ -186,7 +186,7 @@ const shopSlice = createSlice({
         state.error = null;
       })
       .addCase(getShopOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
+        state.shopOrders = action.payload;
         state.loading = false;
       })
       .addCase(getShopOrders.rejected, (state, action) => {

@@ -14,7 +14,7 @@ const ShopsListPage = () => {
     const dispatch = useDispatch();
 
     const { areas } = useSelector((state) => state.area);
-    const { shops, loading, error, orders } = useSelector((state) => state.shop);
+    const { shops, loading, error, shopOrders } = useSelector((state) => state.shop);
     const { role, user } = useSelector((state) => state.auth);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showShiftModal, setShowShiftModal] = useState(false);
@@ -814,7 +814,7 @@ const ShopsListPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {orders.map((order) => (
+                                    {shopOrders.map((order) => (
                                         <tr key={order._id} className="hover:bg-gray-50">
                                             <td className="border p-2">
                                                 {(() => {

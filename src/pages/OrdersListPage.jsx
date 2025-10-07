@@ -4,16 +4,17 @@ import { getOrders, deleteOrder, exportOrdersCsv, getOrdersSR, statusOrder, getO
 import toast from "react-hot-toast";
 import Navbar from "../components/NavbarComponents";
 import { fetchAreas } from "../slice/areaSlice";
-import { FaChevronLeft, FaChevronRight, FaTrash, FaBan, FaEdit, FaUndoAlt } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaTrash, FaBan, FaEdit, FaUndoAlt, FaReceipt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../slice/authSlice";
 import { getSRDetails } from "../slice/userSlice";
-import { blacklistShop } from "../slice/shopSlice";
+import { blacklistShop, getShopOrders } from "../slice/shopSlice";
 
 export default function OrdersListPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { areas } = useSelector((state) => state.area);
+    const { shopOrders } = useSelector((state) => state.shop);
     const { user, role } = useSelector((state) => state.auth);
     const { orders, loading, error } = useSelector((state) => state.order);
     const { srs } = useSelector(state => state.user);
@@ -42,6 +43,7 @@ export default function OrdersListPage() {
     const [month, setMonth] = useState("");
     const [searchTerm, setSearchTerm] = useState("");
     const [srSearchTerm, setSRSearchTerm] = useState("");
+    const [showHistory, setShowHistory] = useState(false);
 
     useEffect(() => {
         const now = new Date();
@@ -179,7 +181,7 @@ export default function OrdersListPage() {
         }
         try {
             if (window.confirm("Are you sure you want to update the status?")) {
-                const res = dispatch(statusOrder({ ids: selectedOrders, status, reason, returnProducts })).unwrap()
+                const res = dispatch(statusOrder({ ids: selectedOrder ? [selectedOrder] : selectedOrders, status, reason, returnProducts })).unwrap()
                 toast.success(res.message || "Order status updated successfully")
             }
         }
@@ -234,6 +236,17 @@ export default function OrdersListPage() {
             toast.error("Failed to export CSV");
         }
     };
+
+    const handleShowHistory = (id) => {
+        try {
+            console.log(id);
+            
+            dispatch(getShopOrders(id))
+            setShowHistory(true)
+        } catch (error) {
+            toast.error(error || "Failed to fetch orders");
+        }
+    }
 
     const productsList = [
         "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g", "Blueberry 50g",
@@ -525,7 +538,7 @@ export default function OrdersListPage() {
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[100px]">Status</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[180px]">Comment</th>}
                                 {placedOrdersTab && <th className="border p-2 text-left min-w-[200px]">Status Updated At</th>}
-                                <th className="border p-2 text-left min-w-[150px]">Actions</th>
+                                <th className="border p-2 text-left min-w-[200px]">Actions</th>
                             </tr>
                         </thead>
 
@@ -713,17 +726,17 @@ export default function OrdersListPage() {
                                                         <FaBan />
                                                     </button>
                                                     {/* {order.status === 'pending' && ( */}
-                                                        <button
-                                                            onClick={() => {
-                                                                setSelectedOrders([order._id]);
-                                                                setSelectedOrder(order);
-                                                                setShowModal(true);
-                                                            }}
-                                                            className="text-blue-600 hover:text-blue-800 text-xl p-2"
-                                                            title="Status Update"
-                                                        >
-                                                            <FaEdit />
-                                                        </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedOrders([order._id]);
+                                                            setSelectedOrder(order);
+                                                            setShowModal(true);
+                                                        }}
+                                                        className="text-blue-600 hover:text-blue-800 text-xl p-2"
+                                                        title="Status Update"
+                                                    >
+                                                        <FaEdit />
+                                                    </button>
                                                     {/* )} */}
                                                 </>
                                             )}
@@ -742,6 +755,14 @@ export default function OrdersListPage() {
                                                     <FaUndoAlt />
                                                 </button>
                                             )}
+
+                                            <button
+                                                onClick={() => handleShowHistory(order.shopId._id)}
+                                                className="text-amber-600 hover:text-amber-800 text-xl p-2"
+                                                title="Show Orders"
+                                            >
+                                                <FaReceipt />
+                                            </button>
                                         </td>
 
                                     </tr>
@@ -840,7 +861,7 @@ export default function OrdersListPage() {
                 </button>
             </div>)}
 
-            {showModal && selectedOrder && (
+            {showModal && (selectedOrder || (selectedOrders && selectedOrders.length > 0)) && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-2">
                     <div className="relative bg-white max-h-[90vh] w-full sm:w-[95%] max-w-md overflow-auto rounded-lg shadow-lg p-6">
                         <h2 className="text-lg font-semibold mb-4 text-center text-gray-800">
@@ -861,7 +882,7 @@ export default function OrdersListPage() {
                                     <option value="pending">Pending</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="canceled">Canceled</option>
-                                    {selectedOrder.type === "order" && (
+                                    {selectedOrder && selectedOrder.type === "order" && (
                                         <option value="partial return">Partial Return</option>
                                     )}
                                 </select>
@@ -882,7 +903,7 @@ export default function OrdersListPage() {
                             </div>
 
                             {/* Partial Return Products Input */}
-                            {status === "partial return" && (
+                            {selectedOrder && status === "partial return" && (
                                 <div>
                                     <label className="block text-md font-medium text-gray-700 mb-2">
                                         Return Quantities
@@ -969,6 +990,116 @@ export default function OrdersListPage() {
                             >
                                 Close
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showHistory && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="relative bg-white max-h-[90vh] w-[95%] max-w-[95vw] overflow-auto rounded-lg shadow-lg p-6">
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowHistory(false)}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
+                            aria-label="Close"
+                        >
+                            ×
+                        </button>
+
+                        <h2 className="text-lg font-semibold mb-4 text-center text-gray-800">
+                            Order History
+                        </h2>
+
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full border border-gray-300 text-sm">
+                                <thead className="bg-gray-100 sticky top-0 z-10">
+                                    <tr>
+                                        <th className="border p-2 text-left min-w-[150px]">Date</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Type</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Status</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Updated At</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Comment</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Payment Terms</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Order Placed By</th>
+                                        <th className="border p-2 text-left min-w-[150px]">Remarks</th>
+                                        <th className="border p-2 text-left min-w-[150px]">SR</th>
+                                        {productsList.map((key) => (
+                                            <th key={key} className="border p-2 text-left min-w-[150px]">
+                                                {key}
+                                            </th>
+                                        ))}
+                                        {totalList.map((key) => (
+                                            <th key={key} className="border p-2 text-left min-w-[150px]  text-amber-700">
+                                                {key}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {shopOrders.map((order) => (
+                                        <tr key={order._id} className="hover:bg-gray-50">
+                                            <td className="border p-2">
+                                                {(() => {
+                                                    const date = new Date(order.createdAt);
+                                                    const day = String(date.getDate()).padStart(2, "0");
+                                                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                    const year = date.getFullYear();
+                                                    const hours = String(date.getHours()).padStart(2, "0");
+                                                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                                                    return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                })()}
+                                            </td>
+                                            <td className="border p-2">{order.type}</td>
+                                            <td className="border p-2">{order.status}</td>
+                                            {order.statusUpdatedAt ? <td className="border p-2">
+                                                {(() => {
+                                                    const date = new Date(order.createdAt);
+                                                    const day = String(date.getDate()).padStart(2, "0");
+                                                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                    const year = date.getFullYear();
+                                                    const hours = String(date.getHours()).padStart(2, "0");
+                                                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                                                    return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                })()}
+                                            </td> : '-'}
+                                            <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                                <div className="overflow-x-auto max-w-[350px]">
+                                                    <span
+                                                        className="inline-block truncate"
+                                                        title={order.canceledReason}
+                                                    >
+                                                        {order.canceledReason}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="border p-2">{order.paymentTerms}</td>
+                                            <td className="border p-2">{order.orderPlacedBy}</td>
+                                            <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                                <div className="overflow-x-auto max-w-[350px]">
+                                                    <span
+                                                        className="inline-block truncate"
+                                                        title={order.remarks}
+                                                    >
+                                                        {order.remarks}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="border p-2">{order.placedBy}</td>
+                                            {productsList.map((key) => (
+                                                <td key={key} className="border p-2">
+                                                    {order.products?.[key] !== undefined ? order.products[key] : "-"}
+                                                </td>
+                                            ))}
+                                            {totalList.map((key) => (
+                                                <td key={key} className="border p-2">
+                                                    {order.total?.[key] !== undefined ? order.total[key] : "-"}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
