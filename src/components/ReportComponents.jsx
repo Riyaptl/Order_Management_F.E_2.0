@@ -45,7 +45,7 @@ export default function ReportComponents({
         const now = new Date();
         const months = [];
 
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 12; i++) {
             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
             const label = date.toLocaleString("default", { month: "long" });
             months.push(label);
