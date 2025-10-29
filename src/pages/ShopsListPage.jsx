@@ -902,7 +902,7 @@ const ShopsListPage = () => {
                                             {/* Stock Row */}
                                             <tr className="bg-amber-50">
                                                 <td colSpan={20} className="border-t p-2 text-sm text-gray-800">
-                                                    <span className="font-semibold text-gray-700 mr-2">Stock:</span>
+                                                    <span className="font-semibold text-gray-700 mr-2">Previous Stock:</span>
                                                     {order.existing_products && Object.keys(order.existing_products).length > 0 ? (
                                                         Object.entries(order.existing_products).map(([product, qty], index, arr) => (
                                                             <span key={product}>
