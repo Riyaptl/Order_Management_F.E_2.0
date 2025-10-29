@@ -28,6 +28,7 @@ const ShopsListPage = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const areaDropdownRef = useRef(null);
     const [selectedShop, setSelectedShop] = useState(null);
+    const [selectedShopStock, setSelectedShopStock] = useState(null);
     const [selectedShops, setSelectedShops] = useState([]);
     const [activity, setActivity] = useState(false);
     const [allShops, setAllShops] = useState(false);
@@ -310,7 +311,7 @@ const ShopsListPage = () => {
         "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
         "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g", "Blueberry 25g",
         "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
-        "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box", 
+        "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
         "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
     ];
 
@@ -468,26 +469,26 @@ const ShopsListPage = () => {
                             Shift Route
                         </button>}
                         {(isAdmin || isME) &&
-                                <button
-                                    onClick={() => {
-                                        setDatePopup(true)
-                                        setSurvey(true)
-                                    }}
-                                    className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
-                                >
-                                    Survey
-                                </button>
+                            <button
+                                onClick={() => {
+                                    setDatePopup(true)
+                                    setSurvey(true)
+                                }}
+                                className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
+                            >
+                                Survey
+                            </button>
                         }
-                        {!isDistributor && 
-                        <button
-                                    onClick={() => {
-                                        setDatePopup(true)
-                                    }}
-                                    className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
-                                >
-                                    Activity Performed
-                                </button>
-                                }
+                        {!isDistributor &&
+                            <button
+                                onClick={() => {
+                                    setDatePopup(true)
+                                }}
+                                className="w-full md:w-auto bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 transition text-md"
+                            >
+                                Activity Performed
+                            </button>
+                        }
 
                         <button
                             onClick={handleExportCsv}
@@ -538,13 +539,13 @@ const ShopsListPage = () => {
                                     </th>
                                     <th className="border p-2 text-left min-w-[50px]">Sr. No</th>
                                     <th className="border p-2 text-left min-w-[150px]">Shop Name</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Activity On</th>
+                                    <th className="border p-2 text-left min-w-[150px]">Visited At</th>
                                     {(isAdmin || isME) &&
                                         <>
                                             <th className="border p-2 text-left min-w-[150px]">Surveyed On</th>
                                         </>
                                     }
-                                    <th className="border p-2 text-left min-w-[150px]">Visited At</th>
-                                    <th className="border p-2 text-left min-w-[150px]">Activity On</th>
                                     <th className="border p-2 text-left min-w-[150px]">Address</th>
                                     <th className="border p-2 text-left min-w-[150px]">Shop Handler</th>
                                     <th className="border p-2 text-left min-w-[120px]">Contact Number</th>
@@ -561,58 +562,71 @@ const ShopsListPage = () => {
                             </thead>
                             <tbody>
                                 {filteredShops.map((shop, index) => (
-                                    <tr key={shop._id} className="hover:bg-gray-50" onClick={(e) => {
-                                        if (e.target.closest("td")?.cellIndex === 1 || e.target.closest("td")?.cellIndex === 2 || e.target.closest("td")?.cellIndex === 3) {
-                                            setSelectedShop(shop);
-                                        }
-                                    }}>
+                                    <tr
+                                        className="hover:bg-gray-50"
+                                        onClick={(e) => {
+                                            const cellIndex = e.target.closest("td")?.cellIndex;
+                                            if (cellIndex === 2) setSelectedShop(shop);
+                                            if (cellIndex === 1) {
+                                                setSelectedShopStock((prev) =>
+                                                    prev && prev._id === shop._id ? null : shop
+                                                );
+                                            }
+                                        }}
+                                    >
                                         <td className="border p-2">
                                             <input
                                                 type="checkbox"
                                                 checked={selectedShops.includes(shop._id)}
-                                                onChange={() => {
+                                                onChange={() =>
                                                     setSelectedShops((prev) =>
                                                         prev.includes(shop._id)
                                                             ? prev.filter((id) => id !== shop._id)
                                                             : [...prev, shop._id]
-                                                    );
-                                                }}
+                                                    )
+                                                }
                                             />
                                         </td>
-                                        <td className="border p-2">{index + 1}</td>
+                                        <td className="border p-2 cursor-pointer">{index + 1}</td>
                                         <td
                                             className={`border p-2 cursor-pointer
                                                 ${shop.first ? "text-yellow-700 font-semibold" : ""}
                                                 ${shop.repeat ? "text-green-700 font-semibold" : ""}
                                                 ${shop.blacklisted ? "text-red-700 font-bold" : ""}
-                                            `}
-                                            >
+                                                `}
+                                        >
                                             {shop.name}
                                         </td>
 
-                                        {(isAdmin || isME) &&
-                                            <>
-                                                <td className="border p-2">
-                                                    {Array.isArray(shop.survey) ? shop.survey.join(", ") : ""}
-                                                </td>
-
-                                            </>
-                                        }
-
-                                        {shop.visitedAt ? <td className="border p-2">{new Date(shop.visitedAt).toLocaleString("en-IN", {
-                                            timeZone: "Asia/Kolkata",
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric"
-                                        })}</td> : "-"}
                                         <td className="border p-2">
-                                                    {Array.isArray(shop.activityPerformedAt) ? shop.activityPerformedAt.join(", ") : ""}
-                                                </td>
-                                        <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap cursor-pointer">
-                                            <div className="min-w-[200px] inline-block">
-                                                {shop.address}
-                                            </div>
+                                            {Array.isArray(shop.activityPerformedAt)
+                                                ? shop.activityPerformedAt.join(", ")
+                                                : ""}
                                         </td>
+
+                                        {shop.visitedAt ? (
+                                            <td className="border p-2">
+                                                {new Date(shop.visitedAt).toLocaleString("en-IN", {
+                                                    timeZone: "Asia/Kolkata",
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric",
+                                                })}
+                                            </td>
+                                        ) : (
+                                            <td>-</td>
+                                        )}
+
+                                        {(isAdmin || isME) && (
+                                            <td className="border p-2">
+                                                {Array.isArray(shop.survey) ? shop.survey.join(", ") : ""}
+                                            </td>
+                                        )}
+
+                                        <td className="border p-2 max-w-[200px] overflow-x-auto whitespace-nowrap cursor-pointer">
+                                            <div className="min-w-[200px] inline-block">{shop.address}</div>
+                                        </td>
+
                                         <td className="border p-2">{shop.handler}</td>
                                         <td className="border p-2">{shop.contactNumber}</td>
                                         <td className="border p-2 break-words">
@@ -631,6 +645,7 @@ const ShopsListPage = () => {
                                         </td>
                                         <td className="border p-2">{shop.prevAreaName}</td>
                                         <td className="border p-2">{shop.createdBy}</td>
+
                                         <td className="border p-2">
                                             {(() => {
                                                 const date = new Date(shop.createdAt);
@@ -639,36 +654,39 @@ const ShopsListPage = () => {
                                                 const year = date.getFullYear();
                                                 const hours = String(date.getHours()).padStart(2, "0");
                                                 const minutes = String(date.getMinutes()).padStart(2, "0");
-
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
                                             })()}
                                         </td>
+
                                         <td className="border p-2">{shop.updatedBy}</td>
                                         <td className="border p-2">
-                                            {shop.updatedAt ? (() => {
-                                                const date = new Date(shop.updatedAt);
-                                                const day = String(date.getDate()).padStart(2, "0");
-                                                const month = String(date.getMonth() + 1).padStart(2, "0");
-                                                const year = date.getFullYear();
-                                                const hours = String(date.getHours()).padStart(2, "0");
-                                                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                                                return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                            })() : '-'}
+                                            {shop.updatedAt
+                                                ? (() => {
+                                                    const date = new Date(shop.updatedAt);
+                                                    const day = String(date.getDate()).padStart(2, "0");
+                                                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                    const year = date.getFullYear();
+                                                    const hours = String(date.getHours()).padStart(2, "0");
+                                                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                                                    return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                })()
+                                                : "-"}
                                         </td>
+
                                         <td className="border p-2">{shop.areaShiftedBy}</td>
                                         <td className="border p-2">
-                                            {shop.areaShiftedAt && (() => {
-                                                const date = new Date(shop.areaShiftedAt);
-                                                const day = String(date.getDate()).padStart(2, "0");
-                                                const month = String(date.getMonth() + 1).padStart(2, "0");
-                                                const year = date.getFullYear();
-                                                const hours = String(date.getHours()).padStart(2, "0");
-                                                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                                                return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                            })()}
+                                            {shop.areaShiftedAt &&
+                                                (() => {
+                                                    const date = new Date(shop.areaShiftedAt);
+                                                    const day = String(date.getDate()).padStart(2, "0");
+                                                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                    const year = date.getFullYear();
+                                                    const hours = String(date.getHours()).padStart(2, "0");
+                                                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                                                    return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                })()}
                                         </td>
+
                                         <td className="border p-2 text-center space-x-3">
                                             <button
                                                 onClick={() => handleDelete(shop._id)}
@@ -687,7 +705,7 @@ const ShopsListPage = () => {
                                             >
                                                 <FaEdit />
                                             </button>
-                                            {(!isDistributor && !isME) && (
+                                            {!isDistributor && !isME && (
                                                 <button
                                                     onClick={() => {
                                                         setSelectedShopData(shop);
@@ -697,7 +715,8 @@ const ShopsListPage = () => {
                                                     title="Shift Area"
                                                 >
                                                     <FaExchangeAlt />
-                                                </button>)}
+                                                </button>
+                                            )}
                                             <button
                                                 onClick={() => handleShowOrders(shop._id)}
                                                 className="text-amber-600 hover:text-amber-800 text-xl p-2"
@@ -705,17 +724,19 @@ const ShopsListPage = () => {
                                             >
                                                 <FaReceipt />
                                             </button>
-                                            {!isME && <button
-                                                onClick={() => handleBlacklist(shop._id)}
-                                                className="text-black-600 hover:text-black-800 text-xl p-2"
-                                                title="Blacklist"
-                                            >
-                                                <FaBan />
-                                            </button>
-                                            }
+                                            {!isME && (
+                                                <button
+                                                    onClick={() => handleBlacklist(shop._id)}
+                                                    className="text-black-600 hover:text-black-800 text-xl p-2"
+                                                    title="Blacklist"
+                                                >
+                                                    <FaBan />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
+
                             </tbody>
                         </table>
                     </div>
@@ -772,6 +793,7 @@ const ShopsListPage = () => {
                     </div>
                 </div>
             )}
+
             {showOrders && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="relative bg-white max-h-[90vh] w-[95%] max-w-[95vw] overflow-auto rounded-lg shadow-lg p-6">
@@ -815,72 +837,140 @@ const ShopsListPage = () => {
                                 </thead>
                                 <tbody>
                                     {shopOrders.map((order) => (
-                                        <tr key={order._id} className="hover:bg-gray-50">
-                                            <td className="border p-2">
-                                                {(() => {
-                                                    const date = new Date(order.createdAt);
-                                                    const day = String(date.getDate()).padStart(2, "0");
-                                                    const month = String(date.getMonth() + 1).padStart(2, "0");
-                                                    const year = date.getFullYear();
-                                                    const hours = String(date.getHours()).padStart(2, "0");
-                                                    const minutes = String(date.getMinutes()).padStart(2, "0");
-                                                    return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                                })()}
-                                            </td>
-                                            <td className="border p-2">{order.type}</td>
-                                            <td className="border p-2">{order.status}</td>
-                                            {order.statusUpdatedAt ? <td className="border p-2">
-                                                {(() => {
-                                                    const date = new Date(order.createdAt);
-                                                    const day = String(date.getDate()).padStart(2, "0");
-                                                    const month = String(date.getMonth() + 1).padStart(2, "0");
-                                                    const year = date.getFullYear();
-                                                    const hours = String(date.getHours()).padStart(2, "0");
-                                                    const minutes = String(date.getMinutes()).padStart(2, "0");
-                                                    return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                                })()}
-                                            </td> : '-'}
-                                            <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
-                                                <div className="overflow-x-auto max-w-[350px]">
-                                                    <span
-                                                        className="inline-block truncate"
-                                                        title={order.canceledReason}
-                                                    >
-                                                        {order.canceledReason}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="border p-2">{order.paymentTerms}</td>
-                                            <td className="border p-2">{order.orderPlacedBy}</td>
-                                            <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
-                                                <div className="overflow-x-auto max-w-[350px]">
-                                                    <span
-                                                        className="inline-block truncate"
-                                                        title={order.remarks}
-                                                    >
-                                                        {order.remarks}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="border p-2">{order.placedBy}</td>
-                                            {productsList.map((key) => (
-                                                <td key={key} className="border p-2">
-                                                    {order.products?.[key] !== undefined ? order.products[key] : "-"}
+                                        <React.Fragment key={order._id}>
+                                            {/* Main order row */}
+                                            <tr className="hover:bg-gray-50">
+                                                <td className="border p-2">
+                                                    {(() => {
+                                                        const date = new Date(order.createdAt);
+                                                        const day = String(date.getDate()).padStart(2, "0");
+                                                        const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                        const year = date.getFullYear();
+                                                        const hours = String(date.getHours()).padStart(2, "0");
+                                                        const minutes = String(date.getMinutes()).padStart(2, "0");
+                                                        return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                    })()}
                                                 </td>
-                                            ))}
-                                            {totalList.map((key) => (
-                                                <td key={key} className="border p-2">
-                                                    {order.total?.[key] !== undefined ? order.total[key] : "-"}
+                                                <td className="border p-2">{order.type}</td>
+                                                <td className="border p-2">{order.status}</td>
+                                                {order.statusUpdatedAt ? (
+                                                    <td className="border p-2">
+                                                        {(() => {
+                                                            const date = new Date(order.statusUpdatedAt);
+                                                            const day = String(date.getDate()).padStart(2, "0");
+                                                            const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                            const year = date.getFullYear();
+                                                            const hours = String(date.getHours()).padStart(2, "0");
+                                                            const minutes = String(date.getMinutes()).padStart(2, "0");
+                                                            return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                                        })()}
+                                                    </td>
+                                                ) : (
+                                                    <td className="border p-2">-</td>
+                                                )}
+                                                <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                                    <div className="overflow-x-auto max-w-[350px]">
+                                                        <span className="inline-block truncate" title={order.canceledReason}>
+                                                            {order.canceledReason}
+                                                        </span>
+                                                    </div>
                                                 </td>
-                                            ))}
-                                        </tr>
+                                                <td className="border p-2">{order.paymentTerms}</td>
+                                                <td className="border p-2">{order.orderPlacedBy}</td>
+                                                <td className="border p-2 max-w-[150px] overflow-x-auto whitespace-nowrap">
+                                                    <div className="overflow-x-auto max-w-[350px]">
+                                                        <span className="inline-block truncate" title={order.remarks}>
+                                                            {order.remarks}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="border p-2">{order.placedBy}</td>
+
+                                                {productsList.map((key) => (
+                                                    <td key={key} className="border p-2">
+                                                        {order.products?.[key] !== undefined ? order.products[key] : "-"}
+                                                    </td>
+                                                ))}
+
+                                                {totalList.map((key) => (
+                                                    <td key={key} className="border p-2 text-amber-700">
+                                                        {order.total?.[key] !== undefined ? order.total[key] : "-"}
+                                                    </td>
+                                                ))}
+                                            </tr>
+
+                                            {/* Stock Row */}
+                                            <tr className="bg-amber-50">
+                                                <td colSpan={20} className="border-t p-2 text-sm text-gray-800">
+                                                    <span className="font-semibold text-gray-700 mr-2">Stock:</span>
+                                                    {order.existing_products && Object.keys(order.existing_products).length > 0 ? (
+                                                        Object.entries(order.existing_products).map(([product, qty], index, arr) => (
+                                                            <span key={product}>
+                                                                {product}: <span className="font-medium mr-2">{qty}</span>
+                                                                {index < arr.length - 1 && <span>, </span>}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-gray-500 italic">No stock data available</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+
+                                        </React.Fragment>
                                     ))}
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
                 </div>
             )}
+
+
+            {selectedShopStock && (
+                <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-50">
+                    <div className="bg-white w-full max-w-2xl mx-4 rounded-xl shadow-lg p-6 relative">
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setSelectedShopStock(null)}
+                            className="absolute top-3 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold"
+                        >
+                            &times;
+                        </button>
+
+                        {/* Title */}
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+                            Stock — {selectedShopStock.name}
+                        </h2>
+
+                        {/* Stock Table */}
+                        {selectedShopStock.stock &&
+                            Object.keys(selectedShopStock.stock).length > 0 ? (
+                            <table className="w-full border border-gray-200 text-sm">
+                                <thead>
+                                    <tr className="bg-gray-100 text-gray-700">
+                                        <th className="border p-2 text-left w-3/4">Product</th>
+                                        <th className="border p-2 text-center w-1/4">Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {Object.entries(selectedShopStock.stock).map(([product, qty]) => (
+                                        <tr key={product} className="hover:bg-gray-50">
+                                            <td className="border p-2">{product}</td>
+                                            <td className="border p-2 text-center">{qty}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p className="text-gray-500 text-center text-sm mt-2">
+                                No stock data available.
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <UpdateShopComponents
                 isOpen={showUpdateModal}
                 onClose={() => setShowUpdateModal(false)}

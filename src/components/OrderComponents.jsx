@@ -54,6 +54,14 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
     }, {})
   );
 
+  const [existingProductsForm, setExistingProductsForm] = useState(
+    productFields.reduce((acc, field) => {
+      acc[field] = "";
+      return acc;
+    }, {})
+  );
+
+
   const handleChange = (e, field) => {
     const value = e.target.value.trim();
     if (value === "" || /^\d+$/.test(value)) {
@@ -61,7 +69,15 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
     }
   };
 
-   const handleRateChange = (e, key) => {
+  const handleExistingProductsChange = (e, field) => {
+    const value = e.target.value.trim();
+    if (value === "" || /^\d+$/.test(value)) {
+      setExistingProductsForm({ ...existingProductsForm, [field]: value });
+    }
+  };
+
+
+  const handleRateChange = (e, key) => {
     const value = e.target.value.trim();
     if (value === "" || /^\d+$/.test(value)) {
       setRate({ ...rate, [key]: value === "" ? "" : parseInt(value) });
@@ -70,7 +86,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
 
   const handleDateChange = (e) => {
     const pickedDate = new Date(e.target.value);
-    pickedDate.setHours(11, 0, 0, 0); 
+    pickedDate.setHours(11, 0, 0, 0);
     setSelectedDate(pickedDate);
   };
 
@@ -96,16 +112,23 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         toast.error("Please enter at least one product");
         return;
       }
-    }    
+    }
+
+    let filteredExistingProducts = Object.entries(existingProductsForm)
+      .filter(([_, value]) => value !== "" && /^\d+$/.test(value) && value != 0)
+      .reduce((acc, [key, value]) => {
+        acc[key] = parseInt(value);
+        return acc;
+      }, {});
 
     // add address in shop addressLink
     if ((isSR || isTL) && !shopLink) {
       let addressLink
-      if (!noOrder){
+      if (!noOrder) {
         const location = await getCurrentLocation();
         const { latitude, longitude } = location;
         addressLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-      }else {
+      } else {
         const { latitude, longitude } = location;
         addressLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
       }
@@ -119,18 +142,19 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         });
     }
 
-    if (isSR && noOrder && !location){
+    if (isSR && noOrder && !location) {
       toast.error('Capture location first')
       return
     }
 
     const date = new Date(selectedDate)
-    
+
     const orderPayload = {
       shopId,
       areaId: selectedArea,
       products: filteredProducts,
       rate,
+      existing_products: filteredExistingProducts,
       placedBy: selectedSR,
       remarks,
       paymentTerms,
@@ -179,7 +203,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-   
+
 
       {(isSR || isTL) && (<><label className="flex items-center gap-2 text-lg font-medium text-gray-800">
         <input
@@ -216,9 +240,9 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         />
         No Order
       </label>
-      {noOrder && location && (
-        <p className="text-green-600 text-sm">📍 Location captured</p>
-      )}
+        {noOrder && location && (
+          <p className="text-green-600 text-sm">📍 Location captured</p>
+        )}
       </>)}
 
 
@@ -269,7 +293,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
           value={paymentTerms}
           onChange={(e) => setPaymentTerms(e.target.value.toLowerCase())}
           className="w-full border border-gray-300 rounded px-3 py-2 text-md"
-          disabled={noOrder || type==='replacement' || type==='return'}
+          disabled={noOrder || type === 'replacement' || type === 'return'}
           required
         >
           <option value="">Select Payment Terms</option>
@@ -330,7 +354,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
       {isAdmin && (
         <div className="mb-4">
           <label className="block text-md font-medium text-gray-700 mb-1">
-           Date
+            Date
           </label>
           <input
             type="date"
@@ -341,7 +365,33 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         </div>
       )}
 
-       <div className="p-4 border rounded bg-gray-50">
+      {/* existing stock */}
+      <div className="mt-6 p-3 border rounded bg-gray-50">
+        <h3 className="text-md font-semibold text-gray-800 mb-2">
+          Existing Products (Stock Adjustment)
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {productFields.map((field) => (
+            <div key={field} className="flex justify-between items-center text-sm bg-white p-1 rounded border">
+              <label className="text-gray-700 pr-2 w-1/2 truncate">{field}:</label>
+              <input
+                type="number"
+                min="0"
+                value={existingProductsForm[field]}
+                onChange={(e) => handleExistingProductsChange(e, field)}
+                onWheel={(e) => e.target.blur()}
+                disabled={noOrder}
+                className="border border-gray-300 rounded px-2 py-1 w-20 text-right focus:outline-none focus:ring-1 focus:ring-amber-500"
+                placeholder="0"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+
+
+      <div className="p-4 border rounded bg-gray-50">
         <label className="flex items-center gap-2 font-medium text-gray-800 mb-2">
           <input
             type="checkbox"

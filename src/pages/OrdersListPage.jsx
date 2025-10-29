@@ -778,7 +778,7 @@ export default function OrdersListPage() {
                                                 </>
                                             )}
 
-                                            {/* FaUndoAlt always visible if conditions match */}
+                                            {/* FaUndoAlt always visible if conditions match
                                             {order.type === 'order' && Object.keys(order.return_products || {}).length > 0 && (
                                                 <button
                                                     onClick={() => {
@@ -791,7 +791,7 @@ export default function OrdersListPage() {
                                                 >
                                                     <FaUndoAlt />
                                                 </button>
-                                            )}
+                                            )} */}
 
                                             <button
                                                 onClick={() => handleShowHistory(order.shopId._id)}
@@ -919,9 +919,9 @@ export default function OrdersListPage() {
                                     <option value="pending">Pending</option>
                                     <option value="delivered">Delivered</option>
                                     <option value="canceled">Canceled</option>
-                                    {selectedOrder && selectedOrder.type === "order" && (
+                                    {/* {selectedOrder && selectedOrder.type === "order" && (
                                         <option value="partial return">Partial Return</option>
-                                    )}
+                                    )} */}
                                 </select>
                             </div>
 
@@ -940,7 +940,7 @@ export default function OrdersListPage() {
                             </div>
 
                             {/* Partial Return Products Input */}
-                            {selectedOrder && status === "partial return" && (
+                            {/* {selectedOrder && status === "partial return" && (
                                 <div>
                                     <label className="block text-md font-medium text-gray-700 mb-2">
                                         Return Quantities
@@ -965,7 +965,7 @@ export default function OrdersListPage() {
                                         </div>
                                     ))}
                                 </div>
-                            )}
+                            )} */}
 
                             {/* Buttons */}
                             <div className="flex justify-end gap-3 pt-2">
@@ -981,7 +981,7 @@ export default function OrdersListPage() {
                                             id: selectedOrders[0]._id,
                                             status,
                                             reason,
-                                            ...(status === "partial return" && { returnProducts }),
+                                            // ...(status === "partial return" && { returnProducts }),
                                         })
                                     }
                                     className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
@@ -994,7 +994,7 @@ export default function OrdersListPage() {
                 </div>
             )}
 
-            {showReturnModal && selectedOrder && (
+            {/* {showReturnModal && selectedOrder && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center px-2">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                         <h2 className="text-xl font-semibold mb-4 text-amber-700 text-center">
@@ -1030,7 +1030,7 @@ export default function OrdersListPage() {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             {showHistory && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
