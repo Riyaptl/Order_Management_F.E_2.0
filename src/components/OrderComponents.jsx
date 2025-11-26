@@ -16,7 +16,7 @@ const productFields = [
 
 
 
-export default function OrderComponent({ shopId, onClose, selectedArea, shopLink }) {
+export default function OrderComponent({ shop, onClose, selectedArea, shopLink }) {
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector((state) => state.order);
   const { role } = useSelector((state) => state.auth)
@@ -133,7 +133,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         addressLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
       }
       dispatch(updateShop({
-        id: shopId,
+        id: shop._id,
         updates: { addressLink }
       })).unwrap()
         .then()
@@ -150,7 +150,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
     const date = new Date(selectedDate)
 
     const orderPayload = {
-      shopId,
+      shopId: shop._id,
       areaId: selectedArea,
       products: filteredProducts,
       rate,
@@ -200,6 +200,52 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         }
       );
     });
+
+
+const handleCopyOrder = () => {
+ let previousGroup = null;
+
+let copiedProducts = Object.entries(formData)
+  .filter(([_, value]) => value !== "" && Number(value) > 0)
+  .map(([key, value]) => {
+    // Extract weight type from key (e.g., "50g", "25g", "55g")
+    let groupMatch = key.match(/(\d+g)/i);
+    let group = groupMatch ? groupMatch[1] : "other"; // gift, combos, etc.
+
+    // Add a blank line when switching groups
+    let prefix = previousGroup && previousGroup !== group ? "\n" : "";
+
+    previousGroup = group;
+
+    return `${prefix}${key}: ${value}`;
+  })
+  .join("\n");
+
+
+  const textToCopy = `
+  SHOP DETAILS
+  ----------------------
+  Shop Name: ${shop.name || "-"}
+  Shop Address: ${shop.address || "-"}
+  Shop Location: ${shop.addressLink || "-"}
+  Shop Contact: ${shop.contactNumber || "-"}
+
+  ORDER DETAILS
+  ----------------------
+  ${copiedProducts || "(No products)"}
+
+  Payment Terms: ${paymentTerms || "-"}
+  Order Placed By: ${orderPlacedBy || "-"}
+  Remarks: ${remarks || "-"}
+  Type: ${type || "-"}
+    `.trim();
+
+  navigator.clipboard.writeText(textToCopy)
+    .then(() => toast.success("Order copied to clipboard"))
+    .catch(() => toast.error("Failed to copy"));
+};
+
+
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -397,6 +443,7 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
             type="checkbox"
             checked={editRate}
             onChange={() => setEditRate(!editRate)}
+            disabled={noOrder}
           />
           Edit Rates
         </label>
@@ -416,13 +463,25 @@ export default function OrderComponent({ shopId, onClose, selectedArea, shopLink
         </div>}
       </div>
 
-      <button
-        type="submit"
-        className="mt-4 px-4 py-2 bg-amber-700 text-white rounded hover:bg-amber-700"
-        disabled={loading}
-      >
-        {noOrder ? "Confirm No Order" : loading ? "Placing Order..." : "Place Order"}
-      </button>
+      <div className="flex items-center gap-4">
+  <button
+    type="button"
+    onClick={handleCopyOrder}
+    className="px-5 py-3 bg-green-400 text-white rounded-xl hover:bg-green-700"
+    disabled={noOrder}
+  >
+    Copy Order
+  </button>
+
+  <button
+    type="submit"
+    className="px-5 py-3 bg-amber-700 text-white rounded-xl hover:bg-amber-800"
+    disabled={loading}
+  >
+    {noOrder ? "Confirm No Order" : loading ? "Placing Order..." : "Place Order"}
+  </button>
+</div>
+
     </form>
   );
 }

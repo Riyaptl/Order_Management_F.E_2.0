@@ -789,7 +789,7 @@ const ShopsListPage = () => {
 
                         {/* Modal Content */}
 
-                        <OrderComponent shopId={selectedShop._id} onClose={() => setSelectedShop(null)} selectedArea={selectedArea} shopLink={selectedShop.addressLink} />
+                        <OrderComponent shop={selectedShop} onClose={() => setSelectedShop(null)} selectedArea={selectedArea} shopLink={selectedShop.addressLink} />
                     </div>
                 </div>
             )}
