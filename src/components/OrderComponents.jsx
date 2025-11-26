@@ -221,9 +221,9 @@ const handleCopyOrder = () => {
     })
     .join("\n");
   
-  const total = Object.values(productFields)
-    .reduce((sum, val) => sum + Number(val || 0), 0);
-
+  const total = Object.entries(formData)
+  .filter(([_, value]) => value !== "" && Number(value) > 0)
+  .reduce((sum, [_, value]) => sum + Number(value), 0);
 
 
   const textToCopy = `
