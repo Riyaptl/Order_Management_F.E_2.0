@@ -205,21 +205,25 @@ export default function OrderComponent({ shop, onClose, selectedArea, shopLink }
 const handleCopyOrder = () => {
  let previousGroup = null;
 
-let copiedProducts = Object.entries(formData)
-  .filter(([_, value]) => value !== "" && Number(value) > 0)
-  .map(([key, value]) => {
-    // Extract weight type from key (e.g., "50g", "25g", "55g")
-    let groupMatch = key.match(/(\d+g)/i);
-    let group = groupMatch ? groupMatch[1] : "other"; // gift, combos, etc.
+  let copiedProducts = Object.entries(formData)
+    .filter(([_, value]) => value !== "" && Number(value) > 0)
+    .map(([key, value]) => {
+      // Extract weight type from key (e.g., "50g", "25g", "55g")
+      let groupMatch = key.match(/(\d+g)/i);
+      let group = groupMatch ? groupMatch[1] : "other"; // gift, combos, etc.
 
-    // Add a blank line when switching groups
-    let prefix = previousGroup && previousGroup !== group ? "\n" : "";
+      // Add a blank line when switching groups
+      let prefix = previousGroup && previousGroup !== group ? "\n" : "";
 
-    previousGroup = group;
+      previousGroup = group;
 
-    return `${prefix}${key}: ${value}`;
-  })
-  .join("\n");
+      return `${prefix}${key}: ${value}`;
+    })
+    .join("\n");
+  
+  const total = Object.values(productFields)
+    .reduce((sum, val) => sum + Number(val || 0), 0);
+
 
 
   const textToCopy = `
@@ -234,6 +238,7 @@ let copiedProducts = Object.entries(formData)
   ----------------------
   ${copiedProducts || "(No products)"}
 
+  Total: ${total || "-"}
   Payment Terms: ${paymentTerms || "-"}
   Order Placed By: ${orderPlacedBy || "-"}
   Remarks: ${remarks || "-"}
