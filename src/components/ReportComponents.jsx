@@ -30,7 +30,23 @@ export default function ReportComponents({
     const isAdmin = role === "admin";
     const [options, setOptions] = useState([]);
     const [month, setMonth] = useState("");
+    const [year, setYear] = useState("");
     const { areas } = useSelector((state) => state.area);
+    const monthMap = {
+        January: 0,
+        February: 1,
+        March: 2,
+        April: 3,
+        May: 4,
+        June: 5,
+        July: 6,
+        August: 7,
+        September: 8,
+        October: 9,
+        November: 10,
+        December: 11,
+        };
+
 
     useEffect(() => {
         const data = {}
@@ -38,7 +54,7 @@ export default function ReportComponents({
             data["dist_username"] = user
         }
         dispatch(fetchAreas(data));
-        
+
     }, [dispatch]);
 
     useEffect(() => {
@@ -62,11 +78,11 @@ export default function ReportComponents({
     }, [dispatch, role]);
 
     useEffect(() => {
-        const query = { month };
-        if (selectedArea){
+        const query = { month, year };
+        if (selectedArea) {
             query.areaId = selectedArea
         }
-        if (selectedCity){
+        if (selectedCity) {
             query.city = selectedCity
         }
         if (selectedDate) {
@@ -86,7 +102,7 @@ export default function ReportComponents({
         }
 
         if (queryAction) dispatch(queryAction(query));
-    }, [dispatch, user, selectedDate, showCurrentMonth, username, month, selectedArea, selectedCity, queryAction]);
+    }, [dispatch, user, selectedDate, showCurrentMonth, username, month, year, selectedArea, selectedCity, queryAction]);
 
     const productKeys = reportData.productTotals ? Object.keys(reportData.productTotals) : [];
     const overallKeys = reportData.overallTotals ? Object.keys(reportData.overallTotals) : [];
@@ -96,6 +112,24 @@ export default function ReportComponents({
         timeZone: "Asia/Kolkata",
         month: "long",
     });
+
+    const currentMonthIndex = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    const handleMonthChange = (selectedMonth) => {
+        const selectedMonthIndex = monthMap[selectedMonth];
+
+        const selectedYear =
+            selectedMonthIndex > currentMonthIndex
+            ? currentYear - 1
+            : currentYear;
+
+        setMonth(selectedMonth);
+        setYear(selectedYear);
+        setShowCurrentMonth(false);
+        setSelectedDate("");
+    };
+
 
     return (
         <div className="p-4">
@@ -111,25 +145,25 @@ export default function ReportComponents({
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 px-4 md:px-6 mb-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
                     {/* City Selector */}
-                    {!isDistributor && 
-                    <div className="w-full md:w-auto">
-                        <label className="block text-lg font-medium text-amber-700 mb-2">Select City</label>
-                        <select
-                            value={selectedCity}
-                            onChange={(e) => {
-                                setSelectedCity(e.target.value);
-                                setSelectedArea("")
-                            }}
-                            className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
-                        >
-                            <option value="">-- Select City --</option>
-                            {cities.map((city) => (
-                                <option key={city._id} value={city._id}>
-                                    {city.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {!isDistributor &&
+                        <div className="w-full md:w-auto">
+                            <label className="block text-lg font-medium text-amber-700 mb-2">Select City</label>
+                            <select
+                                value={selectedCity}
+                                onChange={(e) => {
+                                    setSelectedCity(e.target.value);
+                                    setSelectedArea("")
+                                }}
+                                className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
+                            >
+                                <option value="">-- Select City --</option>
+                                {cities.map((city) => (
+                                    <option key={city._id} value={city._id}>
+                                        {city.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     }
 
                     {/* Area Selector */}
@@ -183,6 +217,7 @@ export default function ReportComponents({
                                 setSelectedDate(e.target.value);
                                 setShowCurrentMonth(false);
                                 setMonth("")
+                                setYear("")
                             }}
                             className="w-full md:w-64 border border-gray-300 rounded px-3 py-2 text-md"
                         />
@@ -192,13 +227,8 @@ export default function ReportComponents({
                     <div className="flex flex-col">
                         <label className="text-lg font-medium text-amber-700 mb-1">Select Month</label>
                         <select
-                            name="month"
                             value={month}
-                            onChange={(e) => {
-                                setMonth(e.target.value)
-                                setShowCurrentMonth(false);
-                                setSelectedDate("");
-                            }}
+                            onChange={(e) => handleMonthChange(e.target.value)}
                             className="border rounded px-3 py-2 text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
                             <option value="">Select Month</option>
@@ -208,6 +238,7 @@ export default function ReportComponents({
                                 </option>
                             ))}
                         </select>
+
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-4">
@@ -222,6 +253,7 @@ export default function ReportComponents({
                                     setShowCurrentMonth((prev) => !prev);
                                     setSelectedDate("");
                                     setMonth("")
+                                    setYear("")
                                 }}
                                 className="sr-only peer"
                             />
