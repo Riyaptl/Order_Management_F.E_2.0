@@ -10,9 +10,9 @@ export const fetchAreas = createAsyncThunk("area/fetchAreas", async (data, thunk
   }
 });
 
-export const fetchAllAreas = createAsyncThunk("area/fetchAllAreas", async (page=1, thunkAPI) => {
+export const fetchAllAreas = createAsyncThunk("area/fetchAllAreas", async ({page=1,dist_username}, thunkAPI) => {
   try {
-    return await fetchAllAreasService(page);
+    return await fetchAllAreasService({page, dist_username});
   } catch (err) {
     return thunkAPI.rejectWithValue(err.message || "Failed to fetch routes");
   }

@@ -1,6 +1,5 @@
 const baseURL = process.env.REACT_APP_API_BASE_URL;
 const API_BASE = `${baseURL}/city`;
-// const API_BASE = `http://localhost:5000/api/city`;
 
 export const fetchCitiesService = async () => {
     

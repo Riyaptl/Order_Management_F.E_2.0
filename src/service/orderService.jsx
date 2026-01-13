@@ -1,7 +1,6 @@
 
 const baseURL = process.env.REACT_APP_API_BASE_URL;
 const API_BASE_URL = `${baseURL}/order`;
-// const API_BASE_URL = `http://localhost:5000/api/order`;
 
 export const SrPerformance = async (data) => {
   const token = localStorage.getItem("token");

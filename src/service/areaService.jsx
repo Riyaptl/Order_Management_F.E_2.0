@@ -1,6 +1,5 @@
 const baseURL = process.env.REACT_APP_API_BASE_URL;
 const AREA_API = `${baseURL}/area`;
-// const AREA_API = `http://localhost:5000/api/area`;
 
 export const fetchAreasService = async (dist_data) => {
     
@@ -26,18 +25,21 @@ export const fetchAreasService = async (dist_data) => {
   return data;
 };
 
-export const fetchAllAreasService = async (page) => {
+export const fetchAllAreasService = async ({page, dist_username}) => {
     
+  console.log(page, dist_username);
+  
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
 
   const res = await fetch(`${AREA_API}/admin?page=${page}`, {
-    method: "GET",
+    method: "POST",
     credentials: 'include',
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
+    body: JSON.stringify({dist_username})
   });
 
   if (!res.ok) {

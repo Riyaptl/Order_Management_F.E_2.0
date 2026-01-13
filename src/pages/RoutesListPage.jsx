@@ -11,12 +11,14 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 const RoutesListPage = () => {
   const dispatch = useDispatch();
   const { allAreas, loading, error } = useSelector((state) => state.area);
+  const { dists } = useSelector((state) => state.user);
   const { role } = useSelector((state) => state.auth);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedRouteId, setSelectedRouteId] = useState(null);
   const [selectedRouteName, setSelectedRouteName] = useState("");
   const [selectedDist, setSelectedDist] = useState("");
+  const [selectedDistDrop, setSelectedDistDrop] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -29,14 +31,14 @@ const RoutesListPage = () => {
   useEffect(() => {
     const fetchPagedAreas = async () => {
       try {
-        const res = await dispatch(fetchAllAreas(currentPage)).unwrap();
+        const res = await dispatch(fetchAllAreas({page: currentPage, dist_username: selectedDistDrop})).unwrap();
         setTotalPages(res.totalPages);
       } catch (err) {
         toast.error("Failed to fetch routes");
       }
     };
     fetchPagedAreas();
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, selectedDistDrop]);
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this route?")) {
@@ -129,6 +131,22 @@ const RoutesListPage = () => {
         </div>
       )}
 
+        {/* Distributor Selection */}
+        <div className="flex flex-col mb-5">
+          <select
+            value={selectedDistDrop}
+            onChange={(e) => setSelectedDistDrop(e.target.value)}
+            className="border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+          >
+            <option value="">-- Select Distributor --</option>
+            {dists.map((dist) => (
+              <option key={dist._id} value={dist.username}>
+                {dist.username}
+              </option>
+            ))}
+          </select>
+        </div>
+
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <input
           type="text"
@@ -157,8 +175,8 @@ const RoutesListPage = () => {
                 <th className="border p-2 text-left">Sr. No</th>
                 <th className="border p-2 text-left">Route Name</th>
                 <th className="border p-2 text-left">City</th>
-                <th className="border p-2 text-left">Areas Included</th>
                 <th className="border p-2 text-left">Distributor</th>
+                <th className="border p-2 text-left">Areas Included</th>
                 <th className="border p-2 text-left">Route Created By</th>
                 <th className="border p-2 text-left">Route Created At</th>
                 <th className="border p-2 text-left">Route Updated By</th>
@@ -172,8 +190,8 @@ const RoutesListPage = () => {
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2 min-w-[150px]">{area.name}</td>
                   <td className="border p-2 min-w-[150px]">{area.city ? area.city.name : "-"}</td>
-                  <td className="border p-2 min-w-[150px]">{area.areas?.join(", ")}</td>
                   <td className="border p-2 min-w-[150px]">{area.distributor}</td>
+                  <td className="border p-2 min-w-[150px]">{area.areas?.join(", ")}</td>
                   <td className="border p-2 min-w-[150px]">{area.createdBy}</td>
                   <td className="border p-2 min-w-[180px]">{new Date(area.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
                   <td className="border p-2 min-w-[150px]">{area.updatedBy}</td>
