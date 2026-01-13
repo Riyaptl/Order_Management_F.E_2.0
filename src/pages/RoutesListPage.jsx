@@ -17,6 +17,7 @@ const RoutesListPage = () => {
   const [selectedRouteId, setSelectedRouteId] = useState(null);
   const [selectedRouteName, setSelectedRouteName] = useState("");
   const [selectedDist, setSelectedDist] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -170,7 +171,7 @@ const RoutesListPage = () => {
                 <tr key={area._id} className="hover:bg-gray-50">
                   <td className="border p-2">{index + 1}</td>
                   <td className="border p-2 min-w-[150px]">{area.name}</td>
-                  <td className="border p-2 min-w-[150px]">{area.city ? area.city.name: "-"}</td>
+                  <td className="border p-2 min-w-[150px]">{area.city ? area.city.name : "-"}</td>
                   <td className="border p-2 min-w-[150px]">{area.areas?.join(", ")}</td>
                   <td className="border p-2 min-w-[150px]">{area.distributor}</td>
                   <td className="border p-2 min-w-[150px]">{area.createdBy}</td>
@@ -182,15 +183,21 @@ const RoutesListPage = () => {
                       <button onClick={() => handleDelete(area._id)} className="text-red-600 hover:text-red-800 text-xl p-2" title="Delete">
                         <FaTrash />
                       </button>
-                      <button onClick={() => {
-                        setSelectedRouteId(area._id);
-                        setSelectedRouteName(area.name);
-                        setSelectedRouteAreas(area.areas || []);
-                        setSelectedDist(area.distributor || "");
-                        setShowUpdateModal(true);
-                      }} className="text-blue-600 hover:text-blue-800 text-xl p-2" title="Edit">
+                      <button
+                        onClick={() => {
+                          setSelectedRouteId(area._id);
+                          setSelectedRouteName(area.name);
+                          setSelectedRouteAreas(area.areas || []);
+                          setSelectedDist(area.distributor || "");
+                          setSelectedCity(area.city?._id || ""); // ✅ IMPORTANT
+                          setShowUpdateModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-xl p-2"
+                        title="Edit"
+                      >
                         <FaEdit />
                       </button>
+
                     </td>
                   )}
                 </tr>
@@ -207,7 +214,9 @@ const RoutesListPage = () => {
         initialName={selectedRouteName}
         initialRoutes={selectedRouteAreas}
         initialDist={selectedDist}
+        initialCity={selectedCity}   // ✅ ADD THIS
       />
+
 
       <CreateRouteComponents
         isOpen={showCreateModal}
