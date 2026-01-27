@@ -1,5 +1,5 @@
 // DistributorOrderPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getOrders,
@@ -24,6 +24,10 @@ const DistributorOrderPage = () => {
     const orderedProductsList = selectedOrder
         ? Object.keys(selectedOrder.products || {})
         : [];
+    const [searchTermDistributor, setSearchTermDistributor] = useState("");
+    const [showDistributorDropdown, setShowDistributorDropdown] = useState(false);
+    const distributorDropdownRef = useRef(null);
+
 
     const isAdmin = role === 'admin';
 
@@ -180,6 +184,11 @@ const DistributorOrderPage = () => {
         "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box",
         "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
     ];
+
+    const filteredDistributors = dists?.filter((d) =>
+        d.username.toLowerCase().includes(searchTermDistributor.toLowerCase())
+        );
+
 
     return (
         <div className="p-4">
@@ -804,24 +813,69 @@ const DistributorOrderPage = () => {
                         <form onSubmit={handleCreateOrder} className="space-y-4">
 
                             {/* Distributor */}
-                            <div>
-                                <label className="block font-medium mb-1">Distributor *</label>
-                                <select
-                                    name="distributor"
-                                    value={createForm.distributor}
-                                    onChange={handleCreateChange}
-                                    className="border p-2 rounded w-full"
-                                    required
-                                >
-                                    <option value="">Select Distributor</option>
-                                    <option value="other">Other</option>
-                                    {dists?.map((d) => (
-                                        <option key={d._id} value={d.username}>
-                                            {d.username}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+<div ref={distributorDropdownRef} className="w-full relative">
+  <label className="block font-medium mb-1">
+    Distributor <span className="text-red-500">*</span>
+  </label>
+
+  {/* search box */}
+  <input
+    type="text"
+    value={searchTermDistributor}
+    onChange={(e) => {
+      setSearchTermDistributor(e.target.value);
+      setShowDistributorDropdown(true);
+    }}
+    onFocus={() => setShowDistributorDropdown(true)}
+    placeholder="Search distributor..."
+    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+    required
+  />
+
+  {/* dropdown list */}
+  {showDistributorDropdown && (
+    <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
+      {/* Other option */}
+      <li
+        onClick={() => {
+          setCreateForm((prev) => ({
+            ...prev,
+            distributor: "other"
+          }));
+          setSearchTermDistributor("Other");
+          setShowDistributorDropdown(false);
+        }}
+        className="p-3 hover:bg-amber-100 cursor-pointer"
+      >
+        Other
+      </li>
+
+      {filteredDistributors.length === 0 ? (
+        <li className="p-3 text-gray-500 select-none">
+          No distributors found
+        </li>
+      ) : (
+        filteredDistributors.map((d) => (
+          <li
+            key={d._id}
+            onClick={() => {
+              setCreateForm((prev) => ({
+                ...prev,
+                distributor: d.username
+              }));
+              setSearchTermDistributor(d.username);
+              setShowDistributorDropdown(false);
+            }}
+            className="p-3 hover:bg-amber-100 cursor-pointer"
+          >
+            {d.username}
+          </li>
+        ))
+      )}
+    </ul>
+  )}
+</div>
+
 
                             {/* Placed By */}
                             {isAdmin && <div>
