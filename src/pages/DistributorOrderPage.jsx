@@ -18,6 +18,7 @@ const DistributorOrderPage = () => {
     const { dists, srs } = useSelector(state => state.user);
     const { user, role } = useSelector((state) => state.auth);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedOrders, setSelectedOrders] = useState([]);
     const [showDeliveredProducts, setShowDeliveredProducts] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showStatusModal, setShowStatusModal] = useState(false);
@@ -117,18 +118,20 @@ const DistributorOrderPage = () => {
         setSelectedOrder(null)
     };
 
-    const handleUpdateStatus = () => {
+    const handleUpdateStatus = ({ ids }) => {
         if (!statusForm.status) {
             alert("Status is required");
             return;
         }
 
         const payload = {
-            orderId: selectedOrder._id,
+            ids: ids,
             status: statusForm.status,
             ETD: statusForm.ETD,
             delivered_products: statusForm.delivered_products,
-            same_as_products: statusForm.delivered_products_same_as_products
+            same_as_products: statusForm.delivered_products_same_as_products,
+            companyRemarks: statusForm.companyRemarks,
+            billAttached: statusForm.billAttached
         };
 
         if (statusForm.status === "canceled") {
@@ -136,7 +139,6 @@ const DistributorOrderPage = () => {
         }
 
         dispatch(statusOrder(payload)).unwrap().then((res) => {
-            console.log(res);
 
             toast.success(res?.message || "Order status updated successfully!");
 
@@ -187,7 +189,11 @@ const DistributorOrderPage = () => {
 
     const filteredDistributors = dists?.filter((d) =>
         d.username.toLowerCase().includes(searchTermDistributor.toLowerCase())
-        );
+    );
+
+    const isBulkUpdate =
+        Array.isArray(selectedOrders) && selectedOrders.length > 1;
+
 
 
     return (
@@ -203,15 +209,37 @@ const DistributorOrderPage = () => {
                     </h2>
                 </div>
 
-                {/* Create Order button below heading */}
-                <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex flex-col md:flex-row justify-end gap-3">
+                    {/* Create Order */}
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="w-full md:w-auto px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
                     >
                         + Create Order
                     </button>
+
+                    {/* Update Status */}
+                    <button
+                        disabled={selectedOrders.length === 0}
+                        onClick={() => {
+                            if (selectedOrders.length === 0) {
+                                toast.error("Please select at least one order");
+                                return;
+                            }
+
+                            setSelectedOrder(null);
+                            setShowDeliveredProducts(false);
+                            setShowStatusModal(true);
+                        }}
+                        className={`w-full md:w-auto px-4 py-2 rounded transition text-white ${selectedOrders.length === 0
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-amber-600 hover:bg-amber-700"
+                            }`}
+                    >
+                        Update Status
+                    </button>
                 </div>
+
             </div>
 
 
@@ -252,33 +280,34 @@ const DistributorOrderPage = () => {
                     <table className="min-w-full border border-gray-300">
                         <thead className="bg-gray-100">
                             <tr>
-                                {/* <th className="border p-2 text-left min-w-[30px]">
+                                <th className="border p-2 text-left min-w-[30px]">
                                     <input
                                         type="checkbox"
                                         onChange={(e) => {
                                             if (e.target.checked) {
-                                                setSelectedOrders(orders.map((order) => order._id));
+                                                setSelectedOrders(distributorOrders?.map((order) => order._id));
                                             } else {
                                                 setSelectedOrders([]);
                                             }
                                         }}
-                                        checked={selectedOrders.length === orders.length}
+                                        checked={selectedOrders.length === distributorOrders?.length}
                                     />
-                                </th> */}
+                                </th>
                                 <th className="border p-2 text-left min-w-[200px]">Distributor</th>
                                 <th className="border p-2 text-left min-w-[200px]">SR/TL</th>
                                 <th className="border p-2 text-left min-w-[200px]">Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Order Placed By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Expected Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
-                                <th className="border p-2 text-left min-w-[200px]">Created At</th>
+                                <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">status</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivery Date</th>
-                                <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
+                                <th className="border p-2 text-left min-w-[200px]">Company Remarks</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivered On</th>
                                 <th className="border p-2 text-left min-w-[200px]">Cancelled Reason</th>
                                 <th className="border p-2 text-left min-w-[200px]">Status Modified By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Status Modified At</th>
+                                <th className="border p-2 text-left min-w-[200px]">Created At</th>
                                 <th className="border p-2 text-left min-w-[200px]">Actions</th>
                             </tr>
                         </thead>
@@ -288,12 +317,12 @@ const DistributorOrderPage = () => {
                                 <>
                                     {/* {console.log('in table', order)} */}
                                     <tr key={order._id} className="hover:bg-gray-50" onClick={(e) => {
-                                        if ((e.target.closest("td")?.cellIndex === 0 || e.target.closest("td")?.cellIndex === 1 || e.target.closest("td")?.cellIndex === 2)) {
+                                        if ((e.target.closest("td")?.cellIndex === 1 || e.target.closest("td")?.cellIndex === 2 || e.target.closest("td")?.cellIndex === 3)) {
                                             setSelectedOrder(order);
                                         }
                                     }} >
 
-                                        {/* <td className="border p-2">
+                                        <td className="border p-2">
                                             <input
                                                 type="checkbox"
                                                 checked={selectedOrders.includes(order._id)}
@@ -305,7 +334,7 @@ const DistributorOrderPage = () => {
                                                     );
                                                 }}
                                             />
-                                        </td> */}
+                                        </td>
                                         <td className="border p-2">{order.distributor}</td>
                                         <td className="border p-2">{order.placedBy}</td>
                                         <td className="border p-2 font-semibold">
@@ -331,18 +360,6 @@ const DistributorOrderPage = () => {
                                                 : "-"}
                                         </td>
                                         <td className="border p-2">{order.remarks}</td>
-                                        <td className="border p-2">
-                                            {(() => {
-                                                const date = new Date(order.createdAt);
-                                                const day = String(date.getDate()).padStart(2, "0");
-                                                const month = String(date.getMonth() + 1).padStart(2, "0");
-                                                const year = date.getFullYear();
-                                                const hours = String(date.getHours()).padStart(2, "0");
-                                                const minutes = String(date.getMinutes()).padStart(2, "0");
-
-                                                return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                            })()}
-                                        </td>
                                         <td className="border p-2">{order.status}</td>
                                         <td className="border p-2">
                                             {order.ETD?.length
@@ -371,6 +388,7 @@ const DistributorOrderPage = () => {
                                                 : "-"}
                                         </td>
 
+                                        <td className="border p-2">{order.companyRemarks}</td>
                                         <td className="border p-2">
                                             {order.delivered_on?.length
                                                 ? order.delivered_on
@@ -384,6 +402,7 @@ const DistributorOrderPage = () => {
                                                     .join(", ")
                                                 : "-"}
                                         </td>
+                                        
                                         <td className="border p-2">{order.canceledReason}</td>
                                         <td className="border p-2">{order.statusUpdatedBy}</td>
                                         <td className="border p-2">
@@ -397,6 +416,18 @@ const DistributorOrderPage = () => {
 
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
                                             })() : "-"}
+                                        </td>
+                                        <td className="border p-2">
+                                            {(() => {
+                                                const date = new Date(order.createdAt);
+                                                const day = String(date.getDate()).padStart(2, "0");
+                                                const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                const year = date.getFullYear();
+                                                const hours = String(date.getHours()).padStart(2, "0");
+                                                const minutes = String(date.getMinutes()).padStart(2, "0");
+
+                                                return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                            })()}
                                         </td>
                                         <td className="border p-2 flex gap-2 justify-center">
                                             <button
@@ -590,6 +621,8 @@ const DistributorOrderPage = () => {
                                             </span>
                                         </div>
                                     </div>
+
+                                    <div className="mb-2">Remarks: {delivery.companyRemarks}</div>
                                 </div>
                             ))
                         ) : (
@@ -615,7 +648,7 @@ const DistributorOrderPage = () => {
             )}
 
             {/* Update Status Modal */}
-            {selectedOrder && showStatusModal && !showDeliveredProducts && (
+            {(selectedOrder || selectedOrders) && showStatusModal && !showDeliveredProducts && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[85vh] overflow-y-auto">
 
@@ -639,16 +672,26 @@ const DistributorOrderPage = () => {
                             >
                                 <option value="">Select Status</option>
 
-                                {isAdmin ? (
+                                {isAdmin && !isBulkUpdate && (
                                     <>
                                         <option value="preparing">Preparing</option>
                                         <option value="dispatched">Dispatched</option>
                                         <option value="canceled">Canceled</option>
                                     </>
-                                ) : (
+                                )}
+
+                                {isAdmin && isBulkUpdate && (
+                                    <>
+                                        <option value="preparing">Preparing</option>
+                                        <option value="canceled">Canceled</option>
+                                    </>
+                                )}
+
+                                {!isAdmin && !isBulkUpdate && (
                                     <option value="delivered">Delivered</option>
                                 )}
                             </select>
+
 
                         </div>
 
@@ -679,7 +722,7 @@ const DistributorOrderPage = () => {
                                 />
                             </div>
                         )}
-                        
+
                         {/* Company Remarks */}
                         {(statusForm.status === "preparing" || statusForm.status === "dispatched") && (
                             <div className="mb-4">
@@ -792,11 +835,18 @@ const DistributorOrderPage = () => {
                             </button>
 
                             <button
-                                onClick={() => handleUpdateStatus()}
-                                className="px-4 py-2 bg-amber-600 text-white rounded"
+                                onClick={() =>
+                                    handleUpdateStatus({
+                                        ids: selectedOrder
+                                            ? [selectedOrder._id]
+                                            : selectedOrders,
+                                    })
+                                }
+                                className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
                             >
                                 Update
                             </button>
+
                         </div>
                     </div>
                 </div>
@@ -813,68 +863,68 @@ const DistributorOrderPage = () => {
                         <form onSubmit={handleCreateOrder} className="space-y-4">
 
                             {/* Distributor */}
-<div ref={distributorDropdownRef} className="w-full relative">
-  <label className="block font-medium mb-1">
-    Distributor <span className="text-red-500">*</span>
-  </label>
+                            <div ref={distributorDropdownRef} className="w-full relative">
+                                <label className="block font-medium mb-1">
+                                    Distributor <span className="text-red-500">*</span>
+                                </label>
 
-  {/* search box */}
-  <input
-    type="text"
-    value={searchTermDistributor}
-    onChange={(e) => {
-      setSearchTermDistributor(e.target.value);
-      setShowDistributorDropdown(true);
-    }}
-    onFocus={() => setShowDistributorDropdown(true)}
-    placeholder="Search distributor..."
-    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-    required
-  />
+                                {/* search box */}
+                                <input
+                                    type="text"
+                                    value={searchTermDistributor}
+                                    onChange={(e) => {
+                                        setSearchTermDistributor(e.target.value);
+                                        setShowDistributorDropdown(true);
+                                    }}
+                                    onFocus={() => setShowDistributorDropdown(true)}
+                                    placeholder="Search distributor..."
+                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                    required
+                                />
 
-  {/* dropdown list */}
-  {showDistributorDropdown && (
-    <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
-      {/* Other option */}
-      <li
-        onClick={() => {
-          setCreateForm((prev) => ({
-            ...prev,
-            distributor: "other"
-          }));
-          setSearchTermDistributor("Other");
-          setShowDistributorDropdown(false);
-        }}
-        className="p-3 hover:bg-amber-100 cursor-pointer"
-      >
-        Other
-      </li>
+                                {/* dropdown list */}
+                                {showDistributorDropdown && (
+                                    <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
+                                        {/* Other option */}
+                                        <li
+                                            onClick={() => {
+                                                setCreateForm((prev) => ({
+                                                    ...prev,
+                                                    distributor: "other"
+                                                }));
+                                                setSearchTermDistributor("Other");
+                                                setShowDistributorDropdown(false);
+                                            }}
+                                            className="p-3 hover:bg-amber-100 cursor-pointer"
+                                        >
+                                            Other
+                                        </li>
 
-      {filteredDistributors.length === 0 ? (
-        <li className="p-3 text-gray-500 select-none">
-          No distributors found
-        </li>
-      ) : (
-        filteredDistributors.map((d) => (
-          <li
-            key={d._id}
-            onClick={() => {
-              setCreateForm((prev) => ({
-                ...prev,
-                distributor: d.username
-              }));
-              setSearchTermDistributor(d.username);
-              setShowDistributorDropdown(false);
-            }}
-            className="p-3 hover:bg-amber-100 cursor-pointer"
-          >
-            {d.username}
-          </li>
-        ))
-      )}
-    </ul>
-  )}
-</div>
+                                        {filteredDistributors.length === 0 ? (
+                                            <li className="p-3 text-gray-500 select-none">
+                                                No distributors found
+                                            </li>
+                                        ) : (
+                                            filteredDistributors.map((d) => (
+                                                <li
+                                                    key={d._id}
+                                                    onClick={() => {
+                                                        setCreateForm((prev) => ({
+                                                            ...prev,
+                                                            distributor: d.username
+                                                        }));
+                                                        setSearchTermDistributor(d.username);
+                                                        setShowDistributorDropdown(false);
+                                                    }}
+                                                    className="p-3 hover:bg-amber-100 cursor-pointer"
+                                                >
+                                                    {d.username}
+                                                </li>
+                                            ))
+                                        )}
+                                    </ul>
+                                )}
+                            </div>
 
 
                             {/* Placed By */}

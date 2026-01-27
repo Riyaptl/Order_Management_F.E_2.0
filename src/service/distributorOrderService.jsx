@@ -50,7 +50,7 @@ export const statusOrderService = async (data) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");
 
-  const response = await fetch(`${API_BASE_URL}/${data.orderId}`, {
+  const response = await fetch(`${API_BASE_URL}/status`, {
     method: "POST",
     credentials: 'include',
     headers: {
