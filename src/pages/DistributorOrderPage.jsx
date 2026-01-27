@@ -38,7 +38,9 @@ const DistributorOrderPage = () => {
         products: {},
         expected_delivery: "",
         orderPlacedBy: "",
-        remarks: ""
+        remarks: "",
+        address: "",
+        contact: ""
     });
 
     const [statusForm, setStatusForm] = useState({
@@ -46,7 +48,9 @@ const DistributorOrderPage = () => {
         canceledReason: "",
         ETD: "",
         delivered_products_same_as_products: false,
-        delivered_products: {}
+        delivered_products: {},
+        companyRemarks: "",
+        billAttached: false
     });
 
 
@@ -256,11 +260,11 @@ const DistributorOrderPage = () => {
                                 <th className="border p-2 text-left min-w-[200px]">SR/TL</th>
                                 <th className="border p-2 text-left min-w-[200px]">Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Order Placed By</th>
-                                <th className="border p-2 text-left min-w-[200px]">EDD</th>
+                                <th className="border p-2 text-left min-w-[200px]">Expected Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
                                 <th className="border p-2 text-left min-w-[200px]">Created At</th>
                                 <th className="border p-2 text-left min-w-[200px]">status</th>
-                                <th className="border p-2 text-left min-w-[200px]">ETD</th>
+                                <th className="border p-2 text-left min-w-[200px]">Delivery Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivered On</th>
                                 <th className="border p-2 text-left min-w-[200px]">Cancelled Reason</th>
@@ -479,6 +483,28 @@ const DistributorOrderPage = () => {
                                     </span>
                                 </div>
                             </div>
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-lg mb-2 text-gray-700">Address:</h3>
+                                <div className="overflow-x-auto">
+                                    <span
+                                        className="inline-block truncate"
+                                        title={selectedOrder.address}
+                                    >
+                                        {selectedOrder.address}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="mb-4">
+                                <h3 className="font-semibold text-lg mb-2 text-gray-700">Contact:</h3>
+                                <div className="overflow-x-auto max-w-[350px]">
+                                    <span
+                                        className="inline-block truncate"
+                                        title={selectedOrder.contact}
+                                    >
+                                        {selectedOrder.contact}
+                                    </span>
+                                </div>
+                            </div>
 
                         </div>
 
@@ -618,7 +644,7 @@ const DistributorOrderPage = () => {
                         </div>
 
                         {/* ETD */}
-                        {statusForm.status === "dispatched" && <div className="mb-4">
+                        {(statusForm.status === "preparing" || statusForm.status === "dispatched") && <div className="mb-4">
                             <label className="block font-medium mb-1">ETD</label>
                             <input
                                 type="date"
@@ -642,6 +668,42 @@ const DistributorOrderPage = () => {
                                     }
                                     className="border p-2 rounded w-full"
                                 />
+                            </div>
+                        )}
+                        
+                        {/* Company Remarks */}
+                        {(statusForm.status === "preparing" || statusForm.status === "dispatched") && (
+                            <div className="mb-4">
+                                <label className="block font-medium mb-1">Company Remarks</label>
+                                <input
+                                    type="text"
+                                    value={statusForm.companyRemarks}
+                                    onChange={(e) =>
+                                        setStatusForm(prev => ({ ...prev, companyRemarks: e.target.value }))
+                                    }
+                                    className="border p-2 rounded w-full"
+                                />
+                            </div>
+                        )}
+
+                        {/* Delivered Products Toggle */}
+                        {statusForm.status === "dispatched" && (
+                            <div className="mb-4 flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="billAttched"
+                                    checked={statusForm.billAttached}
+                                    onChange={(e) =>
+                                        setStatusForm(prev => ({
+                                            ...prev,
+                                            billAttached: e.target.checked,
+                                        }))
+                                    }
+                                    className="w-4 h-4"
+                                />
+                                <label htmlFor="deliveredProductsToggle" className="text-sm">
+                                    Is Bill Attached
+                                </label>
                             </div>
                         )}
 
@@ -790,6 +852,32 @@ const DistributorOrderPage = () => {
                                     className="border p-2 rounded w-full"
                                     placeholder="Enter name"
                                     required
+                                />
+                            </div>
+
+                            {/* Address */}
+                            <div>
+                                <label className="block font-medium mb-1">Address</label>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    value={createForm.address}
+                                    onChange={handleCreateChange}
+                                    className="border p-2 rounded w-full"
+                                    placeholder="Enter address"
+                                />
+                            </div>
+
+                            {/* Contact */}
+                            <div>
+                                <label className="block font-medium mb-1">Contact</label>
+                                <input
+                                    type="text"
+                                    name="contact"
+                                    value={createForm.contact}
+                                    onChange={handleCreateChange}
+                                    className="border p-2 rounded w-full"
+                                    placeholder="Enter contact number"
                                 />
                             </div>
 
