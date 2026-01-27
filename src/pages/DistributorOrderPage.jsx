@@ -299,9 +299,9 @@ const DistributorOrderPage = () => {
                                 <th className="border p-2 text-left min-w-[200px]">Order Placed By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Expected Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
-                                <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">status</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivery Date</th>
+                                <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Company Remarks</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivered On</th>
                                 <th className="border p-2 text-left min-w-[200px]">Cancelled Reason</th>
