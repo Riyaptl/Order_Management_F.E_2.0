@@ -16,6 +16,7 @@ import SrPerformancePage from './pages/SrPerformamcePage';
 import SalesReportPage from './pages/SalesReportPage';
 import RevokedOrdersListPage from './pages/RevokedOrdersListPage';
 import CancelledReportPage from './pages/CancelledReportPage';
+import DistributorOrderPage from './pages/DistributorOrderPage';
 
 export default function App() {
   const { user, role } = useSelector((state) => state.auth);
@@ -40,6 +41,14 @@ export default function App() {
             <Navigate to="/orders_list" />
           ) : (
             <HomePage />
+          )
+        } />
+
+        <Route path="/dist_orders" element={
+          !user ? (
+            <Navigate to="/login" />
+          ) : (
+            <DistributorOrderPage />
           )
         } />
 

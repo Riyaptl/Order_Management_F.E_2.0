@@ -80,6 +80,12 @@ const Navbar = () => {
               Home
             </NavLink>
             )}
+            {!isME && <NavLink
+                to="/dist_orders"
+                className="text-amber-700 px-2 py-2 text-lg font-semibold"
+              >
+                Distributor Orders
+              </NavLink>}
             {(isAdmin || isTL) && (
               <NavLink
                 to="/routes_list"
@@ -94,6 +100,7 @@ const Navbar = () => {
               >
                 Shops
               </NavLink>
+            
             {!isME && (
               <>
               <NavLink

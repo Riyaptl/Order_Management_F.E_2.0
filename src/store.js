@@ -6,6 +6,7 @@ import shopReducer from "./slice/shopSlice";
 import orderReducer from "./slice/orderSlice";
 import userReducer from "./slice/userSlice";
 import cityReducer from "./slice/citySlice";
+import distributorOrderReducer from "./slice/distributorOrderSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     shop: shopReducer,
     order: orderReducer,
     user: userReducer,
-    city: cityReducer
+    city: cityReducer,
+    distributorOrder: distributorOrderReducer,
   },
 });
