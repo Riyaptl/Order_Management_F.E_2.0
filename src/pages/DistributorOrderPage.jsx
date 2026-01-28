@@ -19,6 +19,7 @@ const DistributorOrderPage = () => {
     const { user, role } = useSelector((state) => state.auth);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedOrders, setSelectedOrders] = useState([]);
+    const [filteredDistributors, setFilteredDistributors] = useState([]);
     const [showDeliveredProducts, setShowDeliveredProducts] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showStatusModal, setShowStatusModal] = useState(false);
