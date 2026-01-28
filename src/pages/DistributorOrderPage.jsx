@@ -19,7 +19,6 @@ const DistributorOrderPage = () => {
     const { user, role } = useSelector((state) => state.auth);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedOrders, setSelectedOrders] = useState([]);
-    const [filteredDistributors, setFilteredDistributors] = useState([]);
     const [showDeliveredProducts, setShowDeliveredProducts] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showStatusModal, setShowStatusModal] = useState(false);
@@ -32,6 +31,7 @@ const DistributorOrderPage = () => {
 
 
     const isAdmin = role === 'admin';
+    const isSR = role === 'sr';
 
     const [filters, setFilters] = useState({
         distributor: "",
@@ -66,8 +66,18 @@ const DistributorOrderPage = () => {
 
     useEffect(() => {
         dispatch(getDistDetails());
-        dispatch(getSRDetails());
-    }, [dispatch, showCreateModal]);
+        if (!isSR){
+
+            dispatch(getSRDetails());
+        }
+    }, [dispatch]);
+
+
+    useEffect(() => {
+        if (showCreateModal && Array.isArray(dists) && dists.length > 0) {
+            setShowDistributorDropdown(true);
+        }
+    }, [showCreateModal, dists]);
 
     useEffect(() => {
         if (
@@ -187,29 +197,6 @@ const DistributorOrderPage = () => {
         "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box",
         "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
     ];
-
-    useEffect(() => {
-        if (!Array.isArray(dists)) {
-            setFilteredDistributors([]);
-            return;
-        }
-
-        const term = searchTermDistributor.trim().toLowerCase();
-
-        if (term === "") {
-            setFilteredDistributors(dists);
-        } else {
-            setFilteredDistributors(
-                dists.filter((d) =>
-                    d.username.toLowerCase().includes(term)
-                )
-            );
-        }
-    }, [dists, searchTermDistributor]);
-
-    // const filteredDistributors = dists?.filter((d) =>
-    //     d.username.toLowerCase().includes(searchTermDistributor.toLowerCase())
-    // );
 
     const isBulkUpdate =
         Array.isArray(selectedOrders) && selectedOrders.length > 1;
@@ -882,69 +869,31 @@ const DistributorOrderPage = () => {
 
                         <form onSubmit={handleCreateOrder} className="space-y-4">
 
-                            {/* Distributor */}
-                            <div ref={distributorDropdownRef} className="w-full relative">
-                                <label className="block font-medium mb-1">
-                                    Distributor <span className="text-red-500">*</span>
-                                </label>
-
-                                {/* search box */}
-                                <input
-                                    type="text"
-                                    value={searchTermDistributor}
-                                    onChange={(e) => {
-                                        setSearchTermDistributor(e.target.value);
-                                        setShowDistributorDropdown(true);
-                                    }}
-                                    onFocus={() => setShowDistributorDropdown(true)}
-                                    placeholder="Search distributor..."
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                    required
-                                />
-
+                            
                                 {/* dropdown list */}
-                                {showDistributorDropdown && (
-                                    <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
-                                        {/* Other option */}
-                                        <li
-                                            onClick={() => {
+                                <div className="mb-4">
+                                    <label className="block font-medium mb-1">Distributor *</label>
+                                  
+                                        <select
+                                            value={createForm.distributor}
+                                            onChange={(e) =>
                                                 setCreateForm((prev) => ({
                                                     ...prev,
-                                                    distributor: "other"
-                                                }));
-                                                setSearchTermDistributor("Other");
-                                                setShowDistributorDropdown(false);
-                                            }}
-                                            className="p-3 hover:bg-amber-100 cursor-pointer"
+                                                    distributor: e.target.value,
+                                                }))
+                                            }
+                                            className="border p-2 rounded w-full"
                                         >
-                                            Other
-                                        </li>
+                                            <option value="">Select Distributor</option>
 
-                                        {filteredDistributors.length === 0 ? (
-                                            <li className="p-3 text-gray-500 select-none">
-                                                No distributors found
-                                            </li>
-                                        ) : (
-                                            filteredDistributors.map((d) => (
-                                                <li
-                                                    key={d._id}
-                                                    onClick={() => {
-                                                        setCreateForm((prev) => ({
-                                                            ...prev,
-                                                            distributor: d.username
-                                                        }));
-                                                        setSearchTermDistributor(d.username);
-                                                        setShowDistributorDropdown(false);
-                                                    }}
-                                                    className="p-3 hover:bg-amber-100 cursor-pointer"
-                                                >
+                                            {dists?.map((d) => (
+                                                <option key={d._id} value={d.username}>
                                                     {d.username}
-                                                </li>
-                                            ))
-                                        )}
-                                    </ul>
-                                )}
-                            </div>
+                                                </option>
+                                            ))}
+                                        </select>
+                                </div>
+
 
 
                             {/* Placed By */}
