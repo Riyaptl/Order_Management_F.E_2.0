@@ -187,9 +187,28 @@ const DistributorOrderPage = () => {
         "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
     ];
 
-    const filteredDistributors = dists?.filter((d) =>
-        d.username.toLowerCase().includes(searchTermDistributor.toLowerCase())
-    );
+    useEffect(() => {
+        if (!Array.isArray(dists)) {
+            setFilteredDistributors([]);
+            return;
+        }
+
+        const term = searchTermDistributor.trim().toLowerCase();
+
+        if (term === "") {
+            setFilteredDistributors(dists);
+        } else {
+            setFilteredDistributors(
+                dists.filter((d) =>
+                    d.username.toLowerCase().includes(term)
+                )
+            );
+        }
+    }, [dists, searchTermDistributor]);
+
+    // const filteredDistributors = dists?.filter((d) =>
+    //     d.username.toLowerCase().includes(searchTermDistributor.toLowerCase())
+    // );
 
     const isBulkUpdate =
         Array.isArray(selectedOrders) && selectedOrders.length > 1;
@@ -402,7 +421,7 @@ const DistributorOrderPage = () => {
                                                     .join(", ")
                                                 : "-"}
                                         </td>
-                                        
+
                                         <td className="border p-2">{order.canceledReason}</td>
                                         <td className="border p-2">{order.statusUpdatedBy}</td>
                                         <td className="border p-2">
