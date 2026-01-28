@@ -402,7 +402,7 @@ const DistributorOrderPage = () => {
                                                     .join(", ")
                                                 : "-"}
                                         </td>
-                                        
+
                                         <td className="border p-2">{order.canceledReason}</td>
                                         <td className="border p-2">{order.statusUpdatedBy}</td>
                                         <td className="border p-2">
@@ -885,26 +885,16 @@ const DistributorOrderPage = () => {
                                 {/* dropdown list */}
                                 {showDistributorDropdown && (
                                     <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
-                                        {/* Other option */}
-                                        <li
-                                            onClick={() => {
-                                                setCreateForm((prev) => ({
-                                                    ...prev,
-                                                    distributor: "other"
-                                                }));
-                                                setSearchTermDistributor("Other");
-                                                setShowDistributorDropdown(false);
-                                            }}
-                                            className="p-3 hover:bg-amber-100 cursor-pointer"
-                                        >
-                                            Other
-                                        </li>
 
-                                        {filteredDistributors.length === 0 ? (
+                                        {/* Loading */}
+                                        {(!dists || dists.length === 0) && (
                                             <li className="p-3 text-gray-500 select-none">
-                                                No distributors found
+                                                Loading distributors...
                                             </li>
-                                        ) : (
+                                        )}
+
+                                        {/* Data */}
+                                        {dists?.length > 0 &&
                                             filteredDistributors.map((d) => (
                                                 <li
                                                     key={d._id}
@@ -920,10 +910,19 @@ const DistributorOrderPage = () => {
                                                 >
                                                     {d.username}
                                                 </li>
-                                            ))
-                                        )}
+                                            ))}
+
+                                        {/* No results AFTER typing */}
+                                        {dists?.length > 0 &&
+                                            filteredDistributors.length === 0 &&
+                                            searchTermDistributor && (
+                                                <li className="p-3 text-gray-500 select-none">
+                                                    No distributors found
+                                                </li>
+                                            )}
                                     </ul>
                                 )}
+
                             </div>
 
 
