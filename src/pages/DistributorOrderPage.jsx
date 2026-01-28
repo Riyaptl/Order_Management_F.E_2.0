@@ -66,7 +66,7 @@ const DistributorOrderPage = () => {
     useEffect(() => {
         dispatch(getDistDetails());
         dispatch(getSRDetails());
-    }, [dispatch]);
+    }, [dispatch, showCreateModal]);
 
     useEffect(() => {
         if (
@@ -212,11 +212,7 @@ const DistributorOrderPage = () => {
                 <div className="mt-4 flex flex-col md:flex-row justify-end gap-3">
                     {/* Create Order */}
                     <button
-                        onClick={() => {
-                            console.log("Opening create modal, fetching distributors");
-                            dispatch(getDistDetails());
-                            setShowCreateModal(true)
-                        }}
+                        onClick={() => setShowCreateModal(true)}
                         className="w-full md:w-auto px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 transition"
                     >
                         + Create Order
@@ -406,7 +402,7 @@ const DistributorOrderPage = () => {
                                                     .join(", ")
                                                 : "-"}
                                         </td>
-
+                                        
                                         <td className="border p-2">{order.canceledReason}</td>
                                         <td className="border p-2">{order.statusUpdatedBy}</td>
                                         <td className="border p-2">
@@ -889,16 +885,26 @@ const DistributorOrderPage = () => {
                                 {/* dropdown list */}
                                 {showDistributorDropdown && (
                                     <ul className="absolute z-20 w-full max-h-60 overflow-y-auto bg-white border border-gray-300 rounded mt-1 shadow-lg">
+                                        {/* Other option */}
+                                        <li
+                                            onClick={() => {
+                                                setCreateForm((prev) => ({
+                                                    ...prev,
+                                                    distributor: "other"
+                                                }));
+                                                setSearchTermDistributor("Other");
+                                                setShowDistributorDropdown(false);
+                                            }}
+                                            className="p-3 hover:bg-amber-100 cursor-pointer"
+                                        >
+                                            Other
+                                        </li>
 
-                                        {/* Loading */}
-                                        {(!dists || dists.length === 0) && (
+                                        {filteredDistributors.length === 0 ? (
                                             <li className="p-3 text-gray-500 select-none">
-                                                Loading distributors...
+                                                No distributors found
                                             </li>
-                                        )}
-
-                                        {/* Data */}
-                                        {dists?.length > 0 &&
+                                        ) : (
                                             filteredDistributors.map((d) => (
                                                 <li
                                                     key={d._id}
@@ -914,19 +920,10 @@ const DistributorOrderPage = () => {
                                                 >
                                                     {d.username}
                                                 </li>
-                                            ))}
-
-                                        {/* No results AFTER typing */}
-                                        {dists?.length > 0 &&
-                                            filteredDistributors.length === 0 &&
-                                            searchTermDistributor && (
-                                                <li className="p-3 text-gray-500 select-none">
-                                                    No distributors found
-                                                </li>
-                                            )}
+                                            ))
+                                        )}
                                     </ul>
                                 )}
-
                             </div>
 
 

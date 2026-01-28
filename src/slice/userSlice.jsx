@@ -27,6 +27,8 @@ export const getDistDetails = createAsyncThunk(
   "user/getDistDetails",
   async (thunkAPI) => {
     try {
+      console.log('called for dists');
+      
       return await fetchDistDetails();
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
