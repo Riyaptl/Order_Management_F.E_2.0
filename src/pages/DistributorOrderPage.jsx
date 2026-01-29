@@ -885,7 +885,7 @@ const DistributorOrderPage = () => {
                                             className="border p-2 rounded w-full"
                                         >
                                             <option value="">Select Distributor</option>
-
+                                            <option value="">Other</option>
                                             {dists?.map((d) => (
                                                 <option key={d._id} value={d.username}>
                                                     {d.username}
