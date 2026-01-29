@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { deleteOrderService, getOrdersService, statusOrderService, placeOrder, SrPerformance, getOrdersSRService, getOrdersDateService } from "../service/distributorOrderService";
+import { deleteOrderService, getOrdersService, statusOrderService, placeOrder, SrPerformance, getOrdersSRService, getOrdersDateService, updateOrderService } from "../service/distributorOrderService";
 
 // Async thunk
 export const createOrder = createAsyncThunk(
@@ -41,6 +41,17 @@ export const statusOrder = createAsyncThunk(
   async (data, thunkAPI) => {
     try {      
       return await statusOrderService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const updateOrder = createAsyncThunk(
+  "distributorOrder/updateOrder",
+  async (data, thunkAPI) => {
+    try {      
+      return await updateOrderService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -99,6 +110,18 @@ const distributorOrderSlice = createSlice({
         state.error = null     
       })
       .addCase(statusOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+       .addCase(updateOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateOrder.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null     
+      })
+      .addCase(updateOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

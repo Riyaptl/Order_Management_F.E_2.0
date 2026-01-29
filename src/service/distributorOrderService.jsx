@@ -68,6 +68,28 @@ export const statusOrderService = async (data) => {
   return await response.json();
 };
 
+export const updateOrderService = async (data) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Auth token not found");
+
+  const response = await fetch(`${API_BASE_URL}/update`, {
+    method: "POST",
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to update status");
+  }
+
+  return await response.json();
+};
+
 export const deleteOrderService = async (id) => {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("Auth token not found");

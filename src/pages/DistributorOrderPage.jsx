@@ -5,6 +5,7 @@ import {
     getOrders,
     createOrder,
     statusOrder,
+    updateOrder,
     deleteOrder
 } from "../slice/distributorOrderSlice";
 import toast from "react-hot-toast";
@@ -17,17 +18,19 @@ const DistributorOrderPage = () => {
     const { distributorOrders, loading } = useSelector((state) => state.distributorOrder);
     const { dists, srs } = useSelector(state => state.user);
     const { user, role } = useSelector((state) => state.auth);
+
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [showDeliveredProducts, setShowDeliveredProducts] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showStatusModal, setShowStatusModal] = useState(false);
+    const [selectedDelivery, setSelectedDelivery] = useState(null);
+    const [showUpdateDispatchModal, setShowUpdateDispatchModal] = useState(false);
+
     const orderedProductsList = selectedOrder
         ? Object.keys(selectedOrder.products || {})
         : [];
-    const [searchTermDistributor, setSearchTermDistributor] = useState("");
     const [showDistributorDropdown, setShowDistributorDropdown] = useState(false);
-    const distributorDropdownRef = useRef(null);
 
 
     const isAdmin = role === 'admin';
@@ -40,6 +43,7 @@ const DistributorOrderPage = () => {
 
     const [createForm, setCreateForm] = useState({
         distributor: "",
+        city: "",
         placedBy: "",
         products: {},
         expected_delivery: "",
@@ -56,8 +60,14 @@ const DistributorOrderPage = () => {
         delivered_products_same_as_products: false,
         delivered_products: {},
         companyRemarks: "",
+    });
+
+    const [dispatchForm, setDispatchForm] = useState({
+        ARN: "",
+        courier: "",
         billAttached: false
     });
+
 
 
     useEffect(() => {
@@ -66,7 +76,7 @@ const DistributorOrderPage = () => {
 
     useEffect(() => {
         dispatch(getDistDetails());
-        if (!isSR){
+        if (!isSR) {
 
             dispatch(getSRDetails());
         }
@@ -91,6 +101,16 @@ const DistributorOrderPage = () => {
         }
     }, [statusForm.delivered_products_same_as_products, selectedOrder]);
 
+    useEffect(() => {
+        if (selectedDelivery) {
+            setDispatchForm({
+                ARN: selectedDelivery.ARN || "",
+                courier: selectedDelivery.courier || "",
+                billAttached: selectedDelivery.billAttached || false
+            });
+        }
+    }, [selectedDelivery]);
+
 
     const handleFilterChange = (e) => {
         const updated = { ...filters, [e.target.name]: e.target.value };
@@ -105,8 +125,8 @@ const DistributorOrderPage = () => {
     const handleCreateOrder = (e) => {
         e.preventDefault();
 
-        if (!createForm.distributor || !createForm.orderPlacedBy) {
-            alert("Distributor and Order Placed By are required");
+        if (!createForm.distributor || !createForm.orderPlacedBy || !createForm.city) {
+            alert("Required fields are missing");
             return;
         }
 
@@ -142,7 +162,6 @@ const DistributorOrderPage = () => {
             delivered_products: statusForm.delivered_products,
             same_as_products: statusForm.delivered_products_same_as_products,
             companyRemarks: statusForm.companyRemarks,
-            billAttached: statusForm.billAttached
         };
 
         if (statusForm.status === "canceled") {
@@ -182,6 +201,63 @@ const DistributorOrderPage = () => {
         }
     };
 
+    const handleUpdateDelivery = async () => {
+        if (!selectedOrder || !selectedDelivery) {
+            toast.error("Order or delivery not selected");
+            return;
+        }
+
+        const { ARN, courier, billAttached } = dispatchForm;
+
+        // 🔒 Validation
+        if (!ARN?.trim()) {
+            toast.error("ARN is required");
+            return;
+        }
+
+        if (!courier?.trim()) {
+            toast.error("Courier is required");
+            return;
+        }
+
+        // billAttached is boolean → explicitly check
+        if (typeof billAttached !== "boolean") {
+            toast.error("Please specify whether bill is attached");
+            return;
+        }
+
+        try {
+            const payload = {
+                id: selectedOrder._id,
+                orderId: selectedDelivery._id,
+                ARN: dispatchForm.ARN,
+                courier: dispatchForm.courier,
+                billAttached: dispatchForm.billAttached,
+            };
+
+            const res = await dispatch(updateOrder(payload)).unwrap();
+
+            toast.success(res?.message || "Dispatch details updated successfully");
+
+            // Refresh list
+            dispatch(getOrders(filters));
+
+        } catch (err) {
+            toast.error(err?.message || err?.error || "Failed to update dispatch details");
+        }
+        finally{
+            // Close modal & reset
+            setShowUpdateDispatchModal(false);
+            setShowDeliveredProducts(false);
+            setSelectedDelivery(null);
+            setSelectedOrder(null)
+            setDispatchForm({
+                ARN: "",
+                courier: "",
+                billAttached: false,
+            });
+        }
+    };
 
 
     const productsList = [
@@ -301,6 +377,7 @@ const DistributorOrderPage = () => {
                                     />
                                 </th>
                                 <th className="border p-2 text-left min-w-[200px]">Distributor</th>
+                                <th className="border p-2 text-left min-w-[200px]">City</th>
                                 <th className="border p-2 text-left min-w-[200px]">SR/TL</th>
                                 <th className="border p-2 text-left min-w-[200px]">Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Order Placed By</th>
@@ -343,6 +420,7 @@ const DistributorOrderPage = () => {
                                             />
                                         </td>
                                         <td className="border p-2">{order.distributor}</td>
+                                        <td className="border p-2">{order.city}</td>
                                         <td className="border p-2">{order.placedBy}</td>
                                         <td className="border p-2 font-semibold">
                                             {order.total
@@ -448,6 +526,7 @@ const DistributorOrderPage = () => {
                                             >
                                                 View Dispatched / Delivered
                                             </button>
+
 
                                             <button
                                                 onClick={(e) => {
@@ -587,49 +666,72 @@ const DistributorOrderPage = () => {
                                     {/* Products */}
                                     <div className="mb-3">
                                         <h3 className="font-semibold text-gray-700 mb-2">Products:</h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                            {productsList.map((product) => (
-                                                <div
-                                                    key={product}
-                                                    className="border rounded p-2 flex justify-between items-center"
-                                                >
-                                                    <span>{product}</span>
-                                                    <span className="font-medium">
-                                                        {delivery.products?.[product] || 0}
-                                                    </span>
-                                                </div>
-                                            ))}
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            {Object.entries(delivery.products || {})
+                                                .filter(([_, qty]) => qty > 0)
+                                                .map(([product, qty]) => (
+                                                    <div
+                                                        key={product}
+                                                        className="border rounded p-2 flex justify-between items-center bg-white"
+                                                    >
+                                                        <span className="text-sm">{product}</span>
+                                                        <span className="font-semibold">{qty}</span>
+                                                    </div>
+                                                ))}
                                         </div>
                                     </div>
 
-                                    {/* Total */}
+                                    {/* Totals */}
                                     <div className="mb-2">
                                         <h3 className="font-semibold text-gray-700 mb-2">Delivered Total Summary:</h3>
-                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                            {totalList.map((item) => (
-                                                <div
-                                                    key={item}
-                                                    className="border rounded p-2 flex justify-between items-center px-3"
-                                                >
-                                                    <span>{item}</span>
-                                                    <span className="font-medium">
-                                                        {delivery.total?.[item] || 0}
-                                                    </span>
-                                                </div>
-                                            ))}
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            {Object.entries(delivery.total || {})
+                                                .filter(([_, qty]) => qty > 0)
+                                                .map(([item, qty]) => (
+                                                    <div
+                                                        key={item}
+                                                        className="border rounded p-2 flex justify-between items-center bg-white"
+                                                    >
+                                                        <span className="text-sm">{item}</span>
+                                                        <span className="font-semibold">{qty}</span>
+                                                    </div>
+                                                ))}
                                         </div>
+
+                                        {/* Grand total */}
                                         <div className="border rounded p-3 mt-3 flex justify-between items-center bg-amber-100 font-semibold text-amber-800">
                                             <span>Total</span>
                                             <span>
-                                                {totalList.reduce(
-                                                    (sum, key) => sum + (Number(delivery.total?.[key]) || 0),
+                                                {Object.values(delivery.total || {}).reduce(
+                                                    (sum, val) => sum + Number(val || 0),
                                                     0
                                                 )}
                                             </span>
                                         </div>
                                     </div>
 
+
                                     <div className="mb-2">Remarks: {delivery.companyRemarks}</div>
+                                    <div className="mb-2">ARN: {delivery.ARN ? delivery.ARN : "-"}</div>
+                                    <div className="mb-2">Courier: {delivery.courier ? delivery.courier : "-"}</div>
+                                    <div className="mb-2">Bill shared: {delivery.billAttached ?"Yes" : "No"}</div>
+
+                                    {/* Update */}
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedDelivery(delivery);
+                                                setShowDeliveredProducts(false);        // 👈 prevent modal stacking
+                                                setShowUpdateDispatchModal(true);
+                                            }}
+                                            className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+
                                 </div>
                             ))
                         ) : (
@@ -653,6 +755,76 @@ const DistributorOrderPage = () => {
                     </div>
                 </div>
             )}
+
+            {showUpdateDispatchModal && selectedDelivery && !showDeliveredProducts && !showStatusModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+
+                        <h2 className="text-xl font-semibold mb-4 text-center text-amber-700">
+                            Update Dispatch Info
+                        </h2>
+
+                        {/* ARN */}
+                        <div className="mb-4">
+                            <label className="block font-medium mb-1">ARN</label>
+                            <input
+                                type="text"
+                                value={dispatchForm.ARN}
+                                onChange={(e) =>
+                                    setDispatchForm(prev => ({ ...prev, ARN: e.target.value }))
+                                }
+                                className="border p-2 rounded w-full"
+                            />
+                        </div>
+
+                        {/* Courier */}
+                        <div className="mb-4">
+                            <label className="block font-medium mb-1">Courier</label>
+                            <input
+                                type="text"
+                                value={dispatchForm.courier}
+                                onChange={(e) =>
+                                    setDispatchForm(prev => ({ ...prev, courier: e.target.value }))
+                                }
+                                className="border p-2 rounded w-full"
+                            />
+                        </div>
+
+                        {/* Bill */}
+                        <div className="mb-4 flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={dispatchForm.billAttached}
+                                onChange={(e) =>
+                                    setDispatchForm(prev => ({
+                                        ...prev,
+                                        billAttached: e.target.checked
+                                    }))
+                                }
+                            />
+                            <label>Bill Attached</label>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowUpdateDispatchModal(false)}
+                                className="px-4 py-2 border rounded"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={handleUpdateDelivery}
+                                className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {/* Update Status Modal */}
             {(selectedOrder || selectedOrders) && showStatusModal && !showDeliveredProducts && (
@@ -745,27 +917,7 @@ const DistributorOrderPage = () => {
                             </div>
                         )}
 
-                        {/* Delivered Products Toggle */}
-                        {statusForm.status === "dispatched" && (
-                            <div className="mb-4 flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    id="billAttched"
-                                    checked={statusForm.billAttached}
-                                    onChange={(e) =>
-                                        setStatusForm(prev => ({
-                                            ...prev,
-                                            billAttached: e.target.checked,
-                                        }))
-                                    }
-                                    className="w-4 h-4"
-                                />
-                                <label htmlFor="deliveredProductsToggle" className="text-sm">
-                                    Is Bill Attached
-                                </label>
-                            </div>
-                        )}
-
+                        
                         {/* Delivered Products Toggle */}
                         {statusForm.status === "dispatched" && (
                             <div className="mb-4 flex items-center gap-2">
@@ -869,31 +1021,44 @@ const DistributorOrderPage = () => {
 
                         <form onSubmit={handleCreateOrder} className="space-y-4">
 
-                            
-                                {/* dropdown list */}
-                                <div className="mb-4">
-                                    <label className="block font-medium mb-1">Distributor *</label>
-                                  
-                                        <select
-                                            value={createForm.distributor}
-                                            onChange={(e) =>
-                                                setCreateForm((prev) => ({
-                                                    ...prev,
-                                                    distributor: e.target.value,
-                                                }))
-                                            }
-                                            className="border p-2 rounded w-full"
-                                        >
-                                            <option value="">Select Distributor</option>
-                                            <option value="">Other</option>
-                                            {dists?.map((d) => (
-                                                <option key={d._id} value={d.username}>
-                                                    {d.username}
-                                                </option>
-                                            ))}
-                                        </select>
-                                </div>
 
+                            {/* dropdown list */}
+                            <div className="mb-4">
+                                <label className="block font-medium mb-1">Distributor *</label>
+
+                                <select
+                                    value={createForm.distributor}
+                                    onChange={(e) =>
+                                        setCreateForm((prev) => ({
+                                            ...prev,
+                                            distributor: e.target.value,
+                                        }))
+                                    }
+                                    className="border p-2 rounded w-full"
+                                >
+                                    <option value="">Select Distributor</option>
+                                    <option value="other">Other</option>
+                                    {dists?.map((d) => (
+                                        <option key={d._id} value={d.username}>
+                                            {d.username}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* City */}
+                            <div>
+                                <label className="block font-medium mb-1">City *</label>
+                                <input
+                                    type="text"
+                                    name="city"
+                                    value={createForm.city}
+                                    onChange={handleCreateChange}
+                                    className="border p-2 rounded w-full"
+                                    placeholder="Enter city"
+                                    required
+                                />
+                            </div>
 
 
                             {/* Placed By */}

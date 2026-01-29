@@ -17,7 +17,9 @@ export default function SignupPage() {
     password: "",
     confirmPassword: "",
     role: "sr", // default selected
+    address: ""
   });
+
   const [otp, setOtp] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
 
@@ -30,48 +32,48 @@ export default function SignupPage() {
   };
 
   const handleSendOtp = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    toast.error("Passwords do not match!");
-    return;
-  }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
 
-  try {
-    const resultAction = await dispatch(
-      sendOtp({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        confirmPassword: formData.confirmPassword,
-        role: formData.role.toLowerCase(),
-      })
-    ).unwrap();
-    
-    toast.success(resultAction.message || "OTP sent successfully!");
-    setShowOtpModal(true);
-  } catch (err) {
+    try {
+      const resultAction = await dispatch(
+        sendOtp({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          role: formData.role.toLowerCase(),
+        })
+      ).unwrap();
 
-    toast.error(err || "Failed to send OTP");
-  }
-};
+      toast.success(resultAction.message || "OTP sent successfully!");
+      setShowOtpModal(true);
+    } catch (err) {
 
-const handleVerifyOtp = async (e) => {
-  e.preventDefault();
+      toast.error(err || "Failed to send OTP");
+    }
+  };
 
-  try {
-    const result = await dispatch(
-      verifyOtp({ email: formData.email, otp })
-    ).unwrap();
-   
-    toast.success(result.message);
-    setShowOtpModal(false);
-    navigate("/")
-    // Optionally reset formData or redirect the user
-  } catch (err) {
-    toast.error(err || "OTP verification failed");
-  }
-};
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+
+    try {
+      const result = await dispatch(
+        verifyOtp({ email: formData.email, otp })
+      ).unwrap();
+
+      toast.success(result.message);
+      setShowOtpModal(false);
+      navigate("/")
+      // Optionally reset formData or redirect the user
+    } catch (err) {
+      toast.error(err || "OTP verification failed");
+    }
+  };
 
 
   return (
@@ -128,6 +130,24 @@ const handleVerifyOtp = async (e) => {
           <option value="admin">Admin</option>
         </select>
 
+        {/* Address (Only for Distributor) */}
+        {formData.role === "distributor" && (
+          <div className="mb-4">
+            <label className="block font-medium mb-1">
+              Address <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              name="address"
+              value={formData.address || ""}
+              onChange={handleChange}
+              rows={3}
+              required
+              className="w-full border border-gray-300 p-3 rounded text-lg focus:outline-none focus:ring-2 focus:ring-beige-400"
+              placeholder="Enter distributor address"
+            />
+          </div>
+        )}
+
         {/* {error && <p className="text-red-600 text-center">{error}</p>} */}
         <button
           type="submit"
@@ -179,12 +199,12 @@ const handleVerifyOtp = async (e) => {
 
       <div className="text-center mt-4">
         <p>
-            Already have an account?{" "}
-            <Link to="/login" className="text-amber-600 hover:underline font-semibold">
+          Already have an account?{" "}
+          <Link to="/login" className="text-amber-600 hover:underline font-semibold">
             Login
-            </Link>
+          </Link>
         </p>
-        </div>
+      </div>
     </div>
   );
 }
