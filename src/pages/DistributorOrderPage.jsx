@@ -245,7 +245,7 @@ const DistributorOrderPage = () => {
         } catch (err) {
             toast.error(err?.message || err?.error || "Failed to update dispatch details");
         }
-        finally{
+        finally {
             // Close modal & reset
             setShowUpdateDispatchModal(false);
             setShowDeliveredProducts(false);
@@ -277,6 +277,12 @@ const DistributorOrderPage = () => {
     const isBulkUpdate =
         Array.isArray(selectedOrders) && selectedOrders.length > 1;
 
+    const statusColorMap = {
+        preparing: "bg-amber-100 text-amber-800",
+        dispatched: "bg-green-100 text-green-800",
+        delivered: "bg-blue-100 text-blue-800",
+        canceled: "bg-red-100 text-red-800",
+    };
 
 
     return (
@@ -445,7 +451,15 @@ const DistributorOrderPage = () => {
                                                 : "-"}
                                         </td>
                                         <td className="border p-2">{order.remarks}</td>
-                                        <td className="border p-2">{order.status}</td>
+                                        <td className="border p-2">
+                                            <span
+                                                className={`px-2 py-1 rounded text-sm font-semibold capitalize ${statusColorMap[order.status] || "bg-gray-100 text-gray-700"
+                                                    }`}
+                                            >
+                                                {order.status}
+                                            </span>
+                                        </td>
+
                                         <td className="border p-2">
                                             {order.ETD?.length
                                                 ? order.ETD
@@ -716,7 +730,7 @@ const DistributorOrderPage = () => {
                                     <div className="mb-2">Remarks: {delivery.companyRemarks}</div>
                                     <div className="mb-2">ARN: {delivery.ARN ? delivery.ARN : "-"}</div>
                                     <div className="mb-2">Courier: {delivery.courier ? delivery.courier : "-"}</div>
-                                    <div className="mb-2">Bill shared: {delivery.billAttached ?"Yes" : "No"}</div>
+                                    <div className="mb-2">Bill shared: {delivery.billAttached ? "Yes" : "No"}</div>
 
                                     {/* Update */}
                                     <div className="flex justify-end">
@@ -917,7 +931,7 @@ const DistributorOrderPage = () => {
                             </div>
                         )}
 
-                        
+
                         {/* Delivered Products Toggle */}
                         {statusForm.status === "dispatched" && (
                             <div className="mb-4 flex items-center gap-2">
