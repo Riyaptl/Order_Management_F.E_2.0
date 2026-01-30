@@ -260,6 +260,53 @@ const DistributorOrderPage = () => {
     };
 
 
+    const handleCopyOrder = () => {
+        let previousGroup = null;
+
+        let copiedProducts = Object.entries(createForm.products)
+            .filter(([_, value]) => value !== "" && Number(value) > 0)
+            .map(([key, value]) => {
+                // Extract weight type from key (e.g., "50g", "25g", "55g")
+                let groupMatch = key.match(/(\d+g)/i);
+                let group = groupMatch ? groupMatch[1] : "other"; // gift, combos, etc.
+
+                // Add a blank line when switching groups
+                let prefix = previousGroup && previousGroup !== group ? "\n" : "";
+
+                previousGroup = group;
+
+                return `${prefix}${key}: ${value}`;
+            })
+            .join("\n");
+
+        const total = Object.entries(createForm.products)
+            .filter(([_, value]) => value !== "" && Number(value) > 0)
+            .reduce((sum, [_, value]) => sum + Number(value), 0);
+
+
+        const textToCopy = `
+  DISTRIBUTOR DETAILS
+  ----------------------
+  Name: ${createForm.distributor || "-"}
+  City: ${createForm.city || "-"}
+  Address: ${createForm.address || "-"}
+  Contact: ${createForm.contact || "-"}
+
+  ORDER DETAILS
+  ----------------------
+  ${copiedProducts || "(No products)"}
+  Total: ${total || "-"}
+  placedBy: ${createForm.placedBy || user.username || "-"},
+  expected_delivery: ${createForm.expected_delivery || "-"},
+  orderPlacedBy: ${createForm.orderPlacedBy || "-"},
+  remarks: ${createForm.remarks || "-"},
+    `.trim();
+
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => toast.success("Order copied to clipboard"))
+            .catch(() => toast.error("Failed to copy"));
+    };
+
     const productsList = [
         "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g", "Blueberry 50g", "Hazelnut 50g",
         "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
@@ -283,6 +330,7 @@ const DistributorOrderPage = () => {
         delivered: "bg-blue-100 text-blue-800",
         canceled: "bg-red-100 text-red-800",
     };
+
 
 
     return (
@@ -770,6 +818,7 @@ const DistributorOrderPage = () => {
                 </div>
             )}
 
+            {/* update dispatchhed order */}
             {showUpdateDispatchModal && selectedDelivery && !showDeliveredProducts && !showStatusModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
@@ -838,7 +887,6 @@ const DistributorOrderPage = () => {
                     </div>
                 </div>
             )}
-
 
             {/* Update Status Modal */}
             {(selectedOrder || selectedOrders) && showStatusModal && !showDeliveredProducts && (
@@ -1198,6 +1246,14 @@ const DistributorOrderPage = () => {
                                     className="px-4 py-2 border rounded hover:bg-gray-100"
                                 >
                                     Cancel
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleCopyOrder}
+                                    className="px-5 py-3 bg-green-400 text-white rounded-xl hover:bg-green-700"
+                                >
+                                    Copy Order
                                 </button>
 
                                 <button
