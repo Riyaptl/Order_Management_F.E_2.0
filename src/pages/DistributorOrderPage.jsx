@@ -296,10 +296,10 @@ const DistributorOrderPage = () => {
   ----------------------
   ${copiedProducts || "(No products)"}
   Total: ${total || "-"}
-  placedBy: ${createForm.placedBy || user.username || "-"},
-  expected_delivery: ${createForm.expected_delivery || "-"},
-  orderPlacedBy: ${createForm.orderPlacedBy || "-"},
-  remarks: ${createForm.remarks || "-"},
+  Sales Representative: ${createForm.placedBy || user.username || "-"},
+  Expected Date: ${createForm.expected_delivery || "-"},
+  Order Placed By: ${createForm.orderPlacedBy || "-"},
+  Remarks: ${createForm.remarks || "-"},
     `.trim();
 
         navigator.clipboard.writeText(textToCopy)
