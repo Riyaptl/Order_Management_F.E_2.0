@@ -35,6 +35,7 @@ const DistributorOrderPage = () => {
 
     const isAdmin = role === 'admin';
     const isSR = role === 'sr';
+    const isDistributor = role === 'distributor';
 
     const [filters, setFilters] = useState({
         distributor: "",
@@ -125,7 +126,9 @@ const DistributorOrderPage = () => {
     const handleCreateOrder = (e) => {
         e.preventDefault();
 
-        if (!createForm.distributor || !createForm.orderPlacedBy || !createForm.city) {
+        console.log((!isDistributor && !createForm.distributor),  (!isDistributor && !createForm.orderPlacedBy));
+        
+        if ((!isDistributor && !createForm.distributor) || (!isDistributor && !createForm.orderPlacedBy) || !createForm.city) {
             alert("Required fields are missing");
             return;
         }
@@ -1085,7 +1088,7 @@ const DistributorOrderPage = () => {
 
 
                             {/* dropdown list */}
-                            <div className="mb-4">
+                            {!isDistributor && <div className="mb-4">
                                 <label className="block font-medium mb-1">Distributor *</label>
 
                                 <select
@@ -1106,7 +1109,7 @@ const DistributorOrderPage = () => {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
+                            </div>}
 
                             {/* City */}
                             <div>
@@ -1142,7 +1145,7 @@ const DistributorOrderPage = () => {
                             </div>}
 
                             {/* Order Placed By */}
-                            <div>
+                            {!isDistributor && <div>
                                 <label className="block font-medium mb-1">Order Placed By *</label>
                                 <input
                                     type="text"
@@ -1153,7 +1156,7 @@ const DistributorOrderPage = () => {
                                     placeholder="Enter name"
                                     required
                                 />
-                            </div>
+                            </div>}
 
                             {/* Address */}
                             <div>
