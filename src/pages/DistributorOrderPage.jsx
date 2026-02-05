@@ -39,7 +39,8 @@ const DistributorOrderPage = () => {
 
     const [filters, setFilters] = useState({
         distributor: "",
-        placedBy: ""
+        placedBy: "",
+        dispatchedAt: ""
     });
 
     const [createForm, setCreateForm] = useState({
@@ -126,8 +127,8 @@ const DistributorOrderPage = () => {
     const handleCreateOrder = (e) => {
         e.preventDefault();
 
-        console.log((!isDistributor && !createForm.distributor),  (!isDistributor && !createForm.orderPlacedBy));
-        
+        console.log((!isDistributor && !createForm.distributor), (!isDistributor && !createForm.orderPlacedBy));
+
         if ((!isDistributor && !createForm.distributor) || (!isDistributor && !createForm.orderPlacedBy) || !createForm.city) {
             alert("Required fields are missing");
             return;
@@ -262,7 +263,6 @@ const DistributorOrderPage = () => {
         }
     };
 
-
     const handleCopyOrder = () => {
         let previousGroup = null;
 
@@ -309,6 +309,7 @@ const DistributorOrderPage = () => {
             .then(() => toast.success("Order copied to clipboard"))
             .catch(() => toast.error("Failed to copy"));
     };
+
 
     const productsList = [
         "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g", "Blueberry 50g", "Hazelnut 50g",
@@ -411,6 +412,21 @@ const DistributorOrderPage = () => {
                             <option key={u._id} value={u.username}>{u.username}</option>
                         ))}
                     </select>
+
+                    <div className="flex flex-col gap-1 w-full md:w-auto">
+                        <label className="text-sm font-medium text-gray-700">
+                            Dispatch Date
+                        </label>
+                        <input
+                            type="date"
+                            name="dispatchedAt"
+                            value={filters.dispatchedAt}
+                            onChange={handleFilterChange}
+                            className="border border-gray-300 px-3 py-2 rounded-md
+                           focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                    </div>
+
                 </div>
             }
 
@@ -441,6 +457,7 @@ const DistributorOrderPage = () => {
                                 <th className="border p-2 text-left min-w-[200px]">Expected Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
                                 <th className="border p-2 text-left min-w-[200px]">status</th>
+                                <th className="border p-2 text-left min-w-[200px]">Order Dispatch Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivery Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Company Remarks</th>
@@ -510,7 +527,18 @@ const DistributorOrderPage = () => {
                                                 {order.status}
                                             </span>
                                         </td>
+                                        <td className="border p-2">
+                                            {order.dispatchedAt ? (() => {
+                                                const date = new Date(order.dispatchedAt);
+                                                const day = String(date.getDate()).padStart(2, "0");
+                                                const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                const year = date.getFullYear();
+                                                const hours = String(date.getHours()).padStart(2, "0");
+                                                const minutes = String(date.getMinutes()).padStart(2, "0");
 
+                                                return `${day}/${month}/${year} ${hours}:${minutes}`;
+                                            })() : "-"}
+                                        </td>
                                         <td className="border p-2">
                                             {order.ETD?.length
                                                 ? order.ETD
