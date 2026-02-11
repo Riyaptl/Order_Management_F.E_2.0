@@ -127,6 +127,12 @@ const Navbar = () => {
             >
               Cancel Report
             </NavLink>
+            {isAdmin && <NavLink
+              to="/distributors"
+              className="text-amber-700 px-2 py-2 text-lg font-semibold"
+            >
+              Distributors
+            </NavLink>}
             </>
             )}
             <button

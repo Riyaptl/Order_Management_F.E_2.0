@@ -450,13 +450,13 @@ const DistributorOrderPage = () => {
                                     />
                                 </th>
                                 <th className="border p-2 text-left min-w-[200px]">Distributor</th>
+                                <th className="border p-2 text-left min-w-[200px]">status</th>
                                 <th className="border p-2 text-left min-w-[200px]">City</th>
                                 <th className="border p-2 text-left min-w-[200px]">SR/TL</th>
                                 <th className="border p-2 text-left min-w-[200px]">Total</th>
                                 <th className="border p-2 text-left min-w-[200px]">Order Placed By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Expected Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Remarks</th>
-                                <th className="border p-2 text-left min-w-[200px]">status</th>
                                 <th className="border p-2 text-left min-w-[200px]">Order Dispatch Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivery Date</th>
                                 <th className="border p-2 text-left min-w-[200px]">Delivered / Dispatched Total</th>
@@ -494,6 +494,14 @@ const DistributorOrderPage = () => {
                                             />
                                         </td>
                                         <td className="border p-2">{order.distributor}</td>
+                                        <td className="border p-2">
+                                            <span
+                                                className={`px-2 py-1 rounded text-sm font-semibold capitalize ${statusColorMap[order.status] || "bg-gray-100 text-gray-700"
+                                                    }`}
+                                            >
+                                                {order.status}
+                                            </span>
+                                        </td>
                                         <td className="border p-2">{order.city}</td>
                                         <td className="border p-2">{order.placedBy}</td>
                                         <td className="border p-2 font-semibold">
@@ -519,14 +527,7 @@ const DistributorOrderPage = () => {
                                                 : "-"}
                                         </td>
                                         <td className="border p-2">{order.remarks}</td>
-                                        <td className="border p-2">
-                                            <span
-                                                className={`px-2 py-1 rounded text-sm font-semibold capitalize ${statusColorMap[order.status] || "bg-gray-100 text-gray-700"
-                                                    }`}
-                                            >
-                                                {order.status}
-                                            </span>
-                                        </td>
+                                        
                                         <td className="border p-2">
                                             {order.dispatchedAt ? (() => {
                                                 const date = new Date(order.dispatchedAt);

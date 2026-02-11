@@ -17,6 +17,7 @@ import SalesReportPage from './pages/SalesReportPage';
 import RevokedOrdersListPage from './pages/RevokedOrdersListPage';
 import CancelledReportPage from './pages/CancelledReportPage';
 import DistributorOrderPage from './pages/DistributorOrderPage';
+import DistributorsPage from './pages/DistributorsPage';
 
 export default function App() {
   const { user, role } = useSelector((state) => state.auth);
@@ -99,6 +100,12 @@ export default function App() {
           !user ? <Navigate to="/login" /> :  
           isME ? <Navigate to="/"/> :
           <CancelledReportPage />
+        } />
+        
+        <Route path="/distributors" element={
+          !user ? <Navigate to="/login" /> :  
+          !isAdmin ? <Navigate to="/"/> :
+          <DistributorsPage />
         } />
         
         <Route path="*" element={<Navigate to={user ? "/orders_list" : "/login"} />} />
