@@ -38,7 +38,6 @@ export const createDist = createAsyncThunk(
   "user/createDist",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
       
       return await createDistsService(data);
     } catch (err) {
@@ -51,7 +50,6 @@ export const getDists = createAsyncThunk(
   "user/getDists",
   async (data, thunkAPI) => {
     try {
-      console.log(data);
       
       return await getDistsService(data);
     } catch (err) {
@@ -64,7 +62,6 @@ export const editDist = createAsyncThunk(
   "user/editDist",
   async ({data, id}, thunkAPI) => {
     try {
-      console.log(data, id);
       
       return await editDistsService({data, id});
     } catch (err) {
@@ -77,7 +74,6 @@ export const statusDists = createAsyncThunk(
   "user/ststusDist",
   async ({data, id}, thunkAPI) => {
     try {
-      console.log(data, id);
       
       return await statusDistsService({data, id});
     } catch (err) {

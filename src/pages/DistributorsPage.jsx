@@ -141,8 +141,8 @@ const DistributorsPage = () => {
                         <tbody>
                             {allDists?.map((d) => (
                                 <tr key={d._id} className="hover:bg-amber-50">
-                                    <td className="border px-3 py-2 font-medium">{d.name}</td>
-                                    <td className="border px-3 py-2">{d.username}</td>
+                                    <td className="border px-3 py-2 font-medium">{d.username}</td>
+                                    <td className="border px-3 py-2">{d.name}</td>
                                     <td className="border px-3 py-2">{d.email}</td>
 
                                     <td className="border px-3 py-2 min-w-[260px] max-w-[260px]">
@@ -177,7 +177,6 @@ const DistributorsPage = () => {
 
                                                     setForm({
                                                         name: d.name || "",
-                                                        username: d.username || "",
                                                         email: d.email || "",
                                                         city: d.city || "",
                                                         address: d.address || "",
@@ -318,17 +317,8 @@ const DistributorsPage = () => {
                         <input
                             name="name"
                             type="text"
-                            placeholder="Firm Name"
-                            value={form.name || ""}
-                            onChange={handleChange}
-                            className="border p-2 rounded w-full mb-3"
-                        />
-
-                        <input
-                            name="username"
-                            type="text"
                             placeholder="Username"
-                            value={form.username || ""}
+                            value={form.name || ""}
                             onChange={handleChange}
                             className="border p-2 rounded w-full mb-3"
                         />
