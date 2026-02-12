@@ -39,7 +39,9 @@ export const deleteOrder = createAsyncThunk(
 export const statusOrder = createAsyncThunk(
   "distributorOrder/statusOrder",
   async (data, thunkAPI) => {
-    try {      
+    try {   
+      console.log(data);
+         
       return await statusOrderService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);

@@ -17,6 +17,7 @@ const DistributorsPage = () => {
     const [showEdit, setShowEdit] = useState(false);
     const [selectedDist, setSelectedDist] = useState(null);
     const { user, role } = useSelector((state) => state.auth);
+     const [searchTerm, setSearchTerm] = useState("");
 
 
     const [form, setForm] = useState({
@@ -93,6 +94,12 @@ const DistributorsPage = () => {
     };
 
 
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+    const filteredDists = allDists.filter((dist) =>
+        dist.username.toLowerCase().includes(trimmedSearchTerm)
+    );
+
+
     return (
         <div className="p-6">
             <div className="flex justify-end md:justify-center mb-8">
@@ -119,6 +126,16 @@ const DistributorsPage = () => {
 
             </div>
 
+            <div className="flex flex-col md:flex-row gap-4 mt-4">
+                <input
+                type="text"
+                placeholder="Search Distributor Firm Name..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+            </div>
+
             <div className="mt-6">
                 {/* width-limited scroll container */}
                 <div className="relative max-w-full overflow-x-auto bg-white shadow rounded">
@@ -139,7 +156,7 @@ const DistributorsPage = () => {
                         </thead>
 
                         <tbody>
-                            {allDists?.map((d) => (
+                            {filteredDists?.map((d) => (
                                 <tr key={d._id} className="hover:bg-amber-50">
                                     <td className="border px-3 py-2 font-medium">{d.username}</td>
                                     <td className="border px-3 py-2">{d.name}</td>

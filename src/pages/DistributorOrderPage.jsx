@@ -331,6 +331,7 @@ const DistributorOrderPage = () => {
     const statusColorMap = {
         preparing: "bg-amber-100 text-amber-800",
         dispatched: "bg-green-100 text-green-800",
+        "partially dispatched": "bg-purple-100 text-purple-800",
         delivered: "bg-blue-100 text-blue-800",
         canceled: "bg-red-100 text-red-800",
     };
@@ -514,8 +515,11 @@ const DistributorOrderPage = () => {
                                         </td>
                                         <td className="border p-2">{order.orderPlacedBy}</td>
                                         <td className="border p-2">
-                                            {order.expected_delivery?.length
-                                                ? order.expected_delivery
+                                            {typeof order.expected_delivery === "string" ? (
+                                                order.expected_delivery
+                                            ) : Array.isArray(order.expected_delivery) &&
+                                                order.expected_delivery.length > 0 ? (
+                                                order.expected_delivery
                                                     .map((d) => {
                                                         const date = new Date(d);
                                                         const day = String(date.getDate()).padStart(2, "0");
@@ -524,25 +528,19 @@ const DistributorOrderPage = () => {
                                                         return `${day}-${month}-${year}`;
                                                     })
                                                     .join(", ")
-                                                : "-"}
+                                            ) : (
+                                                "-"
+                                            )}
                                         </td>
-                                        <td className="border p-2">{order.remarks}</td>
-                                        
-                                        <td className="border p-2">
-                                            {order.dispatchedAt ? (() => {
-                                                const date = new Date(order.dispatchedAt);
-                                                const day = String(date.getDate()).padStart(2, "0");
-                                                const month = String(date.getMonth() + 1).padStart(2, "0");
-                                                const year = date.getFullYear();
-                                                const hours = String(date.getHours()).padStart(2, "0");
-                                                const minutes = String(date.getMinutes()).padStart(2, "0");
 
-                                                return `${day}/${month}/${year} ${hours}:${minutes}`;
-                                            })() : "-"}
-                                        </td>
+                                        <td className="border p-2">{order.remarks}</td>
+
                                         <td className="border p-2">
-                                            {order.ETD?.length
-                                                ? order.ETD
+                                            {typeof order.dispatchedAt === "string" ? (
+                                                order.dispatchedAt
+                                            ) : Array.isArray(order.dispatchedAt) &&
+                                                order.dispatchedAt.length > 0 ? (
+                                                order.dispatchedAt
                                                     .map((d) => {
                                                         const date = new Date(d);
                                                         const day = String(date.getDate()).padStart(2, "0");
@@ -551,8 +549,30 @@ const DistributorOrderPage = () => {
                                                         return `${day}-${month}-${year}`;
                                                     })
                                                     .join(", ")
-                                                : "-"}
+                                            ) : (
+                                                "-"
+                                            )}
                                         </td>
+
+                                        <td className="border p-2">
+                                            {typeof order.ETD === "string" ? (
+                                                order.ETD
+                                            ) : Array.isArray(order.ETD) &&
+                                                order.ETD.length > 0 ? (
+                                                order.ETD
+                                                    .map((d) => {
+                                                        const date = new Date(d);
+                                                        const day = String(date.getDate()).padStart(2, "0");
+                                                        const month = String(date.getMonth() + 1).padStart(2, "0");
+                                                        const year = date.getFullYear();
+                                                        return `${day}-${month}-${year}`;
+                                                    })
+                                                    .join(", ")
+                                            ) : (
+                                                "-"
+                                            )}
+                                        </td>
+
                                         <td className="border p-2 font-semibold">
                                             {order.delivered && order.delivered.length > 0
                                                 ? order.delivered.reduce((sum, entry) => {
@@ -569,8 +589,11 @@ const DistributorOrderPage = () => {
 
                                         <td className="border p-2">{order.companyRemarks}</td>
                                         <td className="border p-2">
-                                            {order.delivered_on?.length
-                                                ? order.delivered_on
+                                            {typeof order.delivered_on === "string" ? (
+                                                order.delivered_on
+                                            ) : Array.isArray(order.delivered_on) &&
+                                                order.delivered_on.length > 0 ? (
+                                                order.delivered_on
                                                     .map((d) => {
                                                         const date = new Date(d);
                                                         const day = String(date.getDate()).padStart(2, "0");
@@ -579,8 +602,11 @@ const DistributorOrderPage = () => {
                                                         return `${day}-${month}-${year}`;
                                                     })
                                                     .join(", ")
-                                                : "-"}
+                                            ) : (
+                                                "-"
+                                            )}
                                         </td>
+
 
                                         <td className="border p-2">{order.canceledReason}</td>
                                         <td className="border p-2">{order.statusUpdatedBy}</td>
@@ -948,8 +974,10 @@ const DistributorOrderPage = () => {
                                 {isAdmin && !isBulkUpdate && (
                                     <>
                                         <option value="preparing">Preparing</option>
-                                        <option value="dispatched">Dispatched</option>
+                                        <option value="dispatched">Fully Dispatched</option>
+                                        <option value="partially dispatched">Partially Dispatched</option>
                                         <option value="canceled">Canceled</option>
+                                        <option value="delivered">Delivered</option>
                                     </>
                                 )}
 
@@ -960,16 +988,13 @@ const DistributorOrderPage = () => {
                                     </>
                                 )}
 
-                                {!isAdmin && !isBulkUpdate && (
-                                    <option value="delivered">Delivered</option>
-                                )}
                             </select>
 
 
                         </div>
 
                         {/* ETD */}
-                        {(statusForm.status === "preparing" || statusForm.status === "dispatched") && <div className="mb-4">
+                        {(statusForm.status === "preparing" || statusForm.status === "dispatched" || statusForm.status === "partially dispatched") && <div className="mb-4">
                             <label className="block font-medium mb-1">ETD</label>
                             <input
                                 type="date"
@@ -997,7 +1022,7 @@ const DistributorOrderPage = () => {
                         )}
 
                         {/* Company Remarks */}
-                        {(statusForm.status === "preparing" || statusForm.status === "dispatched") && (
+                        {(statusForm.status === "preparing" || statusForm.status === "dispatched" || statusForm.status === "partially dispatched") && (
                             <div className="mb-4">
                                 <label className="block font-medium mb-1">Company Remarks</label>
                                 <input
@@ -1038,7 +1063,7 @@ const DistributorOrderPage = () => {
 
 
                         {/* Manual Product Quantity Input */}
-                        {statusForm.status === "dispatched" && !statusForm.delivered_products_same_as_products && (
+                        {(statusForm.status === "dispatched" || statusForm.status === "partially dispatched" ) && !statusForm.delivered_products_same_as_products && (
                             <div className="mb-6">
                                 <h3 className="font-semibold text-lg mb-2 text-gray-700">
                                     Dispatched Products
