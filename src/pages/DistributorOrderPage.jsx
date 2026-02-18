@@ -162,11 +162,18 @@ const DistributorOrderPage = () => {
             return
         }
 
-        const finalDeliveredProducts = {
-            ...selectedOrder.products,
-            ...statusForm.delivered_products,
-        };
+        let finalDeliveredProducts;
 
+        if (statusForm.delivered_products_same_as_products) {
+            // user explicitly said: same as placed order
+            finalDeliveredProducts = { ...selectedOrder.products };
+        } else {
+            // user edited some quantities
+            finalDeliveredProducts = {
+                ...selectedOrder.products,
+                ...(statusForm.delivered_products || {}),
+            };
+        }
 
         const payload = {
             ids: ids,
