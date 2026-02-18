@@ -70,8 +70,6 @@ const DistributorOrderPage = () => {
         billAttached: false
     });
 
-
-
     useEffect(() => {
         dispatch(getOrders(filters));
     }, [dispatch, filters])
@@ -159,11 +157,22 @@ const DistributorOrderPage = () => {
             return;
         }
 
+        if ((statusForm.status == "dispatched" || statusForm.status == "partially dispatched") & !statusForm.ETD) {
+            alert("ETD is required")
+            return
+        }
+
+        const finalDeliveredProducts = {
+            ...selectedOrder.products,
+            ...statusForm.delivered_products,
+        };
+
+
         const payload = {
             ids: ids,
             status: statusForm.status,
             ETD: statusForm.ETD,
-            delivered_products: statusForm.delivered_products,
+            delivered_products: finalDeliveredProducts,
             same_as_products: statusForm.delivered_products_same_as_products,
             companyRemarks: statusForm.companyRemarks,
         };
@@ -775,85 +784,86 @@ const DistributorOrderPage = () => {
                         </h2>
 
                         {selectedOrder.delivered && selectedOrder.delivered.length > 0 ? (
-                            selectedOrder.delivered.map((delivery, index) => (
-                                <div key={index} className="mb-6 border rounded p-4 bg-amber-50">
-                                    {/* Delivery Date */}
-                                    <div className="mb-3">
-                                        <span className="font-semibold text-gray-700">Delivery Date: </span>
-                                        <span>{new Date(delivery.date).toLocaleDateString()}</span>
-                                    </div>
-
-                                    {/* Products */}
-                                    <div className="mb-3">
-                                        <h3 className="font-semibold text-gray-700 mb-2">Products:</h3>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {Object.entries(delivery.products || {})
-                                                .filter(([_, qty]) => qty > 0)
-                                                .map(([product, qty]) => (
-                                                    <div
-                                                        key={product}
-                                                        className="border rounded p-2 flex justify-between items-center bg-white"
-                                                    >
-                                                        <span className="text-sm">{product}</span>
-                                                        <span className="font-semibold">{qty}</span>
-                                                    </div>
-                                                ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Totals */}
-                                    <div className="mb-2">
-                                        <h3 className="font-semibold text-gray-700 mb-2">Delivered Total Summary:</h3>
-
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {Object.entries(delivery.total || {})
-                                                .filter(([_, qty]) => qty > 0)
-                                                .map(([item, qty]) => (
-                                                    <div
-                                                        key={item}
-                                                        className="border rounded p-2 flex justify-between items-center bg-white"
-                                                    >
-                                                        <span className="text-sm">{item}</span>
-                                                        <span className="font-semibold">{qty}</span>
-                                                    </div>
-                                                ))}
+                            [...selectedOrder.delivered]      
+                                .reverse().map((delivery, index) => (
+                                    <div key={index} className="mb-6 border rounded p-4 bg-amber-50">
+                                        {/* Delivery Date */}
+                                        <div className="mb-3">
+                                            <span className="font-semibold text-gray-700">Delivery Date: </span>
+                                            <span>{new Date(delivery.date).toLocaleDateString()}</span>
                                         </div>
 
-                                        {/* Grand total */}
-                                        <div className="border rounded p-3 mt-3 flex justify-between items-center bg-amber-100 font-semibold text-amber-800">
-                                            <span>Total</span>
-                                            <span>
-                                                {Object.values(delivery.total || {}).reduce(
-                                                    (sum, val) => sum + Number(val || 0),
-                                                    0
-                                                )}
-                                            </span>
+                                        {/* Products */}
+                                        <div className="mb-3">
+                                            <h3 className="font-semibold text-gray-700 mb-2">Products:</h3>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {Object.entries(delivery.products || {})
+                                                    .filter(([_, qty]) => qty > 0)
+                                                    .map(([product, qty]) => (
+                                                        <div
+                                                            key={product}
+                                                            className="border rounded p-2 flex justify-between items-center bg-white"
+                                                        >
+                                                            <span className="text-sm">{product}</span>
+                                                            <span className="font-semibold">{qty}</span>
+                                                        </div>
+                                                    ))}
+                                            </div>
                                         </div>
+
+                                        {/* Totals */}
+                                        <div className="mb-2">
+                                            <h3 className="font-semibold text-gray-700 mb-2">Delivered Total Summary:</h3>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {Object.entries(delivery.total || {})
+                                                    .filter(([_, qty]) => qty > 0)
+                                                    .map(([item, qty]) => (
+                                                        <div
+                                                            key={item}
+                                                            className="border rounded p-2 flex justify-between items-center bg-white"
+                                                        >
+                                                            <span className="text-sm">{item}</span>
+                                                            <span className="font-semibold">{qty}</span>
+                                                        </div>
+                                                    ))}
+                                            </div>
+
+                                            {/* Grand total */}
+                                            <div className="border rounded p-3 mt-3 flex justify-between items-center bg-amber-100 font-semibold text-amber-800">
+                                                <span>Total</span>
+                                                <span>
+                                                    {Object.values(delivery.total || {}).reduce(
+                                                        (sum, val) => sum + Number(val || 0),
+                                                        0
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+
+                                        <div className="mb-2">Remarks: {delivery.companyRemarks}</div>
+                                        <div className="mb-2">ARN: {delivery.ARN ? delivery.ARN : "-"}</div>
+                                        <div className="mb-2">Courier: {delivery.courier ? delivery.courier : "-"}</div>
+                                        <div className="mb-2">Bill shared: {delivery.billAttached ? "Yes" : "No"}</div>
+
+                                        {/* Update */}
+                                        <div className="flex justify-end">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedDelivery(delivery);
+                                                    setShowDeliveredProducts(false);        // 👈 prevent modal stacking
+                                                    setShowUpdateDispatchModal(true);
+                                                }}
+                                                className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
+                                            >
+                                                Update
+                                            </button>
+                                        </div>
+
                                     </div>
-
-
-                                    <div className="mb-2">Remarks: {delivery.companyRemarks}</div>
-                                    <div className="mb-2">ARN: {delivery.ARN ? delivery.ARN : "-"}</div>
-                                    <div className="mb-2">Courier: {delivery.courier ? delivery.courier : "-"}</div>
-                                    <div className="mb-2">Bill shared: {delivery.billAttached ? "Yes" : "No"}</div>
-
-                                    {/* Update */}
-                                    <div className="flex justify-end">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedDelivery(delivery);
-                                                setShowDeliveredProducts(false);        // 👈 prevent modal stacking
-                                                setShowUpdateDispatchModal(true);
-                                            }}
-                                            className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
-                                        >
-                                            Update
-                                        </button>
-                                    </div>
-
-                                </div>
-                            ))
+                                ))
                         ) : (
                             <div className="text-center text-gray-500 py-4">
                                 No deliveries yet.
@@ -1063,7 +1073,7 @@ const DistributorOrderPage = () => {
 
 
                         {/* Manual Product Quantity Input */}
-                        {(statusForm.status === "dispatched" || statusForm.status === "partially dispatched" ) && !statusForm.delivered_products_same_as_products && (
+                        {(statusForm.status === "dispatched" || statusForm.status === "partially dispatched") && !statusForm.delivered_products_same_as_products && (
                             <div className="mb-6">
                                 <h3 className="font-semibold text-lg mb-2 text-gray-700">
                                     Dispatched Products
@@ -1073,26 +1083,36 @@ const DistributorOrderPage = () => {
                                     {orderedProductsList.map(product => (
                                         <div
                                             key={product}
-                                            className="border rounded p-2 flex justify-between items-center"
+                                            className="border rounded p-2 flex flex-col gap-1"
                                         >
-                                            <span className="text-sm">{product}</span>
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max={selectedOrder.products[product]}
-                                                className="w-20 border rounded p-1 text-right"
-                                                value={statusForm.delivered_products[product] || ""}
-                                                onChange={(e) =>
-                                                    setStatusForm(prev => ({
-                                                        ...prev,
-                                                        delivered_products: {
-                                                            ...prev.delivered_products,
-                                                            [product]: Number(e.target.value)
-                                                        }
-                                                    }))
-                                                }
-                                            />
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-medium">{product}</span>
+
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max={selectedOrder.products[product]}
+                                                    className="w-20 border rounded p-1 text-right"
+                                                    value={
+                                                        statusForm.delivered_products?.[product] ??
+                                                        selectedOrder.products[product]
+                                                    }
+
+                                                    onChange={(e) =>
+                                                        setStatusForm(prev => ({
+                                                            ...prev,
+                                                            delivered_products: {
+                                                                ...prev.delivered_products,
+                                                                [product]: Number(e.target.value),
+                                                            },
+                                                        }))
+                                                    }
+                                                />
+                                            </div>
+
+
                                         </div>
+
                                     ))}
                                 </div>
                             </div>
