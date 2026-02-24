@@ -1,5 +1,5 @@
 // DistributorOrderPage.jsx
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
     getOrders,
@@ -69,6 +69,45 @@ const DistributorOrderPage = () => {
         courier: "",
         billAttached: false
     });
+
+    const productsList = [
+        "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g", "Blueberry 50g", "Hazelnut 50g",
+        "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
+        "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g", "Blueberry 25g", "Hazelnut 25g",
+        "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
+        "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
+        "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
+    ];
+
+    const totalList = [
+        "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box",
+        "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
+    ];
+
+    const totalsByStatus = useMemo(() => {
+        return distributorOrders.reduce(
+            (acc, order) => {
+                if (!order.total) return acc;
+
+                const orderTotal = totalList.reduce((sum, key) => {
+                    const val = order.total[key];
+                    return sum + (typeof val === "number" ? val : 0);
+                }, 0);
+
+                if (order.status === "pending") {
+                    acc.pending += orderTotal;
+                }
+
+                if (order.status === "preparing") {
+                    acc.preparing += orderTotal;
+                }
+
+                return acc;
+            },
+            { pending: 0, preparing: 0 }
+        );
+    }, [distributorOrders]);
+
 
     useEffect(() => {
         dispatch(getOrders(filters));
@@ -165,10 +204,8 @@ const DistributorOrderPage = () => {
         let finalDeliveredProducts;
 
         if (statusForm.delivered_products_same_as_products) {
-            // user explicitly said: same as placed order
             finalDeliveredProducts = { ...selectedOrder.products };
         } else {
-            // user edited some quantities
             finalDeliveredProducts = {
                 ...selectedOrder.products,
                 ...(statusForm.delivered_products || {}),
@@ -327,19 +364,7 @@ const DistributorOrderPage = () => {
     };
 
 
-    const productsList = [
-        "Cranberry 50g", "Dryfruits 50g", "Peanuts 50g", "Mix seeds 50g", "Blueberry 50g", "Hazelnut 50g",
-        "Classic Coffee 50g", "Dark Coffee 50g", "Intense Coffee 50g", "Toxic Coffee 50g",
-        "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g", "Blueberry 25g", "Hazelnut 25g",
-        "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
-        "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
-        "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
-    ];
 
-    const totalList = [
-        "Regular 50g", "Coffee 50g", "Regular 25g", "Coffee 25g", "Gift box",
-        "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
-    ];
 
     const isBulkUpdate =
         Array.isArray(selectedOrders) && selectedOrders.length > 1;
@@ -446,6 +471,19 @@ const DistributorOrderPage = () => {
 
                 </div>
             }
+
+            {isAdmin && <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="border rounded p-4 bg-yellow-50">
+                        <h3 className="font-semibold text-gray-700 mb-1">Pending</h3>
+                        <p className="text-xl font-bold">{totalsByStatus.pending}</p>
+                    </div>
+
+                    <div className="border rounded p-4 bg-blue-50">
+                        <h3 className="font-semibold text-gray-700 mb-1">Under Preparation</h3>
+                        <p className="text-xl font-bold">{totalsByStatus.preparing}</p>
+                    </div>
+                </div></>}
 
             {/* Orders Table */}
             {!loading && distributorOrders?.length > 0 && (
@@ -791,7 +829,7 @@ const DistributorOrderPage = () => {
                         </h2>
 
                         {selectedOrder.delivered && selectedOrder.delivered.length > 0 ? (
-                            [...selectedOrder.delivered]      
+                            [...selectedOrder.delivered]
                                 .reverse().map((delivery, index) => (
                                     <div key={index} className="mb-6 border rounded p-4 bg-amber-50">
                                         {/* Delivery Date */}
