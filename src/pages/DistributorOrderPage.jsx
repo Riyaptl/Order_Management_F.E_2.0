@@ -475,13 +475,13 @@ const DistributorOrderPage = () => {
             {isAdmin && <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="border rounded p-4 bg-yellow-50">
-                        <h3 className="font-semibold text-gray-700 mb-1">Pending</h3>
-                        <p className="text-xl font-bold">{totalsByStatus.pending}</p>
+                        <h6 className="font-semibold text-gray-700 mb-1">Pending</h6>
+                        <p className="text-md font-bold">{totalsByStatus.pending}</p>
                     </div>
 
                     <div className="border rounded p-4 bg-blue-50">
-                        <h3 className="font-semibold text-gray-700 mb-1">Under Preparation</h3>
-                        <p className="text-xl font-bold">{totalsByStatus.preparing}</p>
+                        <h6 className="font-semibold text-gray-700 mb-1">Under Preparation</h6>
+                        <p className="text-md font-bold">{totalsByStatus.preparing}</p>
                     </div>
                 </div></>}
 
