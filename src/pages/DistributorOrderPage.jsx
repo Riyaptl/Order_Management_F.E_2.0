@@ -1037,6 +1037,9 @@ const DistributorOrderPage = () => {
                                         <option value="delivered">Delivered</option>
                                     </>
                                 )}
+                                {!isBulkUpdate && (
+                                    <option value="delivered">Delivered</option>
+                                )}
 
                                 {isAdmin && isBulkUpdate && (
                                     <>
