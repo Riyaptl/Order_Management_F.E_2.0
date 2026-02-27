@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { sendOtp, verifyOtp } from "../slice/authSlice";
+import { sendOtp, signup, verifyOtp } from "../slice/authSlice";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -44,6 +44,7 @@ export default function SignupPage() {
         sendOtp({
           username: formData.username,
           email: formData.email,
+          address: formData.address,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
           role: formData.role.toLowerCase(),
@@ -76,11 +77,42 @@ export default function SignupPage() {
   };
 
 
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    // ✅ frontend password check
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const result = await dispatch(
+        signup({
+          username: formData.username.trim(),
+          email: formData.email.trim(),
+          address: formData.address,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          role: formData.role.toLowerCase(),
+        })
+      ).unwrap();
+
+      toast.success(result.message || "Signup successful");
+      navigate("/"); // or dashboard
+
+    } catch (err) {
+      toast.error(err || "Signup failed");
+    }
+  };
+
+
+
   return (
     <div className="max-w-md mx-auto mt-20 p-8 border rounded shadow-md bg-white">
       <h2 className="text-3xl font-bold mb-8 text-center text-beige-800">Signup</h2>
 
-      <form onSubmit={handleSendOtp} className="space-y-6">
+      <form onSubmit={handleSignup} className="space-y-6">
         <input
           type="text"
           name="username"
@@ -90,7 +122,7 @@ export default function SignupPage() {
           required
           className="w-full border border-gray-300 p-3 rounded text-lg focus:outline-none focus:ring-2 focus:ring-beige-400"
         />
-        <input
+        {/* <input
           type="email"
           name="email"
           placeholder="Email"
@@ -98,7 +130,7 @@ export default function SignupPage() {
           onChange={handleChange}
           required
           className="w-full border border-gray-300 p-3 rounded text-lg focus:outline-none focus:ring-2 focus:ring-beige-400"
-        />
+        /> */}
         <input
           type="password"
           name="password"

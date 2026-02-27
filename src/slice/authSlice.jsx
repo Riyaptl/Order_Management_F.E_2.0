@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginUser, verifySignupOtp, sendSignupOtp, resetPassService, forgotPassService, logoutUser } from '../service/authService';
+import { loginUser, verifySignupOtp, sendSignupOtp, resetPassService, forgotPassService, logoutUser, signupService } from '../service/authService';
 
 const initialState = {
   token: localStorage.getItem("token") || null,
@@ -47,6 +47,18 @@ export const verifyOtp = createAsyncThunk(
   async (otpData, thunkAPI) => {
     try {
       const data = await verifySignupOtp(otpData);
+      return data; // { token }
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const signup = createAsyncThunk(
+  "auth/signup",
+  async (otpData, thunkAPI) => {
+    try {
+      const data = await signupService(otpData);
       return data; // { token }
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
@@ -148,6 +160,24 @@ const authSlice = createSlice({
         localStorage.setItem('role', action.payload.role);
       })
       .addCase(verifyOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(signup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signup.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.role = action.payload.role;
+        state.isAuthenticated = true;
+        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem('user', action.payload.user);
+        localStorage.setItem('role', action.payload.role);
+      })
+      .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

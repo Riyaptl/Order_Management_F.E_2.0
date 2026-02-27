@@ -65,6 +65,22 @@ export const verifySignupOtp = async (otpData) => {
   return response.json(); // returns { token }
 };
 
+export const signupService = async (otpData) => {
+  const response = await fetch(`${API_BASE}/signup`, {
+    method: "POST",
+    credentials: 'include',
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(otpData),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "OTP verification failed");
+  }
+
+  return response.json(); // returns { token }
+};
+
 export const forgotPassService = async (data) => {
   const response = await fetch(`${API_BASE}/forgotPass`, {
     method: "POST",
