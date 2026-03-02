@@ -66,7 +66,9 @@ export default function App() {
         } />
 
         <Route path="/shops_list" element={
-          !user ? <Navigate to="/login" /> :  <ShopsListPage />
+          !user ? <Navigate to="/login" /> :
+          isDistributor ? <Navigate to="/orders_list" /> :
+          <ShopsListPage />
         } />
 
 

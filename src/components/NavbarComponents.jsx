@@ -67,25 +67,24 @@ const Navbar = () => {
 
         {/* Menu Items */}
         <div
-          className={`${
-            menuOpen ? "block" : "hidden"
-          } absolute top-16 left-0 w-full bg-white border-t md:border-none md:static md:flex md:space-x-4 md:items-center`}
+          className={`${menuOpen ? "block" : "hidden"
+            } absolute top-16 left-0 w-full bg-white border-t md:border-none md:static md:flex md:space-x-4 md:items-center`}
         >
           <div className="flex flex-col md:flex-row md:items-center md:space-x-4 px-4 py-4 md:p-0">
-            
+
             <NavLink
               to="/"
               className="text-amber-700 px-2 py-2 rounded-md text-lg font-semibold"
             >
               Home
             </NavLink>
-            
+
             {!isME && <NavLink
-                to="/dist_orders"
-                className="text-amber-700 px-2 py-2 text-lg font-semibold"
-              >
-                Distributor Orders
-              </NavLink>}
+              to="/dist_orders"
+              className="text-amber-700 px-2 py-2 text-lg font-semibold"
+            >
+              Distributor Orders
+            </NavLink>}
             {(isAdmin || isTL) && (
               <NavLink
                 to="/routes_list"
@@ -94,46 +93,47 @@ const Navbar = () => {
                 Routes
               </NavLink>
             )}
-            <NavLink
+            {!isDistributor &&
+              <NavLink
                 to="/shops_list"
                 className="text-amber-700 px-2 py-2 text-lg font-semibold"
               >
                 Shops
               </NavLink>
-            
+            }
             {!isME && (
               <>
-              <NavLink
-              to="/orders_list"
-              className="text-amber-700 px-2 py-2 text-lg font-semibold"
-            >
-              Orders
-            </NavLink>
-            <NavLink
-              to="/revoked_orders_list"
-              className="text-amber-700 px-2 py-2 text-lg font-semibold"
-            >
-              Revoked Orders
-            </NavLink>
-            <NavLink
-              to="/sales_report"
-              className="text-amber-700 px-2 py-2 text-lg font-semibold"
-            >
-              Sales Report
-            </NavLink>
-            <NavLink
-              to="/cancel_report"
-              className="text-amber-700 px-2 py-2 text-lg font-semibold"
-            >
-              Cancel Report
-            </NavLink>
-            {isAdmin && <NavLink
-              to="/distributors"
-              className="text-amber-700 px-2 py-2 text-lg font-semibold"
-            >
-              Distributors
-            </NavLink>}
-            </>
+                <NavLink
+                  to="/orders_list"
+                  className="text-amber-700 px-2 py-2 text-lg font-semibold"
+                >
+                  Orders
+                </NavLink>
+                <NavLink
+                  to="/revoked_orders_list"
+                  className="text-amber-700 px-2 py-2 text-lg font-semibold"
+                >
+                  Revoked Orders
+                </NavLink>
+                <NavLink
+                  to="/sales_report"
+                  className="text-amber-700 px-2 py-2 text-lg font-semibold"
+                >
+                  Sales Report
+                </NavLink>
+                <NavLink
+                  to="/cancel_report"
+                  className="text-amber-700 px-2 py-2 text-lg font-semibold"
+                >
+                  Cancel Report
+                </NavLink>
+                {isAdmin && <NavLink
+                  to="/distributors"
+                  className="text-amber-700 px-2 py-2 text-lg font-semibold"
+                >
+                  Distributors
+                </NavLink>}
+              </>
             )}
             <button
               onClick={handleLogout}
