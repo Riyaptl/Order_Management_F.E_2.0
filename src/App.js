@@ -38,8 +38,6 @@ export default function App() {
         <Route path="/" element={
           !user ? (
             <Navigate to="/login" />
-          ) : isDistributor ? (
-            <Navigate to="/orders_list" />
           ) : (
             <HomePage />
           )
