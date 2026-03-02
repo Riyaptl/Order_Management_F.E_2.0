@@ -210,7 +210,7 @@ export default function HomePage() {
                 </p>
 
                 <p className="text-sm text-gray-600">
-                  {item.size} • {item.status}
+                  {item.size} • {item.status} • {item.updatedAt && new Date(item.updatedAt).toLocaleDateString("en-GB")}
                 </p>
 
                 {item.remarks && (
