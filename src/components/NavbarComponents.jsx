@@ -72,14 +72,14 @@ const Navbar = () => {
           } absolute top-16 left-0 w-full bg-white border-t md:border-none md:static md:flex md:space-x-4 md:items-center`}
         >
           <div className="flex flex-col md:flex-row md:items-center md:space-x-4 px-4 py-4 md:p-0">
-            {!isDistributor && (
+            
             <NavLink
               to="/"
               className="text-amber-700 px-2 py-2 rounded-md text-lg font-semibold"
             >
               Home
             </NavLink>
-            )}
+            
             {!isME && <NavLink
                 to="/dist_orders"
                 className="text-amber-700 px-2 py-2 text-lg font-semibold"

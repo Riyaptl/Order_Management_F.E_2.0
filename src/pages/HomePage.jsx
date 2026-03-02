@@ -11,6 +11,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const isME = role === "me";
   const isAdmin = role === "admin";
+  const isDist = role === "distributor";
   const [search, setSearch] = useState("");
 
   const [openModal, setOpenModal] = useState(false);
@@ -89,7 +90,7 @@ export default function HomePage() {
           Welcome to Dumyum Chocolates
         </h1>
 
-        {!isME && (
+        {!isDist && (
           <div className="flex justify-center mt-10 mb-6 space-x-4">
             <button
               onClick={() => navigate("/shops_list")}
@@ -142,8 +143,8 @@ export default function HomePage() {
                 </p>
 
                 {item.remarks && (
-                  <p className="text-sm text-gray-500">
-                    {item.remarks}
+                  <p className="text-md text-gray-600">
+                    Remarks: {item.remarks}
                   </p>
                 )}
               </div>
