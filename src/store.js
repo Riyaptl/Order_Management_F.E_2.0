@@ -6,6 +6,7 @@ import shopReducer from "./slice/shopSlice";
 import orderReducer from "./slice/orderSlice";
 import userReducer from "./slice/userSlice";
 import cityReducer from "./slice/citySlice";
+import inventoryReducer from "./slice/invetorySlice";
 import distributorOrderReducer from "./slice/distributorOrderSlice";
 
 export const store = configureStore({
@@ -16,6 +17,7 @@ export const store = configureStore({
     order: orderReducer,
     user: userReducer,
     city: cityReducer,
+    inventory: inventoryReducer,
     distributorOrder: distributorOrderReducer,
   },
 });

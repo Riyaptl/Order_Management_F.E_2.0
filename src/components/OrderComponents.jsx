@@ -35,7 +35,7 @@ export default function OrderComponent({ shop, onClose, selectedArea, shopLink }
   const isDistributor = role === "distributor"
   const [editRate, setEditRate] = useState(false);
   const [rate, setRate] = useState({
-    "25g": 28,
+    "25g": 30,
     "50g": 40,
     "55g": 40,
     "gift": 40
