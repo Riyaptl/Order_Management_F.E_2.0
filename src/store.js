@@ -7,6 +7,7 @@ import orderReducer from "./slice/orderSlice";
 import userReducer from "./slice/userSlice";
 import cityReducer from "./slice/citySlice";
 import inventoryReducer from "./slice/invetorySlice";
+import announcementReducer from "./slice/announcementSlice";
 import distributorOrderReducer from "./slice/distributorOrderSlice";
 
 export const store = configureStore({
@@ -18,6 +19,7 @@ export const store = configureStore({
     user: userReducer,
     city: cityReducer,
     inventory: inventoryReducer,
+    announcement: announcementReducer,
     distributorOrder: distributorOrderReducer,
   },
 });

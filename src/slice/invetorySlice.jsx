@@ -17,7 +17,7 @@ export const updateInventory = createAsyncThunk("inventory/updateInventory", asy
     
     return await updateStatusService({id, formData});
   } catch (err) {
-    return thunkAPI.rejectWithValue(err.message || "Failed to fetch inventory");
+    return thunkAPI.rejectWithValue(err.message || "Failed to update inventory");
   }
 });
 
