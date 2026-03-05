@@ -145,7 +145,7 @@ export default function ReportComponents({
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 px-4 md:px-6 mb-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
                     {/* City Selector */}
-                    {!isDistributor &&
+                    {(isAdmin || isTL) &&
                         <div className="w-full md:w-auto">
                             <label className="block text-lg font-medium text-amber-700 mb-2">Select City</label>
                             <select

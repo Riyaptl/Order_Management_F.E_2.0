@@ -13,7 +13,6 @@ export default function SignupPage() {
 
   const [formData, setFormData] = useState({
     username: "",
-    email: "",
     password: "",
     confirmPassword: "",
     role: "sr", // default selected
@@ -90,7 +89,6 @@ export default function SignupPage() {
       const result = await dispatch(
         signup({
           username: formData.username.trim(),
-          email: formData.email.trim(),
           address: formData.address,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
@@ -186,7 +184,7 @@ export default function SignupPage() {
           disabled={loading}
           className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded text-lg font-semibold transition"
         >
-          {loading ? "Sending OTP..." : "Send OTP"}
+          {loading ? "Signing Up..." : "Sign Up"}
         </button>
       </form>
 
