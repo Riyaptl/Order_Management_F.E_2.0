@@ -523,6 +523,7 @@ const DistributorOrderPage = () => {
                                 <th className="border p-2 text-left min-w-[200px]">Status Modified By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Status Modified At</th>
                                 <th className="border p-2 text-left min-w-[200px]">Created At</th>
+                                <th className="border p-2 text-left min-w-[200px]">Created By</th>
                                 <th className="border p-2 text-left min-w-[200px]">Actions</th>
                             </tr>
                         </thead>
@@ -690,6 +691,7 @@ const DistributorOrderPage = () => {
                                                 return `${day}/${month}/${year} ${hours}:${minutes}`;
                                             })()}
                                         </td>
+                                        <td className="border p-2">{order.createdBy}</td>
                                         <td className="border p-2 flex gap-2 justify-center">
                                             <button
                                                 onClick={(e) => {
