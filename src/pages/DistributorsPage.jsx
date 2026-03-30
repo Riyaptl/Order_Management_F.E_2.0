@@ -97,7 +97,7 @@ const DistributorsPage = () => {
     const trimmedSearchTerm = searchTerm.trim().toLowerCase();
     const filteredDists = allDists.filter((dist) =>
         dist.username.toLowerCase().includes(trimmedSearchTerm)
-    );
+    ).sort((a, b) => (a.status === "active" ? -1 : 1));;
 
 
     return (
