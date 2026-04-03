@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { deleteOrderService, getOrdersService, statusOrderService, placeOrder, SrPerformance, getOrdersSRService, getOrdersDateService, updateOrderService } from "../service/distributorOrderService";
+import { deleteOrderService, getOrdersService, statusOrderService, placeOrder, paymentStatusService, updateOrderService } from "../service/distributorOrderService";
 
 // Async thunk
 export const createOrder = createAsyncThunk(
@@ -60,6 +60,17 @@ export const updateOrder = createAsyncThunk(
   }
 );
 
+export const paymentStatusOrder = createAsyncThunk(
+  "distributorOrder/paymentStatusOrder",
+  async (data, thunkAPI) => {
+    try {      
+      return await paymentStatusService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 
 const distributorOrderSlice = createSlice({
   name: "distributorOrder",
@@ -68,6 +79,7 @@ const distributorOrderSlice = createSlice({
     loading: false,
     success: false,
     error: null,
+    message: "",
   },
   reducers: {
     resetOrderState: (state) => {
@@ -124,6 +136,19 @@ const distributorOrderSlice = createSlice({
         state.error = null     
       })
       .addCase(updateOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+       .addCase(paymentStatusOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(paymentStatusOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.message = action.payload.message
+        state.error = null     
+      })
+      .addCase(paymentStatusOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

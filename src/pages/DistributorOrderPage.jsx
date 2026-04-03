@@ -6,7 +6,8 @@ import {
     createOrder,
     statusOrder,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    paymentStatusOrder
 } from "../slice/distributorOrderSlice";
 import toast from "react-hot-toast";
 import { getDistDetails, getSRDetails } from "../slice/userSlice";
@@ -20,10 +21,12 @@ const DistributorOrderPage = () => {
     const { user, role } = useSelector((state) => state.auth);
 
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedPaymentOrder, setSelectedPaymentOrder] = useState(null);
     const [selectedOrders, setSelectedOrders] = useState([]);
     const [showDeliveredProducts, setShowDeliveredProducts] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showStatusModal, setShowStatusModal] = useState(false);
+    const [editPaymentStatusModal, setEditPaymentStatusModal] = useState(false);
     const [selectedDelivery, setSelectedDelivery] = useState(null);
     const [showUpdateDispatchModal, setShowUpdateDispatchModal] = useState(false);
 
@@ -41,6 +44,13 @@ const DistributorOrderPage = () => {
         distributor: "",
         placedBy: "",
         dispatchedAt: ""
+    });
+
+    const [paymentFormData, setPaymentFormData] = useState({
+        paymentStatus: "",
+        paymentRemarks: "",
+        invoiceNo: "",
+        dueOn: ""
     });
 
     const [createForm, setCreateForm] = useState({
@@ -235,6 +245,7 @@ const DistributorOrderPage = () => {
             toast.error(err?.message || err?.error || "Failed to update status");
         });
         setShowStatusModal(false);
+        setEditPaymentStatusModal(false)
         setShowDeliveredProducts(false)
         setStatusForm({
             status: "",
@@ -305,6 +316,7 @@ const DistributorOrderPage = () => {
         finally {
             // Close modal & reset
             setShowUpdateDispatchModal(false);
+            setEditPaymentStatusModal(false);
             setShowDeliveredProducts(false);
             setSelectedDelivery(null);
             setSelectedOrder(null)
@@ -312,6 +324,41 @@ const DistributorOrderPage = () => {
                 ARN: "",
                 courier: "",
                 billAttached: false,
+            });
+        }
+    };
+
+    const handlePaymentSubmit = async (e) => {
+        e.preventDefault();
+
+        const data = {
+            id: selectedOrder._id,
+            paymentStatus: paymentFormData.paymentStatus,
+            paymentRemarks: paymentFormData.paymentRemarks,
+            invoiceNo: paymentFormData.invoiceNo,
+            dueOn: paymentFormData.dueOn
+        };
+
+        try {
+            const response = await dispatch(paymentStatusOrder(data)).unwrap();
+            toast.success(response.message || "Payment status updated");
+            dispatch(getOrders(filters));
+
+        } catch (error) {
+            toast.error(error?.message || "Failed to update payment status");
+        } finally {
+            // Close modal & reset
+            setShowUpdateDispatchModal(false);
+            setEditPaymentStatusModal(false);
+            setShowDeliveredProducts(false);
+            setSelectedDelivery(null);
+            setSelectedOrder(null)
+            setSelectedOrders([])
+            setPaymentFormData({
+                paymentStatus: "",
+                paymentRemarks: "",
+                invoiceNo: "",
+                dueOn: ""
             });
         }
     };
@@ -363,9 +410,6 @@ const DistributorOrderPage = () => {
             .catch(() => toast.error("Failed to copy"));
     };
 
-
-
-
     const isBulkUpdate =
         Array.isArray(selectedOrders) && selectedOrders.length > 1;
 
@@ -375,6 +419,13 @@ const DistributorOrderPage = () => {
         "partially dispatched": "bg-purple-100 text-purple-800",
         delivered: "bg-blue-100 text-blue-800",
         canceled: "bg-red-100 text-red-800",
+    };
+
+    const paymentStatusColorMap = {
+        posted: "bg-amber-100 text-amber-800",
+        paid: "bg-green-100 text-green-800",
+        "partially paid": "bg-purple-100 text-purple-800",
+        due: "bg-red-100 text-red-800",
     };
 
 
@@ -478,13 +529,13 @@ const DistributorOrderPage = () => {
                         <span className="font-semibold text-gray-700">Pending:</span>
                         <span className="text-md font-bold">{totalsByStatus.pending}</span>
                     </span>
-                    
+
                     <span className="flex items-center gap-1">
                         <span className="font-semibold text-gray-700">Under Preparation:</span>
                         <span className="text-md font-bold">{totalsByStatus.preparing}</span>
                     </span>
 
-                    
+
                 </div></>}
 
             {/* Orders Table */}
@@ -507,7 +558,8 @@ const DistributorOrderPage = () => {
                                     />
                                 </th>
                                 <th className="border p-2 text-left min-w-[200px]">Distributor</th>
-                                <th className="border p-2 text-left min-w-[200px]">status</th>
+                                <th className="border p-2 text-left min-w-[100px]">Status</th>
+                                <th className="border p-2 text-left min-w-[100px]">Payment Status</th>
                                 <th className="border p-2 text-left min-w-[200px]">City</th>
                                 <th className="border p-2 text-left min-w-[200px]">SR/TL</th>
                                 <th className="border p-2 text-left min-w-[200px]">Total</th>
@@ -533,8 +585,15 @@ const DistributorOrderPage = () => {
                                 <>
                                     {/* {console.log('in table', order)} */}
                                     <tr key={order._id} className="hover:bg-gray-50" onClick={(e) => {
-                                        if ((e.target.closest("td")?.cellIndex === 1 || e.target.closest("td")?.cellIndex === 2 || e.target.closest("td")?.cellIndex === 3)) {
+                                        const cellIndex = e.target.closest("td")?.cellIndex;
+
+                                        // Existing logic for Order Details (Columns 1 and 2)
+                                        if (cellIndex === 1 || cellIndex === 2) {
                                             setSelectedOrder(order);
+                                        }
+                                        // New logic for Payment Pop-up (Column 3)
+                                        else if (cellIndex === 3) {
+                                            setSelectedPaymentOrder(order);
                                         }
                                     }} >
 
@@ -558,6 +617,14 @@ const DistributorOrderPage = () => {
                                                     }`}
                                             >
                                                 {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="border p-2">
+                                            <span
+                                                className={`px-2 py-1 rounded text-sm font-semibold capitalize ${paymentStatusColorMap[order.paymentStatus] || "bg-gray-100 text-gray-700"
+                                                    }`}
+                                            >
+                                                {order.paymentStatus}
                                             </span>
                                         </td>
                                         <td className="border p-2">{order.city}</td>
@@ -697,8 +764,9 @@ const DistributorOrderPage = () => {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setSelectedOrder(order);
-                                                    setShowStatusModal(false);
                                                     setShowDeliveredProducts(true);
+                                                    setShowStatusModal(false);
+                                                    setEditPaymentStatusModal(false)
                                                 }}
                                                 className="px-3 py-1 text-sm bg-amber-600 text-white rounded shadow hover:bg-amber-700 transition"
                                             >
@@ -710,12 +778,32 @@ const DistributorOrderPage = () => {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     setSelectedOrder(order);
-                                                    setShowDeliveredProducts(false);
                                                     setShowStatusModal(true);
+                                                    setShowDeliveredProducts(false);
+                                                    setEditPaymentStatusModal(false)
                                                 }}
                                                 className="px-3 py-1 text-sm bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
                                             >
                                                 Update Status
+                                            </button>
+
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedOrder(order);
+                                                    setEditPaymentStatusModal(true)
+                                                    setShowDeliveredProducts(false);
+                                                    setShowStatusModal(false);
+                                                    setPaymentFormData({
+                                                        paymentStatus: order.paymentStatus || "pending",
+                                                        paymentRemarks: order.paymentRemarks || "",
+                                                        invoiceNo: order.invoiceNo || "",
+                                                        dueOn: order.dueOn || ""
+                                                    });
+                                                }}
+                                                className="px-3 py-1 text-sm bg-purple-600 text-white rounded shadow hover:bg-purple-700 transition"
+                                            >
+                                                Update Payment Status
                                             </button>
 
                                             {isAdmin && <button
@@ -734,7 +822,7 @@ const DistributorOrderPage = () => {
             )}
 
             {/* show order */}
-            {selectedOrder && !showDeliveredProducts && !showStatusModal && (
+            {selectedOrder && !showDeliveredProducts && !showStatusModal && !editPaymentStatusModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                         <h2 className="text-xl font-semibold mb-4 text-amber-700 text-center">Order Details</h2>
@@ -825,7 +913,7 @@ const DistributorOrderPage = () => {
             )}
 
             {/* show delivered order */}
-            {selectedOrder && showDeliveredProducts && !showStatusModal && (
+            {selectedOrder && showDeliveredProducts && !showStatusModal && !editPaymentStatusModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
                         <h2 className="text-xl font-semibold mb-4 text-amber-700 text-center">
@@ -936,7 +1024,7 @@ const DistributorOrderPage = () => {
             )}
 
             {/* update dispatchhed order */}
-            {showUpdateDispatchModal && selectedDelivery && !showDeliveredProducts && !showStatusModal && (
+            {showUpdateDispatchModal && selectedDelivery && !showDeliveredProducts && !editPaymentStatusModal && !showStatusModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
 
@@ -1005,8 +1093,8 @@ const DistributorOrderPage = () => {
                 </div>
             )}
 
-            {/* Update Status Modal */}
-            {(selectedOrder || selectedOrders) && showStatusModal && !showDeliveredProducts && (
+            {/* Update Delivery Status Modal */}
+            {(selectedOrder || selectedOrders) && showStatusModal && !showDeliveredProducts && !editPaymentStatusModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[85vh] overflow-y-auto">
 
@@ -1397,6 +1485,155 @@ const DistributorOrderPage = () => {
                     </div>
                 </div>
             )}
+
+            {/* show payment status */}
+            {selectedPaymentOrder && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+                        <h3 className="text-lg font-bold mb-4">
+                            Payment Information: {selectedPaymentOrder.distributor.toLowerCase() === "other"
+                                ? selectedPaymentOrder.orderPlacedBy
+                                : selectedPaymentOrder.distributor}
+                        </h3>
+
+
+                        <div className="space-y-3">
+                            <div>
+                                <span className="text-gray-500 text-sm">Status:</span>
+                                <p className="font-semibold capitalize">{selectedPaymentOrder.paymentStatus}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 text-sm">Invoice Number:</span>
+                                <p className="font-semibold capitalize">{selectedPaymentOrder.invoiceNo}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 text-sm">Due On:</span>
+                                <p className="font-semibold capitalize">
+                                    {selectedPaymentOrder.dueOn
+                                        ? selectedPaymentOrder.dueOn.split("-").reverse().join("-")
+                                        : "N/A"}
+                                </p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 text-sm">Remarks:</span>
+                                <p className="text-gray-700">{selectedPaymentOrder.paymentRemarks || "No remarks provided"}</p>
+                            </div>
+
+                            <div>
+                                <span className="text-gray-500 text-sm">Last Updated:</span>
+                                <p className="text-gray-700">
+                                    {selectedPaymentOrder.paymentStatusDate
+                                        ? new Date(selectedPaymentOrder.paymentStatusDate).toLocaleString()
+                                        : "N/A"}
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setSelectedPaymentOrder(null)}
+                            className="mt-6 w-full bg-amber-600 text-white py-2 rounded hover:bg-amber-700 transition"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* update payment status */}
+            {selectedOrder && editPaymentStatusModal && !showDeliveredProducts && !showStatusModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full overflow-hidden">
+
+                        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                            <h3 className="text-lg font-bold text-gray-800">
+                                Update Payment: {selectedOrder.distributor?.toLowerCase() === "other"
+                                    ? selectedOrder.placedBy
+                                    : selectedOrder.distributor}
+                            </h3>
+                        </div>
+
+                        <form onSubmit={handlePaymentSubmit}>
+                            <div className="p-6 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                                    <select
+                                        name="paymentStatus"
+                                        value={paymentFormData.paymentStatus}
+                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, paymentStatus: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500"
+                                    >
+                                        <option value="pending">Pending</option>
+                                        <option value="posted">Posted</option>
+                                        <option value="paid">Paid</option>
+                                        <option value="due">Due</option>
+                                        <option value="informed">Informed</option>
+                                        <option value="partially paid">Partially Paid</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Payment Remarks</label>
+                                    <textarea
+                                        name="paymentRemarks"
+                                        value={paymentFormData.paymentRemarks}
+                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, paymentRemarks: e.target.value })}
+                                        rows="3"
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500"
+                                        placeholder="Enter remarks"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
+                                    <textarea
+                                        name="invoiceNo"
+                                        value={paymentFormData.invoiceNo}
+                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, invoiceNo: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500"
+                                        placeholder="Enter Invoice No."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Due On</label>
+                                    <input
+                                        type="date"
+                                        name="dueOn"
+                                        value={paymentFormData.dueOn || ""}
+                                        onChange={(e) => setPaymentFormData({ ...paymentFormData, dueOn: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500 bg-white"
+                                    />
+                                </div>
+
+                            </div>
+
+                            <div className="bg-gray-50 px-6 py-4 flex gap-3 justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setEditPaymentStatusModal(false);
+                                        setSelectedOrder(null)
+                                        setPaymentFormData({ paymentStatus: "", paymentRemarks: "", invoiceNo: "", dueOn: "" });
+                                    }}
+                                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded hover:bg-amber-700 transition"
+                                >
+                                    Update Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
 
             {loading && <p className="mt-4">Loading...</p>}
         </div>
