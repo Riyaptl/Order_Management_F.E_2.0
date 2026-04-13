@@ -44,7 +44,8 @@ const DistributorOrderPage = () => {
     const [filters, setFilters] = useState({
         distributor: "",
         placedBy: "",
-        dispatchedAt: ""
+        dispatchedAt: "",
+        dueDate: ""
     });
 
     const [paymentFormData, setPaymentFormData] = useState({
@@ -540,6 +541,20 @@ const DistributorOrderPage = () => {
                             onChange={handleFilterChange}
                             className="border border-gray-300 px-3 py-2 rounded-md
                            focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-1 w-full md:w-auto">
+                        <label className="text-sm font-medium text-gray-700">
+                            Overdue Before
+                        </label>
+                        <input
+                            type="date"
+                            name="dueDate"
+                            value={filters.dueDate}
+                            onChange={handleFilterChange}
+                            className="border border-gray-300 px-3 py-2 rounded-md
+               focus:outline-none focus:ring-2 focus:ring-amber-400"
                         />
                     </div>
 
