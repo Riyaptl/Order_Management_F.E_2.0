@@ -133,3 +133,35 @@ export const paymentStatusService = async (data) => {
   return await response.json();
 };
 
+export const exportPDFService = async (id) => {
+  const token = localStorage.getItem("token");
+  if (!token) throw new Error("Auth token not found");
+
+  const response = await fetch(`${API_BASE_URL}/export/${id}`, {
+    credentials: 'include',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+   if (!response.ok) {
+    throw new Error("Failed to download PDF");
+  }
+
+  const blob = await response.blob();
+
+  // 👇 extract filename from header
+  const contentDisposition = response.headers.get("Content-Disposition");
+  let filename = "order.pdf";
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?(.+)"?/);
+    
+    if (match?.[1]) {
+      filename = match[1];
+    }
+  }
+
+  return { blob, filename };
+};
+

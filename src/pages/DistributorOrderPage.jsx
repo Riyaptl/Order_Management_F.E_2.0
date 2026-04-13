@@ -7,7 +7,8 @@ import {
     statusOrder,
     updateOrder,
     deleteOrder,
-    paymentStatusOrder
+    paymentStatusOrder,
+    exportPDF
 } from "../slice/distributorOrderSlice";
 import toast from "react-hot-toast";
 import { getDistDetails, getSRDetails } from "../slice/userSlice";
@@ -266,6 +267,28 @@ const DistributorOrderPage = () => {
             setSelectedOrder(null);
         } catch (err) {
             toast.error(err?.message || err?.error || "Failed to delete order");
+        }
+    };
+
+    const downloadOrder = async (orderId) => {
+        try {
+            const { blob, filename } = await dispatch(exportPDF(orderId)).unwrap();
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = filename; // ✅ now using backend filename
+
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            setSelectedOrder(null);
+        } catch (err) {
+            toast.error("Failed to download order");
         }
     };
 
@@ -787,31 +810,43 @@ const DistributorOrderPage = () => {
                                                 Update Status
                                             </button>
 
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedOrder(order);
-                                                    setEditPaymentStatusModal(true)
-                                                    setShowDeliveredProducts(false);
-                                                    setShowStatusModal(false);
-                                                    setPaymentFormData({
-                                                        paymentStatus: order.paymentStatus || "pending",
-                                                        paymentRemarks: order.paymentRemarks || "",
-                                                        invoiceNo: order.invoiceNo || "",
-                                                        dueOn: order.dueOn || ""
-                                                    });
-                                                }}
-                                                className="px-3 py-1 text-sm bg-purple-600 text-white rounded shadow hover:bg-purple-700 transition"
-                                            >
-                                                Update Payment Status
-                                            </button>
+                                            {isAdmin &&
+                                                <>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedOrder(order);
+                                                            setEditPaymentStatusModal(true)
+                                                            setShowDeliveredProducts(false);
+                                                            setShowStatusModal(false);
+                                                            setPaymentFormData({
+                                                                paymentStatus: order.paymentStatus || "pending",
+                                                                paymentRemarks: order.paymentRemarks || "",
+                                                                invoiceNo: order.invoiceNo || "",
+                                                                dueOn: order.dueOn || ""
+                                                            });
+                                                        }}
+                                                        className="px-3 py-1 text-sm bg-purple-600 text-white rounded shadow hover:bg-purple-700 transition"
+                                                    >
+                                                        Update Payment Status
+                                                    </button>
 
-                                            {isAdmin && <button
-                                                onClick={() => handleDeleteOrder(order._id)}
-                                                className="px-3 py-1 text-sm bg-red-600 text-white rounded shadow hover:bg-red-700 transition"
-                                            >
-                                                Delete Order
-                                            </button>}
+
+                                                    <button
+                                                        onClick={() => handleDeleteOrder(order._id)}
+                                                        className="px-3 py-1 text-sm bg-red-600 text-white rounded shadow hover:bg-red-700 transition"
+                                                    >
+                                                        Delete Order
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => downloadOrder(order._id)}
+                                                        className="px-3 py-1 text-sm bg-green-600 text-white rounded shadow hover:bg-green-700 transition"
+                                                    >
+                                                        Export
+                                                    </button>
+                                                </>
+                                            }
                                         </td>
                                     </tr>
                                 </>

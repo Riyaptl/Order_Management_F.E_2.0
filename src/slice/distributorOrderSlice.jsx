@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { deleteOrderService, getOrdersService, statusOrderService, placeOrder, paymentStatusService, updateOrderService } from "../service/distributorOrderService";
+import { deleteOrderService, getOrdersService, statusOrderService, placeOrder, paymentStatusService, updateOrderService, exportPDFService } from "../service/distributorOrderService";
 
 // Async thunk
 export const createOrder = createAsyncThunk(
@@ -39,9 +39,7 @@ export const deleteOrder = createAsyncThunk(
 export const statusOrder = createAsyncThunk(
   "distributorOrder/statusOrder",
   async (data, thunkAPI) => {
-    try {   
-      console.log(data);
-         
+    try {     
       return await statusOrderService(data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
@@ -65,6 +63,18 @@ export const paymentStatusOrder = createAsyncThunk(
   async (data, thunkAPI) => {
     try {      
       return await paymentStatusService(data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
+export const exportPDF = createAsyncThunk(
+  "distributorOrder/exportPDF",
+  async (id, thunkAPI) => {
+    try {      
+
+      return await exportPDFService(id);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
     }
@@ -124,6 +134,18 @@ const distributorOrderSlice = createSlice({
         state.error = null     
       })
       .addCase(statusOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+       .addCase(exportPDF.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(exportPDF.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null     
+      })
+      .addCase(exportPDF.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
