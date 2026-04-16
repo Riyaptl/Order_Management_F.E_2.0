@@ -79,6 +79,7 @@ const DistributorOrderPage = () => {
     const [dispatchForm, setDispatchForm] = useState({
         ARN: "",
         courier: "",
+        boxes: "",
         billAttached: false
     });
 
@@ -157,6 +158,7 @@ const DistributorOrderPage = () => {
             setDispatchForm({
                 ARN: selectedDelivery.ARN || "",
                 courier: selectedDelivery.courier || "",
+                boxes: selectedDelivery.boxes || "",
                 billAttached: selectedDelivery.billAttached || false
             });
         }
@@ -299,16 +301,11 @@ const DistributorOrderPage = () => {
             return;
         }
 
-        const { ARN, courier, billAttached } = dispatchForm;
+        const { ARN, courier, billAttached, boxes } = dispatchForm;
 
         // 🔒 Validation
         if (!ARN?.trim()) {
             toast.error("ARN is required");
-            return;
-        }
-
-        if (!courier?.trim()) {
-            toast.error("Courier is required");
             return;
         }
 
@@ -324,6 +321,7 @@ const DistributorOrderPage = () => {
                 orderId: selectedDelivery._id,
                 ARN: dispatchForm.ARN,
                 courier: dispatchForm.courier,
+                boxes: dispatchForm.boxes,
                 billAttached: dispatchForm.billAttached,
             };
 
@@ -347,6 +345,7 @@ const DistributorOrderPage = () => {
             setDispatchForm({
                 ARN: "",
                 courier: "",
+                boxes: "",
                 billAttached: false,
             });
         }
@@ -1033,6 +1032,7 @@ const DistributorOrderPage = () => {
                                         <div className="mb-2">Remarks: {delivery.companyRemarks}</div>
                                         <div className="mb-2">ARN: {delivery.ARN ? delivery.ARN : "-"}</div>
                                         <div className="mb-2">Courier: {delivery.courier ? delivery.courier : "-"}</div>
+                                        <div className="mb-2">Boxes: {delivery.boxes ? delivery.boxes : "-"}</div>
                                         <div className="mb-2">Bill shared: {delivery.billAttached ? "Yes" : "No"}</div>
 
                                         {/* Update */}
@@ -1103,6 +1103,19 @@ const DistributorOrderPage = () => {
                                 value={dispatchForm.courier}
                                 onChange={(e) =>
                                     setDispatchForm(prev => ({ ...prev, courier: e.target.value }))
+                                }
+                                className="border p-2 rounded w-full"
+                            />
+                        </div>
+                        
+                        {/* Boxes */}
+                        <div className="mb-4">
+                            <label className="block font-medium mb-1">Boxes</label>
+                            <input
+                                type="text"
+                                value={dispatchForm.boxes}
+                                onChange={(e) =>
+                                    setDispatchForm(prev => ({ ...prev, boxes: e.target.value }))
                                 }
                                 className="border p-2 rounded w-full"
                             />

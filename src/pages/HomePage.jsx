@@ -121,22 +121,27 @@ export default function HomePage() {
 
         {/* Announcement Section */}
         {announcement?.length > 0 && (
-          <div className="max-w-5xl mx-auto mb-4">
-            <div className="flex flex-wrap justify-center gap-3">
-              {announcement.map((a) => (
-                <div
-                  key={a._id}
-                  className="px-4 py-2 rounded-full border border-red-300 bg-red-50 text-red-700 text-lg font-semibold shadow-sm"
-                >
-                  {a.remarks}
+          <div className="max-w-5xl mx-auto mb-4 overflow-hidden">
+            <div className="bg-red-50 border border-red-300 rounded-lg shadow-sm px-4 py-2">
+
+              <div className="overflow-hidden">
+                <div className="flex animate-marquee whitespace-nowrap">
+
+                  {[...announcement, ...announcement].map((a, index) => (
+                    <span key={index} className="mx-3 text-red-700 text-lg font-semibold">
+                      {a.remarks}
+                    </span>
+                  ))}
+
                 </div>
-              ))}
+              </div>
+
             </div>
           </div>
         )}
 
         {/* Announcement Actions */}
-        {isAdmin  && (
+        {isAdmin && (
           <div className="max-w-5xl mx-auto mb-2">
             <div className="flex justify-end gap-2">
               <button
