@@ -16,8 +16,7 @@ import Navbar from "../components/NavbarComponents";
 
 const DistributorOrderPage = () => {
     const dispatch = useDispatch();
-
-    const { distributorOrders, loading } = useSelector((state) => state.distributorOrder);
+    const { distributorOrders, loading, outstandingPayment, pagination: paginationMeta } = useSelector((state) => state.distributorOrder);
     const { dists, srs } = useSelector(state => state.user);
     const { user, role } = useSelector((state) => state.auth);
 
@@ -41,11 +40,28 @@ const DistributorOrderPage = () => {
     const isSR = role === 'sr';
     const isDistributor = role === 'distributor';
 
+    const [distributorSearch, setDistributorSearch] = useState("");
+    const filteredOrders = useMemo(() => {
+        if (!distributorSearch.trim()) return distributorOrders;
+
+        const term = distributorSearch.trim().toLowerCase();
+        return distributorOrders.filter((order) =>
+            order.distributor?.toLowerCase().includes(term)
+        );
+    }, [distributorOrders, distributorSearch]);
+
+
     const [filters, setFilters] = useState({
         distributor: "",
         placedBy: "",
         dispatchedAt: "",
-        dueDate: ""
+        dueDate: "",
+        deliveredOn: ""
+    });
+
+    const [pagination, setPagination] = useState({
+        page: 1,
+        limit: 50,
     });
 
     const [paymentFormData, setPaymentFormData] = useState({
@@ -98,7 +114,7 @@ const DistributorOrderPage = () => {
     ];
 
     const totalsByStatus = useMemo(() => {
-        return distributorOrders.reduce(
+        return filteredOrders.reduce(
             (acc, order) => {
                 if (!order.total) return acc;
 
@@ -123,8 +139,8 @@ const DistributorOrderPage = () => {
 
 
     useEffect(() => {
-        dispatch(getOrders(filters));
-    }, [dispatch, filters])
+        dispatch(getOrders({ ...filters, page: pagination.page, limit: pagination.limit }));
+    }, [dispatch, filters, pagination.page, pagination.limit]);
 
     useEffect(() => {
         dispatch(getDistDetails());
@@ -168,7 +184,7 @@ const DistributorOrderPage = () => {
     const handleFilterChange = (e) => {
         const updated = { ...filters, [e.target.name]: e.target.value };
         setFilters(updated);
-        dispatch(getOrders(updated));
+        setPagination((prev) => ({ ...prev, page: 1 }));
     };
 
     const handleCreateChange = (e) => {
@@ -451,8 +467,6 @@ const DistributorOrderPage = () => {
         due: "bg-red-100 text-red-800",
     };
 
-
-
     return (
         <div className="p-4">
             <div className="flex justify-end md:justify-center mb-8">
@@ -465,6 +479,7 @@ const DistributorOrderPage = () => {
                         Distributor Orders List
                     </h2>
                 </div>
+
 
                 <div className="mt-4 flex flex-col md:flex-row justify-end gap-3">
                     {/* Create Order */}
@@ -497,6 +512,18 @@ const DistributorOrderPage = () => {
                     </button>
                 </div>
 
+            </div>
+
+
+            <div className="mt-6 mb-2">
+                <input
+                    type="text"
+                    placeholder="Search distributor..."
+                    value={distributorSearch}
+                    onChange={(e) => setDistributorSearch(e.target.value)}
+                    className="border border-gray-300 px-3 py-2 rounded-md w-full
+                   focus:outline-none focus:ring-2 focus:ring-amber-400"
+                />
             </div>
 
 
@@ -557,6 +584,20 @@ const DistributorOrderPage = () => {
                         />
                     </div>
 
+                    <div className="flex flex-col gap-1 w-full md:w-auto">
+                        <label className="text-sm font-medium text-gray-700">
+                            Delivered On
+                        </label>
+                        <input
+                            type="date"
+                            name="deliveredOn"
+                            value={filters.deliveredOn}
+                            onChange={handleFilterChange}
+                            className="border border-gray-300 px-3 py-2 rounded-md
+                   focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+                    </div>
+
                 </div>
             }
 
@@ -572,11 +613,18 @@ const DistributorOrderPage = () => {
                         <span className="text-md font-bold">{totalsByStatus.preparing}</span>
                     </span>
 
+                    <span className="flex items-center gap-1">
+            <span className="font-semibold text-gray-700">Outstanding Payment:</span>
+            <span className="text-md font-bold text-red-700">
+                ₹{Number(outstandingPayment || 0).toLocaleString("en-IN")}
+            </span>
+        </span>
+
 
                 </div></>}
 
             {/* Orders Table */}
-            {!loading && distributorOrders?.length > 0 && (
+            {!loading && filteredOrders?.length > 0 && (
                 <div className="overflow-x-auto mt-8">
                     <table className="min-w-full border border-gray-300">
                         <thead className="bg-gray-100">
@@ -586,12 +634,12 @@ const DistributorOrderPage = () => {
                                         type="checkbox"
                                         onChange={(e) => {
                                             if (e.target.checked) {
-                                                setSelectedOrders(distributorOrders?.map((order) => order._id));
+                                                setSelectedOrders(filteredOrders?.map((order) => order._id));
                                             } else {
                                                 setSelectedOrders([]);
                                             }
                                         }}
-                                        checked={selectedOrders.length === distributorOrders?.length}
+                                        checked={selectedOrders.length === filteredOrders?.length && filteredOrders.length > 0}
                                     />
                                 </th>
                                 <th className="border p-2 text-left min-w-[200px]">Distributor</th>
@@ -618,7 +666,7 @@ const DistributorOrderPage = () => {
                         </thead>
 
                         <tbody>
-                            {distributorOrders.map((order) => (
+                            {filteredOrders.map((order) => (
                                 <>
                                     {/* {console.log('in table', order)} */}
                                     <tr key={order._id} className="hover:bg-gray-50" onClick={(e) => {
@@ -870,6 +918,40 @@ const DistributorOrderPage = () => {
                 </div>
             )}
 
+         {!loading && distributorOrders?.length > 0 && (
+    <div className="flex items-center justify-center gap-4 mt-6">
+        <button
+            disabled={pagination.page <= 1}
+            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+            className={`flex items-center justify-center w-9 h-9 rounded-full border transition ${pagination.page <= 1
+                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                : "bg-white text-gray-700 hover:bg-amber-50 hover:border-amber-400"
+                }`}
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+
+        <span className="text-sm font-medium text-gray-700 min-w-[110px] text-center">
+            Page {paginationMeta.page} of {paginationMeta.totalPages}
+        </span>
+
+        <button
+            disabled={pagination.page >= paginationMeta.totalPages}
+            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+            className={`flex items-center justify-center w-9 h-9 rounded-full border transition ${pagination.page >= paginationMeta.totalPages
+                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                : "bg-white text-gray-700 hover:bg-amber-50 hover:border-amber-400"
+                }`}
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    </div>
+)}
+
             {/* show order */}
             {selectedOrder && !showDeliveredProducts && !showStatusModal && !editPaymentStatusModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
@@ -1107,7 +1189,7 @@ const DistributorOrderPage = () => {
                                 className="border p-2 rounded w-full"
                             />
                         </div>
-                        
+
                         {/* Boxes */}
                         <div className="mb-4">
                             <label className="block font-medium mb-1">Boxes</label>

@@ -84,12 +84,19 @@ export const exportPDF = createAsyncThunk(
 
 const distributorOrderSlice = createSlice({
   name: "distributorOrder",
-  initialState: {
+   initialState: {
     distributorOrders: [],
     loading: false,
     success: false,
     error: null,
     message: "",
+    outstandingPayment: 0,
+    pagination: {
+      page: 1,
+      limit: 50,
+      totalPages: 1,
+      totalCount: 0,
+    },
   },
   reducers: {
     resetOrderState: (state) => {
@@ -119,7 +126,14 @@ const distributorOrderSlice = createSlice({
       })
       .addCase(getOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.distributorOrders = action.payload.orders;       
+        state.distributorOrders = action.payload.orders;
+        state.outstandingPayment = action.payload.outstandingPayment;
+        state.pagination = {
+          page: action.payload.currentPage,
+          limit: state.pagination.limit,
+          totalPages: action.payload.totalPages,
+          totalCount: action.payload.totalCount,
+        };
       })
       .addCase(getOrders.rejected, (state, action) => {
         state.loading = false;
