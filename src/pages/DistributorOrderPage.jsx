@@ -56,7 +56,9 @@ const DistributorOrderPage = () => {
         placedBy: "",
         dispatchedAt: "",
         dueDate: "",
-        deliveredOn: ""
+        deliveredOn: "",
+        status: ""
+
     });
 
     const [pagination, setPagination] = useState({
@@ -558,6 +560,27 @@ const DistributorOrderPage = () => {
 
                     <div className="flex flex-col gap-1 w-full md:w-auto">
                         <label className="text-sm font-medium text-gray-700">
+                            Status
+                        </label>
+                        <select
+                            name="status"
+                            value={filters.status}
+                            onChange={handleFilterChange}
+                            className="border border-gray-300 px-3 py-2 rounded-md
+                   focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        >
+                            <option value="">Select Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="preparing">Preparing</option>
+                            <option value="dispatched">Dispatched</option>
+                            <option value="partially dispatched">Partially Dispatched</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="canceled">Canceled</option>
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1 w-full md:w-auto">
+                        <label className="text-sm font-medium text-gray-700">
                             Dispatch Date
                         </label>
                         <input
@@ -614,11 +637,11 @@ const DistributorOrderPage = () => {
                     </span>
 
                     <span className="flex items-center gap-1">
-            <span className="font-semibold text-gray-700">Outstanding Payment:</span>
-            <span className="text-md font-bold text-red-700">
-                ₹{Number(outstandingPayment || 0).toLocaleString("en-IN")}
-            </span>
-        </span>
+                        <span className="font-semibold text-gray-700">Outstanding Payment:</span>
+                        <span className="text-md font-bold text-red-700">
+                            ₹{Number(outstandingPayment || 0).toLocaleString("en-IN")}
+                        </span>
+                    </span>
 
 
                 </div></>}
@@ -918,39 +941,39 @@ const DistributorOrderPage = () => {
                 </div>
             )}
 
-         {!loading && distributorOrders?.length > 0 && (
-    <div className="flex items-center justify-center gap-4 mt-6">
-        <button
-            disabled={pagination.page <= 1}
-            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
-            className={`flex items-center justify-center w-9 h-9 rounded-full border transition ${pagination.page <= 1
-                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-amber-50 hover:border-amber-400"
-                }`}
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
+            {!loading && distributorOrders?.length > 0 && (
+                <div className="flex items-center justify-center gap-4 mt-6">
+                    <button
+                        disabled={pagination.page <= 1}
+                        onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+                        className={`flex items-center justify-center w-9 h-9 rounded-full border transition ${pagination.page <= 1
+                            ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-amber-50 hover:border-amber-400"
+                            }`}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
 
-        <span className="text-sm font-medium text-gray-700 min-w-[110px] text-center">
-            Page {paginationMeta.page} of {paginationMeta.totalPages}
-        </span>
+                    <span className="text-sm font-medium text-gray-700 min-w-[110px] text-center">
+                        Page {paginationMeta.page} of {paginationMeta.totalPages}
+                    </span>
 
-        <button
-            disabled={pagination.page >= paginationMeta.totalPages}
-            onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
-            className={`flex items-center justify-center w-9 h-9 rounded-full border transition ${pagination.page >= paginationMeta.totalPages
-                ? "bg-gray-100 text-gray-300 cursor-not-allowed"
-                : "bg-white text-gray-700 hover:bg-amber-50 hover:border-amber-400"
-                }`}
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-        </button>
-    </div>
-)}
+                    <button
+                        disabled={pagination.page >= paginationMeta.totalPages}
+                        onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+                        className={`flex items-center justify-center w-9 h-9 rounded-full border transition ${pagination.page >= paginationMeta.totalPages
+                            ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-amber-50 hover:border-amber-400"
+                            }`}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            )}
 
             {/* show order */}
             {selectedOrder && !showDeliveredProducts && !showStatusModal && !editPaymentStatusModal && (
