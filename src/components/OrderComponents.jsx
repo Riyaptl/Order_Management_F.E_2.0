@@ -11,7 +11,8 @@ const productFields = [
   "Cranberry 25g", "Dryfruits 25g", "Peanuts 25g", "Mix seeds 25g", "Blueberry 25g", "Hazelnut 25g", "Berries Burst 25g", "Simple Sensation 25g",
   "Orange 25g", "Mint 25g", "Classic Coffee 25g", "Dark Coffee 25g",
   "Intense Coffee 25g", "Toxic Coffee 25g", "Gift box",
-  "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g"
+  "Hazelnut & Blueberries 55g", "Roasted Almonds & Pink Salt 55g", "Kiwi & Pineapple 55g", "Ginger & Cinnamon 55g", "Pistachio & Black Raisin 55g", "Dates & Raisin 55g",
+  "Almond Dragees", "Cashew Dragees", "Orange Almond Dragees", "Paan Dragees", "Pistachio Dragees"
 ];
 
 
@@ -38,7 +39,8 @@ export default function OrderComponent({ shop, onClose, selectedArea, shopLink }
     "25g": 30,
     "50g": 40,
     "55g": 40,
-    "gift": 40
+    "gift": 40,
+    "dragees": 40,
   });
 
   useEffect(() => {
